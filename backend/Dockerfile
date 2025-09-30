@@ -16,5 +16,5 @@ RUN npm install
 # Copiar el resto de los archivos del proyecto (como server.js) al contenedor.
 COPY . .
 
-# El comando que se ejecutará por defecto cuando el contenedor se inicie. Utiliza el script "start" definido en package.json.
-CMD ["npm", "start"]
+# El comando para iniciar el servidor de desarrollo. Se usará el script "dev" del package.json.
+CMD ["npm", "run", "dev"]
