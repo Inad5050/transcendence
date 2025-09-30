@@ -1,21 +1,13 @@
-COMPOSE = docker-compose
-
-all: up
 up:
-	@$(COMPOSE) up -d --build
+	docker compose up --detach --build
+
 down:
-	@$(COMPOSE) down
-stop:
-	@$(COMPOSE) stop
-logs:
-	@$(COMPOSE) logs -f
+	docker compose down --volumes
 
-re: down
-	@$(COMPOSE) up -d --build --force-recreate
+rebuild:
+	docker compose up --detach --force-recreate
 
-clean: down
-	@docker system prune -af
-ps:
-	@$(COMPOSE) ps
+prune:
+	docker system prune --all --force --volumes 
 
-.PHONY: all up down stop logs re clean ps
+.PHONY: up down rebuild prune
