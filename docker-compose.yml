@@ -3,8 +3,8 @@ services:
     build: ./nginx
     container_name: nginx
     ports:
-      - "8085:80"
-      - "8086:443"
+      - "8000:80"
+      - "8001:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./backend/www:/var/www/html/www
