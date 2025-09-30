@@ -4,10 +4,8 @@ services:
     container_name: nginx
     ports:
       - "8000:80"
-      - "8001:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./backend/www:/var/www/html/www
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks: 
       - default
     depends_on:
@@ -21,38 +19,20 @@ services:
   backend:
     build: ./backend
     container_name: backend
-    volumes:
-      - ./backend/www:/var/www/html/www
-      - ./backend/database:/var/www/html/database
     expose:
       - "9000"
     environment:
       - APP_KEY=${APP_KEY}
     networks: 
       - default
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 20s
 
   frontend:
     build: ./frontend
     container_name: frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    ports: 
-      - "3000:3000"
+    expose: 
+      - "3000"
     networks:
       - default
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
 
   # game:
   #   build: ./game
@@ -64,12 +44,6 @@ services:
   #     - "5000:5000"
   #   networks: 
   #     - default
-  #   healthcheck:
-  #     test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 3
-  #     start_period: 15s
     
 networks:
   default:
