@@ -1,47 +1,77 @@
 services:
-  # Servicio del Frontend
-  frontend:
-    build: 
-     context: ./frontend
-     target: transcen-frontend-built
-    image: transcen-frontend-built
-    container_name: frontend
-    ports:
-      - "8080:80"
-    networks:
-      - app-network
-
-  # Servicio Nginx para el Backend
   nginx:
     build: ./nginx
     container_name: nginx
-    restart: always
     ports:
       - "8000:80"
+      - "8001:443"
     volumes:
-      - ./backend:/var/www/html
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./backend/www:/var/www/html/www
+    networks: 
+      - default
     depends_on:
-      - backend
-    networks:
-      - app-network
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
+      # game:
+      #   condition: service_healthy
 
-  # Servicio del Backend (PHP-FPM)
   backend:
     build: ./backend
     container_name: backend
     volumes:
-      - ./backend:/var/www/html
-    # Es buena práctica añadir las variables de entorno aquí
+      - ./backend/www:/var/www/html/www
+      - ./backend/database:/var/www/html/database
+    expose:
+      - "9000"
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_DATABASE=mydatabase
-      - DB_USERNAME=user
-      - DB_PASSWORD=password
+      - APP_KEY=${APP_KEY}
+    networks: 
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports: 
+      - "3000:3000"
     networks:
-      - app-network
+      - default
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
 
+  # game:
+  #   build: ./game
+  #   container_name: game
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   ports:
+  #     - "5000:5000"
+  #   networks: 
+  #     - default
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-q", "--spider", "http://localhost:5000"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 15s
+    
 networks:
-  app-network:
+  default:
+    name: net-transcendence
     driver: bridge
-
