@@ -1,7 +1,7 @@
 up:
 	docker compose up --detach --build
 down:
-	docker compose down --volumes
+	docker compose down
 rebuild:
 	docker compose up --detach --force-recreate
 prune:

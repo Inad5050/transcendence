@@ -6,7 +6,7 @@ services:
       - "8000:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    networks: 
+    networks:
       - default
     depends_on:
       backend:
@@ -19,20 +19,38 @@ services:
   backend:
     build: ./backend
     container_name: backend
+    volumes:
+      - ./backend:/app # crea un vínculo en tiempo real entre el directorio ./backend de su máquina local y el directorio /app dentro del contenedor -> para usar la directiva --watch
+      - /app/node_modules
     expose:
       - "9000"
     environment:
       - APP_KEY=${APP_KEY}
-    networks: 
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"] # curl -f (o --fail) hace que curl devuelva un código de salida distinto de cero si el servidor responde con un error HTTP (4xx o 5xx)
+      interval: 30s
+      timeout: 10s
+      retries: 1
+      start_period: 30s
+    networks:
       - default
 
   frontend:
-    build: ./frontend
-    container_name: frontend
-    expose: 
-      - "3000"
-    networks:
-      - default
+      build: ./frontend
+      container_name: frontend
+      volumes:
+        - ./frontend:/app
+        - /app/node_modules
+      expose:
+        - "3000"
+      healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:3000"]
+        interval: 30s
+        timeout: 10s
+        retries: 1
+        start_period: 30s
+      networks:
+        - default
 
   # game:
   #   build: ./game
@@ -42,9 +60,9 @@ services:
   #     - /app/node_modules
   #   ports:
   #     - "5000:5000"
-  #   networks: 
+  #   networks:
   #     - default
-    
+
 networks:
   default:
     name: net-transcendence

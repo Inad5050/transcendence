@@ -1,20 +1,15 @@
 {
-  "name": "project-frontend",
-  "version": "1.0.0",
-  "description": "Frontend user interface for the project.",
-  "private": true,
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "vite preview"
-  },
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^4.2.0",
-    "vite": "^5.0.0"
+	"name": "project-backend",
+	"version": "1.0.0",
+	"description": "API del backend para el proyecto.",
+	"private": true,
+	"type": "module",
+	"main": "server.js",
+	"scripts": {
+	  "start": "node server.js",
+	  "dev": "node --watch server.js"
+	},
+	"dependencies": {
+	  "fastify": "^4.26.2"
+	}
   }
-}

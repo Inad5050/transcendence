@@ -1,23 +1,47 @@
-body 
-{
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #282c34;
-  color: white;
-  text-align: center;
-}
+/* Este archivo CSS define los estilos que se aplican a toda la aplicación. Como se importa  */
+/* en main.jsx, las reglas definidas aquí tienen un alcance global y establecen la apariencia  */
+/* base de la página, como el color de fondo, la tipografía y la alineación del contenido. */
 
-.App-header 
-{
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-}
+/*
+ * Esta regla se aplica a la etiqueta <body> de la página.
+ * Establece el estilo base para todo el documento.
+ */
+ body 
+ {
+   /* Elimina el margen por defecto del navegador. */
+   margin: 0;
+   /* Define una lista de fuentes sans-serif estándar para una buena compatibilidad. */
+   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+	 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+	 sans-serif;
+   /* Suaviza el renderizado de las fuentes en navegadores WebKit y Mozilla. */
+   -webkit-font-smoothing: antialiased;
+   -moz-osx-font-smoothing: grayscale;
+   /* Define el color de fondo oscuro para el modo "dark". */
+   background-color: #282c34;
+   /* Establece el color del texto en blanco para que contraste con el fondo. */
+   color: white;
+   /* Centra el texto de forma global. */
+   text-align: center;
+ }
+ 
+ /*
+  * Esta regla de clase se aplica al elemento <header> dentro del componente App.jsx.
+  * Es la que se encarga de centrar el contenido vertical y horizontalmente.
+  */
+ .App-header 
+ {
+   /* Asegura que el header ocupe como mínimo toda la altura de la pantalla (viewport height). */
+   min-height: 100vh;
+   /* Usa Flexbox para controlar el diseño de los elementos hijos (el h1 y el p). */
+   display: flex;
+   /* Apila los elementos hijos en una columna vertical. */
+   flex-direction: column;
+   /* Centra los elementos horizontalmente. */
+   align-items: center;
+   /* Centra los elementos verticalmente. */
+   justify-content: center;
+   /* Establece un tamaño de fuente adaptable. */
+   font-size: calc(10px + 2vmin);
+ }
 
