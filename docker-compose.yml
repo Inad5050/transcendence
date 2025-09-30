@@ -1,0 +1,47 @@
+services:
+  # Servicio del Frontend
+  frontend:
+    build: 
+     context: ./frontend
+     target: transcen-frontend-built
+    image: transcen-frontend-built
+    container_name: frontend
+    ports:
+      - "8080:80"
+    networks:
+      - app-network
+
+  # Servicio Nginx para el Backend
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Servicio del Backend (PHP-FPM)
+  backend:
+    build: ./backend
+    container_name: backend
+    volumes:
+      - ./backend:/var/www/html
+    # Es buena práctica añadir las variables de entorno aquí
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=mydatabase
+      - DB_USERNAME=user
+      - DB_PASSWORD=password
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
