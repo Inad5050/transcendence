@@ -14,17 +14,17 @@ const rutas = [
 	},
 	{
 		method: "GET",
-		url: "/api/usuarios/:id",
+		url: "/api/usuarios/:identifier",
 		handler: UserControler.getOne,
 	},
 	{
 		method: "PUT",
-		url: "/api/usuarios/:id",
+		url: "/api/usuarios/:identifier",
 		handler: UserControler.update,
 	},
 	{
 		method: "DELETE",
-		url: "/api/usuarios/:id",
+		url: "/api/usuarios/:identifier",
 		handler: UserControler.delete,
 	},
 ]
