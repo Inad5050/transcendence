@@ -24,10 +24,12 @@ services:
       - /app/node_modules # excluye la carpeta /node_modules de reemplazar la carpeta del mismo nombre dentro del contenedor. Para que use el directorio que ya se ha generado dentro del contenedor -> Las dependencias del contenedor y de la maquina host no son los mismos
     expose:
       - "9000"
+    ports:
+      - "9000:9000" #Eliminar esta linea en produccion, esto me deja conectarme desde fuera del doker
     environment:
       - APP_KEY=${APP_KEY}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/health"] # curl -f (o --fail) hace que curl devuelva un código de salida distinto de cero si el servidor responde con un error HTTP (4xx o 5xx)
+      test: ["CMD", "curl", "-f", "--silent" ,"http://localhost:9000/health"] # curl -f (o --fail) hace que curl devuelva un código de salida distinto de cero si el servidor responde con un error HTTP (4xx o 5xx)
       interval: 30s
       timeout: 10s
       retries: 1
