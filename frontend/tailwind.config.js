@@ -10,4 +10,3 @@ export default {
 	},
 	plugins: [], // 'plugins': Permite añadir plugins de Tailwind para extender su funcionalidad, como plugins para tipografía o formularios.
   }
-  
