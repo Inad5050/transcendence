@@ -18,14 +18,20 @@ const UserModel = db.define('users', {
 		allowNull: false
 	},
 	password: {
-		type: sequelize.STRING, // hash bcrypt ~60 chars
+		type: sequelize.STRING,
 		allowNull: false
 	},
 	elo: {
 		type: sequelize.INTEGER,
 		allowNull: false,
-		defaultValue: 0
+		defaultValue: 20
+	},
+	last_login: {
+		type: sequelize.DATE,
+		allowNull: true,
+		defaultValue: null
 	}
+
 }, {
 	indexes: [{ unique: true, fields: ["username"] }]
 });
