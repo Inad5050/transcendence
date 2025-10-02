@@ -309,6 +309,9 @@
         <h1>🔐 Iniciar Sesión</h1>
         <p class="subtitle">ft_transcendence</p>
 
+        <!-- Contenedor para el menú de navegación (solo visible si hay sesión) -->
+        <div id="navMenuContainer"></div>
+
         <div class="api-info">
             <strong>📡 URL de la API:</strong>
             <code id="apiUrl"></code>
@@ -364,6 +367,9 @@
         </div>
     </div>
 
+    <!-- Incluir auth.js -->
+    <script src="auth.js"></script>
+
     <script>
         // Configuración de la API
         const API_URL = '/api/auth/login';
@@ -372,6 +378,16 @@
 
         // Mostrar la URL completa
         document.getElementById('apiUrl').textContent = FULL_API_URL;
+
+        // Al cargar la página, verificar si ya hay sesión y mostrar menú
+        if (authManager.isAuthenticated()) {
+            const user = authManager.getCurrentUser();
+            console.log('✅ Sesión encontrada en localStorage');
+            console.log('👤 Usuario:', user.username);
+            authManager.renderNavigationMenu('navMenuContainer', 'loging.html');
+            showMessage('✅ Sesión activa. Puedes navegar a otras páginas.', 'success');
+            showUserInfo(user);
+        }
 
         // Elementos del DOM
         const form = document.getElementById('loginForm');
@@ -464,6 +480,16 @@
 
                 if (response.ok && data.status) {
                     currentUser = data.user;
+                    
+                    // 🔑 GUARDAR TOKENS EN LOCALSTORAGE
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    console.log('✅ Tokens guardados en localStorage');
+                    console.log('🔑 Access Token:', data.access_token);
+                    console.log('🔄 Refresh Token:', data.refresh_token);
+                    
                     showMessage(`✅ ${data.message}`, 'success');
                     showUserInfo(data.user);
                     
@@ -514,10 +540,14 @@
 
                 console.log('🚀 Enviando petición de logout a:', window.location.origin + LOGOUT_URL);
 
+                // Obtener el token para enviarlo al backend
+                const accessToken = localStorage.getItem('access_token');
+                
                 const response = await fetch(LOGOUT_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`
                     }
                 });
 
@@ -526,6 +556,14 @@
 
                 if (response.ok && data.status) {
                     currentUser = null;
+                    
+                    // 🗑️ LIMPIAR TOKENS DEL LOCALSTORAGE
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    localStorage.removeItem('user');
+                    
+                    console.log('✅ Tokens eliminados del localStorage');
+                    
                     showMessage(`✅ ${data.message}`, 'success');
                     
                     // Mostrar formulario y ocultar info del usuario
@@ -538,6 +576,29 @@
             } finally {
                 logoutBtn.disabled = false;
                 logoutBtn.textContent = 'Cerrar Sesión';
+            }
+        }
+
+        // 🔄 VERIFICAR SI HAY UNA SESIÓN ACTIVA AL CARGAR LA PÁGINA
+        function checkExistingSession() {
+            const accessToken = localStorage.getItem('access_token');
+            const userStr = localStorage.getItem('user');
+            
+            if (accessToken && userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    currentUser = user;
+                    console.log('✅ Sesión encontrada en localStorage');
+                    console.log('👤 Usuario:', user.username);
+                    showMessage('✅ Sesión restaurada', 'success');
+                    showUserInfo(user);
+                } catch (error) {
+                    console.error('❌ Error al parsear usuario del localStorage:', error);
+                    // Si hay error, limpiar localStorage
+                    localStorage.removeItem('access_token');
+                    localStorage.removeItem('refresh_token');
+                    localStorage.removeItem('user');
+                }
             }
         }
 
@@ -583,6 +644,9 @@
         console.log('🔧 Página de login cargada');
         console.log('📡 API URL:', FULL_API_URL);
         console.log('🌐 Origin:', window.location.origin);
+        
+        // 🚀 VERIFICAR SESIÓN AL CARGAR
+        checkExistingSession();
     </script>
 </body>
 </html>

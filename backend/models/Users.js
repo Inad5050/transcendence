@@ -38,6 +38,18 @@ const UserModel = db.define('users', {
 		type: sequelize.DATE,
 		allowNull: true,
 		defaultValue: null
+	},
+	twofa_secret: {
+		type: sequelize.STRING,
+		allowNull: true,
+		defaultValue: null,
+		comment: 'Secret key para TOTP (Google Authenticator)'
+	},
+	twofa_enabled: {
+		type: sequelize.BOOLEAN,
+		allowNull: false,
+		defaultValue: false,
+		comment: 'Indica si el usuario tiene 2FA activado'
 	}
 
 }, {

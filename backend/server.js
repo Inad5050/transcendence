@@ -55,7 +55,6 @@ async function start() {
     fastify.log.error(error);
     process.exit(1);
   }
-  //nodemon
 
 }
 
