@@ -8,6 +8,7 @@ import Fastify from "fastify";
 import db from "./db.js";
 import rutas from "./rutas.js";
 import cors from '@fastify/cors';
+import seedDatabase from "./utils/seedDatabase.js";
 
 // Crea una instancia de la aplicación Fastify. El objeto 'logger: true'
 // // activará logs detallados en la consola, muy útil para depuración.
@@ -25,11 +26,12 @@ rutas.forEach((ruta) => {
 
 async function database() {
   try {
-    db.sync();
+    await db.sync({force: false}); // force: true borra y recrea las tablas en cada inicio
 		console.log("Conectado a la base de datos");
 	} catch (error)
 	{
     console.log(error);
+    throw error; // Propagar el error
 	}
 }
 
@@ -46,11 +48,15 @@ async function start() {
       port: Number(process.env.PORT) || 9000,
       host: '0.0.0.0'
     });
+    
+    // Poblar base de datos con usuarios de prueba
+    await seedDatabase();
   } catch (error) {
     fastify.log.error(error);
     process.exit(1);
   }
-}
+  //nodemon
 
+}
 
 start(); // ARancamos el servidor y la conexion con la base de datos

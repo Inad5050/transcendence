@@ -13,6 +13,14 @@ const UserModel = db.define('users', {
 		allowNull: false,
 		unique: true
 	},
+	email: {
+		type: sequelize.STRING,
+		allowNull: false,
+		unique: true,
+		validate: {
+			isEmail: true
+		}
+	},
 	fullname: {
 		type: sequelize.STRING,
 		allowNull: false
@@ -33,7 +41,10 @@ const UserModel = db.define('users', {
 	}
 
 }, {
-	indexes: [{ unique: true, fields: ["username"] }]
+	indexes: [
+		{ unique: true, fields: ["username"] },
+		{ unique: true, fields: ["email"] }
+	]
 });
 
 const SALT_ROUNDS = Number(process.env.SALT_ROUNDS) || 10;
