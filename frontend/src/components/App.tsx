@@ -1,5 +1,5 @@
 import React from 'react';
-import PongGame from './PongGame.tsx'; 
+import PongGame from './pong/PongGame.tsx'; 
 
 // Ya no usamos las clases de CSS como App-header, Tailwind se encargará del estilo.
 // Usamos clases de Tailwind para centrar y estilizar.

@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 
-import App from './App.tsx'
+import App from './components/App.tsx'
 
 // IMPORTACIÓN CLAVE: Aquí es donde Tailwind toma el control.
 // El contenido de este archivo será modificado para solo importar Tailwind.
