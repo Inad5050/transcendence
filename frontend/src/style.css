@@ -1,3 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*
+ * Esta directiva le dice a Tailwind que inyecte sus estilos base.
+ * Esto incluye un reseteo de estilos (CSS reset) para normalizar la apariencia
+ * entre diferentes navegadores, asegurando un punto de partida consistente.
+ */
+ @tailwind base;
+
+ /*
+  * Esta directiva inyecta las clases de componentes predefinidos de Tailwind.
+  * Son clases de utilidad más complejas que no son parte del sistema de diseño principal,
+  * pero que son útiles para ciertos componentes, como formularios.
+  */
+ @tailwind components;
+ 
+ /*
+  * Esta es la directiva más importante. Inyecta todas las clases de utilidad de Tailwind
+  * (como `bg-gray-900`, `text-white`, `p-8`, etc.). Durante el proceso de construcción,
+  * Tailwind escaneará sus archivos HTML y TS en busca de estas clases y generará un archivo CSS
+  * final que contiene solo las que realmente está utilizando, optimizando el tamaño del archivo.
+  */
+ @tailwind utilities;
