@@ -1,4 +1,3 @@
-# Usar una imagen oficial de Node.js. Alpine es ligera.
 FROM node:18-alpine
 # Instala curl
 RUN apk add --no-cache curl

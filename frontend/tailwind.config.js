@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */ // Es un comentario especial que habilita el autocompletado y la comprobación de tipos para la configuración de Tailwind en editores de código compatibles.
-
-export default {
+module.exports = {
 	content: [ // 'content': es la configuración más importante para la optimización. Le dice a Tailwind qué archivos debe escanear para encontrar las clases de utilidad que se están usando.
 	  "./index.html", // Escanea el archivo HTML principal.
 	  "./src/**/*.{js,ts,jsx,tsx}", // Escanea todos los archivos con estas extensiones dentro del directorio 'src' y sus subdirectorios.
@@ -10,4 +9,3 @@ export default {
 	},
 	plugins: [], // 'plugins': Permite añadir plugins de Tailwind para extender su funcionalidad, como plugins para tipografía o formularios.
   }
-  
