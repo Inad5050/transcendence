@@ -13,8 +13,6 @@ services:
         condition: service_healthy
       frontend:
         condition: service_healthy
-      # game:
-      #   condition: service_healthy
 
   backend:
     build: ./backend
@@ -51,17 +49,6 @@ services:
         start_period: 30s
       networks:
         - default
-
-  # game:
-  #   build: ./game
-  #   container_name: game
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   ports:
-  #     - "5000:5000"
-  #   networks:
-  #     - default
 
 networks:
   default:
