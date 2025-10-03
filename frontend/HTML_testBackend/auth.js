@@ -82,10 +82,14 @@ class AuthManager {
         }
 
         const headers = {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
             ...options.headers
         };
+
+        // Solo añadir Content-Type si hay body
+        if (options.body) {
+            headers['Content-Type'] = 'application/json';
+        }
 
         const response = await fetch(url, {
             ...options,
