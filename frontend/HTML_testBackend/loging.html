@@ -447,88 +447,66 @@
         }
 
         // Función para hacer login
-        async function login(credentials) {
+        async function login(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
             try {
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Iniciando sesión...';
-
-                console.log('🚀 Enviando petición a:', FULL_API_URL);
-                console.log('📦 Datos enviados:', { username: credentials.username, password: '***' });
-
-                const response = await fetch(API_URL, {
+                console.log('Intentando login...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(credentials)
+                    body: JSON.stringify({ 
+                        username, 
+                        password 
+                    })
                 });
 
-                console.log('📡 Respuesta recibida - Status:', response.status, response.statusText);
+                const data = await response.json();
 
-                let data;
-                const contentType = response.headers.get('content-type');
+                if (!response.ok) {
+                    // Verificar si requiere 2FA
+                    if (response.status === 403 && data.requires_2fa === true) {
+                        console.log('🔐 Usuario requiere 2FA, redirigiendo...');
+                        
+                        // Guardar datos de login pendiente en localStorage
+                        localStorage.setItem('pending_2fa_login', JSON.stringify({
+                            username: username,
+                            password: password,
+                            email: data.email || ''
+                        }));
+
+                        // Redirigir a página de verificación 2FA
+                        window.location.href = 'verify2fa.html';
+                        return;
+                    }
+
+                    // Otros errores
+                    throw new Error(data.message || 'Error al iniciar sesión');
+                }
+
+                // Login exitoso sin 2FA
+                console.log('✅ Login exitoso');
                 
-                if (contentType && contentType.includes('application/json')) {
-                    data = await response.json();
-                } else {
-                    const text = await response.text();
-                    console.log('📄 Respuesta no JSON:', text);
-                    data = { error: { message: text || 'Respuesta no válida del servidor' } };
-                }
+                // Guardar tokens en localStorage
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('refresh_token', data.refresh_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
 
-                console.log('📥 Datos de respuesta:', data);
+                showMessage('✅ Login exitoso! Redirigiendo...', 'success');
 
-                if (response.ok && data.status) {
-                    currentUser = data.user;
-                    
-                    // 🔑 GUARDAR TOKENS EN LOCALSTORAGE
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('refresh_token', data.refresh_token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    
-                    console.log('✅ Tokens guardados en localStorage');
-                    console.log('🔑 Access Token:', data.access_token);
-                    console.log('🔄 Refresh Token:', data.refresh_token);
-                    
-                    showMessage(`✅ ${data.message}`, 'success');
-                    showUserInfo(data.user);
-                    
-                    // Limpiar formulario
-                    form.reset();
-                    document.querySelectorAll('input').forEach(el => {
-                        el.classList.remove('error', 'success');
-                    });
-                } else {
-                    const errorInfo = {
-                        status: response.status,
-                        statusText: response.statusText,
-                        url: FULL_API_URL,
-                        method: 'POST',
-                        responseData: data,
-                        timestamp: new Date().toISOString()
-                    };
-                    
-                    console.error('❌ Error del servidor:', errorInfo);
-                    
-                    const errorMessage = data.message || data.error || 'Error desconocido al iniciar sesión';
-                    
-                    showMessage(`❌ ${errorMessage}`, 'error', errorInfo);
-                }
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+
             } catch (error) {
-                console.error('💥 Error de conexión:', error);
-                
-                const errorInfo = {
-                    type: 'Network Error',
-                    message: error.message,
-                    url: FULL_API_URL,
-                    timestamp: new Date().toISOString(),
-                    details: 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
-                };
-                
-                showMessage(`❌ Error de conexión con el servidor`, 'error', errorInfo);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Iniciar Sesión';
+                console.error('❌ Error en login:', error);
+                showMessage(`❌ ${error.message}`, 'error');
             }
         }
 
@@ -614,17 +592,85 @@
                 el.classList.remove('error', 'success');
             });
 
-            const formData = new FormData(form);
-            const credentials = {};
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
 
-            const username = formData.get('username')?.trim();
-            const password = formData.get('password');
+            // Validaciones básicas
+            if (!username) {
+                showMessage('❌ Debes ingresar un usuario o email', 'error');
+                return;
+            }
 
-            if (username) credentials.username = username;
-            if (password) credentials.password = password;
+            if (!password) {
+                showMessage('❌ Debes ingresar una contraseña', 'error');
+                return;
+            }
 
-            // Enviar al backend sin validación
-            await login(credentials);
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Iniciando sesión...';
+                
+                console.log('🔐 Intentando login...');
+                
+                const response = await fetch(`${window.location.origin}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        username, 
+                        password 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Verificar si requiere 2FA
+                    if (response.status === 403 && data.requires_2fa === true) {
+                        console.log('🔐 Usuario requiere 2FA, redirigiendo...');
+                        
+                        // Guardar datos de login pendiente en localStorage
+                        localStorage.setItem('pending_2fa_login', JSON.stringify({
+                            username: username,
+                            password: password,
+                            email: data.email || ''
+                        }));
+
+                        showMessage('🔐 Redirigiendo a verificación 2FA...', 'success');
+
+                        // Redirigir a página de verificación 2FA
+                        setTimeout(() => {
+                            window.location.href = 'verify2fa.html';
+                        }, 500);
+                        return;
+                    }
+
+                    // Otros errores
+                    throw new Error(data.message || 'Error al iniciar sesión');
+                }
+
+                // Login exitoso sin 2FA
+                console.log('✅ Login exitoso');
+                
+                // Guardar tokens en localStorage
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('refresh_token', data.refresh_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                showMessage('✅ Login exitoso! Redirigiendo...', 'success');
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+
+            } catch (error) {
+                console.error('❌ Error en login:', error);
+                showMessage(`❌ ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Iniciar Sesión';
+            }
         });
 
         // Event listener para el botón de logout

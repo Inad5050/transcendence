@@ -225,7 +225,8 @@ class AuthManager {
             { name: 'Dashboard', url: 'dashboard.html', icon: '📊' },
             { name: 'Crear Usuario', url: 'createUser.html', icon: '📝' },
             { name: 'Test JWT', url: 'testJWT.html', icon: '🔑' },
-            { name: 'Test 2FA', url: 'test2fa.html', icon: '🔒' }
+            { name: 'Test 2FA', url: 'test2fa.html', icon: '🔒' },
+            { name: 'Verificar 2FA', url: 'verify2fa.html', icon: '🛡️' }
         ];
 
         let menuHTML = '<div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">';
