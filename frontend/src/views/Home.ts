@@ -12,7 +12,7 @@ export function HomeView(appElement: HTMLElement): void
 	    // Aquí, estamos inyectando un bloque de HTML directamente dentro del <div id="app">.
 	    // Usamos plantillas literales (template literals, con comillas invertidas ``) para escribir HTML multilínea de forma más legible.
 	    appElement.innerHTML = `
-	        <div class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-8">
+	        <div class="text-white min-h-screen flex flex-col items-center justify-center p-8">
 	            <h1 class="text-4xl font-bold mb-4">
 	                Bienvenido a ft_transcendence
 	            </h1>
