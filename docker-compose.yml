@@ -19,7 +19,7 @@ services:
     container_name: backend
     volumes:
       - ./backend:/app # crea un vínculo en tiempo real entre el directorio ./backend de su máquina local y el directorio /app dentro del contenedor -> para usar la directiva --watch
-      - /app/node_modules # excluye la carpeta /node_modules de reemplazar la carpeta del mismo nombre dentro del contenedor. Para que use el directorio que ya se ha generado dentro del contenedor -> Las dependencias del contenedor y de la maquina host no son los mismos
+      - /app/node_modules # excluye la carpeta /node_modules de reemplazar la carpeta del mismo nombre dentro del contenedor. Para que use el directorio que ya se ha generado dentro del contenedor -> Las dependencias del contenedor y de la maquina host no son las mismas
     expose:
       - "9000"
     environment:
@@ -38,7 +38,7 @@ services:
       container_name: frontend
       volumes:
         - ./frontend:/app
-        - /app/node_modules
+        - /app/node_modules # crea un volumén gestionado por docker dónde se almacena el cotenido de /app/node_modules -> así el contenedor no tiene que hacer 'npm install' cada vez que levantamos los contenedores
       expose:
         - "3000"
       healthcheck:

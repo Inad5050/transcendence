@@ -19,3 +19,7 @@
   * final que contiene solo las que realmente está utilizando, optimizando el tamaño del archivo.
   */
  @tailwind utilities;
+
+/*  .test-background {
+    background-color: red !important;
+} */

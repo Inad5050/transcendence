@@ -14,7 +14,7 @@ export function HomeView(appElement: HTMLElement): void
 	    appElement.innerHTML = `
 	        <div class="text-white min-h-screen flex flex-col items-center justify-center p-8">
 	            <h1 class="text-4xl font-bold mb-4">
-	                Bienvenido a ft_transcendence
+	                Hola! Bienvenido a ft_transcendence
 	            </h1>
 	            <p class="text-gray-400 mb-8">
 	                Interfaz controlada por TypeScript puro.
