@@ -2,14 +2,13 @@ import { defineConfig } from 'vite'; // Importa la función 'defineConfig' de Vi
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 
-// 'plugins': Un array para los plugins de Vite. Como ya no usamos React, este array está vacío.
+// 'plugins': Un array para los plugins de Vite.
 // Exporta por defecto el objeto de configuración que Vite utilizará.
 export default defineConfig({ 
-  plugins: [], 
   css: { // sección de configuración de Vite donde le decimos cómo procesar los archivos CSS.
     postcss: { 
-      plugins: [
-        tailwindcss, // lista de plugins que PostCSS debe usar. Vite se encargará de ejecutar esto cada vez que un archivo CSS necesite ser procesado.
+      plugins: [ // lista de plugins que PostCSS debe usar. Vite se encargará de ejecutar esto cada vez que un archivo CSS necesite ser procesado.
+        tailwindcss, 
         autoprefixer,
       ],
     },

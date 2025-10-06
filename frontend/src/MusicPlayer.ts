@@ -1,25 +1,37 @@
-const musicElement = document.getElementById('background-music') as HTMLAudioElement; // Se obtiene el elemento de audio una sola vez para reutilizarlo.
-let isInitialized = false; // Controla si el usuario ha interactuado para iniciar la música.
+// document.getElementById('background-music') => Obtiene el elemento <audio> del DOM.
+// as HTMLAudioElement; => forma de aserción de tipo. Le dice a TypeScript que trate musicElement como un elemento de audio, dando acceso a propiedades como .src, .play() y .load().
+// let isInitialized = false; => let: Declara una variable cuyo valor puede ser reasignado. Si una variable no se declara con let, se debe declarar con const, lo que la hace inmutable.
 
-/**
- * Cambia la pista de audio y la reproduce.
- * @param trackUrl La URL del archivo de música a reproducir.
- */
+// Define y exporta la función playTrack => export function playTrack(...)
+// if (musicElement.src.endsWith(trackUrl)) => Comprobamos si este audio ya ha sido solicitado, mirando el archivo al final del URL.
+// musicElement.load(); => Carga el nuevo archivo de audio.
+// musicElement.play().catch(...) => Inicia la reproducción. 
+// El método .play() devuelve una Promesa, que se resuelve cuando la reproducción comienza con éxito. 
+// El .catch() maneja cualquier error que pueda ocurrir (por ejemplo, si el navegador bloquea la reproducción automática).
+// console => es un objeto global, proporcionado por el entorno de ejecución (el navegador o Node.js), que da acceso a la consola de depuración. No es parte del lenguaje JavaScript , sino una API del entorno.
+// error => console.error("...", error):
+// 		error: Este es el nombre del parámetro que recibirá la función. Cuando la promesa .play() es rechazada, el sistema le pasa automáticamente un objeto de error a esta función.
+//		=>: Es el operador que separa los parámetros de la función del cuerpo de la misma.
+//		console.error("...", error): Es el cuerpo de la función. Como solo es una única instrucción, no necesita llaves {}. El resultado de esta expresión se devuelve implícitamente
+// export function initializeAudio(): void => Define y exporta la función initializeAudio. 
+// Esta función es necesaria porque los navegadores modernos impiden que el audio se reproduzca automáticamente sin una interacción previa del usuario.
+
+const musicElement = document.getElementById('background-music') as HTMLAudioElement;
+let isInitialized = false;
+
 export function playTrack(trackUrl: string): void
 {
-    if (musicElement.src.endsWith(trackUrl)) // Si la pipsta solicitada ya está cargada o sonando, no hace nada
+    if (musicElement.src.endsWith(trackUrl))
 		return;
 	musicElement.src = trackUrl;
-	musicElement.load(); // Carga el nuevo archivo de audio.
-	if (isInitialized) // No hace nada si el elemento no existe o la música no ha sido inicializada por el usuario.
+	musicElement.load();
+	if (isInitialized)
         musicElement.play().catch(error => console.error("Error al reproducir la música:", error));
 }
 
-export function initializeAudio(): void // Inicializa la reproducción de audio. Debe ser llamada por una interacción del usuario, para cumplir con las políticas de autoplay de los navegadores.
+export function initializeAudio(): void
 {
     if (isInitialized)
         return;
-	const playPromise = musicElement.play();
-	if (playPromise !== undefined)
-		playPromise.then(() => {isInitialized = true;}).catch(() => {isInitialized = false;});
+	musicElement.play().then(() => {isInitialized = true;}).catch(() => {isInitialized = false;});
 }
