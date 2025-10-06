@@ -1,34 +1,32 @@
-// En TRANSCENDENCE/frontend/src/views/Home.ts
-
-// ... (el resto del archivo se mantiene igual) ...
+import { initializeAudio, playTrack } from '../MusicPlayer';
 
 export function HomeView(appElement: HTMLElement): void
 {
 	if (appElement)
 	{
 	    appElement.innerHTML = `
-	        <div class="text-white min-h-screen flex flex-col items-center justify-center p-8">
-	            
-	            <h1 class="text-4xl font-bold mb-4 text-white border-8 border-white-800">
-	                Hola! Bienvenido a ft_transcendence
-	            </h1>
+		<div class="min-h-screen flex flex-col p-8">
+			
+			<div class="w-full flex-1 flex justify-center items-center">
+					<img src="/assets/logo.gif" alt="Game Logo" class="max-w-2xl w-full mt-40">
+			</div>
 
-	            <p class="text-gray-400 mb-8 text-3xl text-lime-400">
-	                Interfaz controlada por TypeScript puro.
-	            </p>
-
+	        <div class="text-white min-h-screen flex flex-col items-center justify-center p-8">           
 	            <button id="gameButton" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-lg">
-	                Iniciar Partida
+	                START
 	            </button>
 	        </div>
+		</div>
 	    `;
 
-	    const gameButton = document.getElementById('gameButton');
+		playTrack('/assets/After_Dark.mp3');
 
-	    if (gameButton) 
+	    const gameButton = document.getElementById('gameButton');
+	    if (gameButton)
 	    {
 	        gameButton.addEventListener('click', () => 
 	        {
+				initializeAudio(); // La primera interacción del usuario debe inicializar el audio.
 	            alert('Lógica del juego iniciada.');
 	        });
 	    }
