@@ -13,4 +13,3 @@ const appElement = document.querySelector<HTMLDivElement>('#app');
 if (appElement) {
 	HomeView(appElement);
 }
-
