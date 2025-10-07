@@ -4,9 +4,7 @@ import { initializeAudio, playTrack } from '../MusicPlayer';
 export function renderRegister(appElement: HTMLElement): void
 {
     if (!appElement)
-    {
         return;
-    }
     appElement.innerHTML = `
     <div class="min-h-screen flex flex-col items-center p-16">
         <div class="w-full flex justify-center">
@@ -38,7 +36,7 @@ export function renderRegister(appElement: HTMLElement): void
             </form>
         </div>
     </div>
-    `;g
+    `;
 
     playTrack('/assets/After_Dark.mp3');
 }
