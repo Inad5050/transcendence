@@ -1,6 +1,7 @@
 import UserControler from "./controllers/Users.js";
 import AuthController from "./controllers/Auth.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
+import FriendControler from "./controllers/Friends.js";
 
 const rutas = [
 	// Rutas de autenticación (públicas)
@@ -74,6 +75,13 @@ const rutas = [
 		preHandler: authMiddleware,
 		handler: UserControler.delete,
 	},
+
+	//Rutas de amigos
+	{
+		method: "POST",
+		url: "/friends",
+		handler: FriendControler.createRequest
+	}
 ]
 
 export default rutas;
