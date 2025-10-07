@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test 2FA - ft_transcendence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 5px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 5px;
+            margin-top: 15px;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .qr-container img {
+            max-width: 300px;
+            border: 3px solid #667eea;
+            border-radius: 10px;
+            padding: 10px;
+            background: white;
+        }
+
+        .secret-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 18px;
+            text-align: center;
+            margin: 15px 0;
+            border: 2px dashed #667eea;
+            letter-spacing: 2px;
+        }
+
+        .info-box, .warning-box, .success-box, .error-box {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-color: #0c5460;
+            color: #0c5460;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-color: #856404;
+            color: #856404;
+        }
+
+        .success-box {
+            background: #d4edda;
+            border-color: #155724;
+            color: #155724;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border-color: #721c24;
+            color: #721c24;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Contenedor para información del usuario -->
+        <div id="userInfoContainer"></div>
+
+        <!-- Contenedor para menú de navegación -->
+        <div id="navMenuContainer"></div>
+
+        <!-- Estado Actual -->
+        <div class="card">
+            <h2>📊 Estado de 2FA</h2>
+            <div id="current-status"></div>
+        </div>
+
+        <!-- Activar 2FA -->
+        <div id="section-enable" class="card hidden">
+            <h2>🔐 Activar 2FA</h2>
+            <div class="info-box">
+                <strong>ℹ️ ¿Qué es 2FA?</strong><br>
+                Añade una capa extra de seguridad con un código temporal de 6 dígitos.
+            </div>
+            <button onclick="setupTwoFA()">🎯 Generar Código QR</button>
+
+            <div id="qr-section" class="hidden">
+                <h3 style="margin-top: 20px;">Escanear con Google Authenticator</h3>
+                <div class="qr-container">
+                    <img id="qr-code" src="" alt="QR Code">
+                </div>
+
+                <label>Código Secreto Manual:</label>
+                <div class="secret-display" id="secret-code"></div>
+                <button onclick="copySecret()" class="secondary">📋 Copiar Código</button>
+
+                <label>Ingresa el código de tu app:</label>
+                <input type="text" id="verify-code" placeholder="123456" maxlength="6">
+                <button onclick="enableTwoFA()">✓ Verificar y Activar</button>
+            </div>
+        </div>
+
+        <!-- Desactivar 2FA -->
+        <div id="section-disable" class="card hidden">
+            <h2>🔓 Desactivar 2FA</h2>
+            <div class="warning-box">
+                <strong>⚠️ Advertencia:</strong> Al desactivar 2FA, cerrarás todas las sesiones activas.
+            </div>
+
+            <label>Código 2FA Actual:</label>
+            <input type="text" id="disable-code" placeholder="123456" maxlength="6">
+
+            <label>Confirma tu Contraseña:</label>
+            <input type="password" id="disable-password" placeholder="Tu contraseña">
+
+            <button onclick="disableTwoFA()" class="danger">🔓 Desactivar 2FA</button>
+        </div>
+    </div>
+
+    <!-- Incluir auth.js -->
+    <script src="auth.js"></script>
+
+    <script>
+        let currentSecret = null;
+
+        // Inicializar página protegida
+        if (!initProtectedPage('test2fa.html')) {
+            // Redirige automáticamente si no hay sesión
+        } else {
+            displayStatus();
+        }
+
+        function displayStatus() {
+            const user = authManager.getCurrentUser();
+            const statusDiv = document.getElementById('current-status');
+            const is2FAEnabled = user.twofa_enabled;
+
+            if (is2FAEnabled) {
+                statusDiv.innerHTML = `
+                    <div class="success-box">
+                        <h3>✅ 2FA está ACTIVADO</h3>
+                        <p>Tu cuenta está protegida con autenticación de dos factores.</p>
+                    </div>
+                `;
+                document.getElementById('section-enable').classList.add('hidden');
+                document.getElementById('section-disable').classList.remove('hidden');
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="warning-box">
+                        <h3>⚠️ 2FA está DESACTIVADO</h3>
+                        <p>Se recomienda activarla para mayor seguridad.</p>
+                    </div>
+                `;
+                document.getElementById('section-enable').classList.remove('hidden');
+                document.getElementById('section-disable').classList.add('hidden');
+            }
+        }
+
+        async function setupTwoFA() {
+            try {
+                const response = await authManager.authenticatedFetch('/api/auth/2fa/setup', {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Error al configurar 2FA');
+                }
+
+                const data = await response.json();
+                
+                currentSecret = data.secret;
+                document.getElementById('qr-code').src = data.qr_code;
+                document.getElementById('secret-code').textContent = data.secret;
+                document.getElementById('qr-section').classList.remove('hidden');
+
+                alert('✅ Código QR generado! Escanéalo con tu app.');
+
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        function copySecret() {
+            const secret = document.getElementById('secret-code').textContent;
+            navigator.clipboard.writeText(secret);
+            alert('✅ Código secreto copiado!');
+        }
+
+        async function enableTwoFA() {
+            const code = document.getElementById('verify-code').value.trim();
+
+            if (!code || code.length !== 6) {
+                alert('❌ Ingresa un código de 6 dígitos');
+                return;
+            }
+
+            try {
+                const response = await authManager.authenticatedFetch('/api/auth/2fa/enable', {
+                    method: 'POST',
+                    body: JSON.stringify({ code })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Código inválido');
+                }
+
+                alert('✅ 2FA activado exitosamente!');
+                location.reload();
+
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        async function disableTwoFA() {
+            const code = document.getElementById('disable-code').value.trim();
+            const password = document.getElementById('disable-password').value;
+
+            if (!code || code.length !== 6) {
+                alert('❌ Ingresa un código de 6 dígitos');
+                return;
+            }
+
+            if (!password) {
+                alert('❌ Ingresa tu contraseña');
+                return;
+            }
+
+            if (!confirm('⚠️ ¿Desactivar 2FA? Todas las sesiones se cerrarán.')) {
+                return;
+            }
+
+            try {
+                const response = await authManager.authenticatedFetch('/api/auth/2fa/disable', {
+                    method: 'POST',
+                    body: JSON.stringify({ code, password })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Error al desactivar');
+                }
+
+                alert('✅ 2FA desactivado. Redirigiendo...');
+                authManager.clearSession();
+                window.location.href = 'loging.html';
+
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        // Auto-format códigos
+        document.querySelectorAll('input[maxlength="6"]').forEach(input => {
+            input.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
+    </script>
+</body>
+</html>

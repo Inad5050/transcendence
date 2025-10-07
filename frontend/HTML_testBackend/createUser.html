@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Usuario - ft_transcendence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .api-info {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .api-info strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+
+        .api-info code {
+            background: #e9ecef;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 13px;
+            color: #495057;
+            word-break: break-all;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #444;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input.error {
+            border-color: #e74c3c;
+        }
+
+        input.success {
+            border-color: #2ecc71;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message .error-details {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .message .error-details pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            margin: 0;
+        }
+
+        .users-list {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .users-list h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        .user-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .user-item strong {
+            color: #667eea;
+        }
+
+        .nav-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 15px;
+        }
+
+        .nav-button:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Crear Usuario</h1>
+        <p class="subtitle">ft_transcendence</p>
+
+        <div class="api-info">
+            <strong>📡 URL de la API:</strong>
+            <code id="apiUrl"></code>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <form id="createUserForm">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    placeholder="Ingresa tu nombre de usuario"
+                    maxlength="40"
+                >
+                <div class="error-message" id="usernameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="ejemplo@email.com"
+                >
+                <div class="error-message" id="emailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="fullname">Nombre Completo</label>
+                <input 
+                    type="text" 
+                    id="fullname" 
+                    name="fullname" 
+                    placeholder="Tu nombre completo"
+                >
+                <div class="error-message" id="fullnameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Mínimo 6 caracteres"
+                >
+                <div class="error-message" id="passwordError"></div>
+            </div>
+
+            <button type="submit" id="submitBtn">Crear Usuario</button>
+        </form>
+
+        <div class="links">
+            <a href="loging.html" class="nav-button">🔐 ¿Ya tienes cuenta? Iniciar sesión</a>
+        </div>
+
+        <div class="users-list">
+            <h2>📋 Usuarios Creados</h2>
+            <div id="usersList">
+                <div class="loading">Cargando usuarios...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de la API
+        // Si accedes a través de Nginx (puerto 8000): usa '/api/usuarios'
+        // Si accedes directamente al backend (puerto 9000): usa 'http://localhost:9000/api/usuarios'
+        const API_URL = '/api/users';
+        const FULL_API_URL = window.location.origin + API_URL;
+
+        // Mostrar la URL completa
+        document.getElementById('apiUrl').textContent = FULL_API_URL;
+
+        // Elementos del DOM
+        const form = document.getElementById('createUserForm');
+        const messageDiv = document.getElementById('message');
+        const submitBtn = document.getElementById('submitBtn');
+        const usersList = document.getElementById('usersList');
+
+        // Función para mostrar mensajes con detalles
+        function showMessage(text, type, details = null) {
+            let messageHTML = `<strong>${text}</strong>`;
+            
+            if (details) {
+                messageHTML += `<div class="error-details">
+                    <strong>Detalles del error:</strong>
+                    <pre>${JSON.stringify(details, null, 2)}</pre>
+                </div>`;
+            }
+            
+            messageDiv.innerHTML = messageHTML;
+            messageDiv.className = `message ${type} show`;
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.className = 'message';
+                }, 5000);
+            }
+        }
+
+        // Función para crear usuario
+        async function createUser(userData) {
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Creando...';
+
+                console.log('🚀 Enviando petición a:', FULL_API_URL);
+                console.log('📦 Datos enviados:', userData);
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                console.log('📡 Respuesta recibida - Status:', response.status, response.statusText);
+
+                let data;
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.log('📄 Respuesta no JSON:', text);
+                    data = { error: { message: text || 'Respuesta no válida del servidor' } };
+                }
+
+                console.log('📥 Datos de respuesta:', data);
+
+                if (response.ok && data.status) {
+                    showMessage(`✅ Usuario creado exitosamente con ID: ${data.id}`, 'success');
+                    form.reset();
+                    document.querySelectorAll('input').forEach(el => {
+                        el.classList.remove('error', 'success');
+                    });
+                    loadUsers(); // Recargar lista de usuarios
+                } else {
+                    const errorInfo = {
+                        status: response.status,
+                        statusText: response.statusText,
+                        url: FULL_API_URL,
+                        method: 'POST',
+                        responseData: data,
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    console.error('❌ Error del servidor:', errorInfo);
+                    
+                    const errorMessage = data.error?.message 
+                        || data.message 
+                        || data.error 
+                        || 'Error desconocido al crear el usuario';
+                    
+                    showMessage(`❌ Error al crear usuario`, 'error', errorInfo);
+                }
+            } catch (error) {
+                console.error('💥 Error de conexión:', error);
+                
+                const errorInfo = {
+                    type: 'Network Error',
+                    message: error.message,
+                    url: FULL_API_URL,
+                    timestamp: new Date().toISOString(),
+                    details: 'No se pudo conectar con el servidor. Verifica que el backend esté corriendo.'
+                };
+                
+                showMessage(`❌ Error de conexión con el servidor`, 'error', errorInfo);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Crear Usuario';
+            }
+        }
+
+        // Función para cargar usuarios
+        async function loadUsers() {
+            try {
+                console.log('📥 Cargando usuarios desde:', FULL_API_URL);
+                
+                const response = await fetch(API_URL);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const users = await response.json();
+                console.log('👥 Usuarios cargados:', users.length);
+
+                if (users.length === 0) {
+                    usersList.innerHTML = '<div class="loading">No hay usuarios creados</div>';
+                    return;
+                }
+
+                usersList.innerHTML = users.map(user => `
+                    <div class="user-item">
+                        <strong>${user.username}</strong> - ${user.fullname}<br>
+                        <small>📧 ${user.email} | 🎯 ELO: ${user.elo}</small>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('❌ Error al cargar usuarios:', error);
+                usersList.innerHTML = `<div class="loading">❌ Error al cargar usuarios: ${error.message}</div>`;
+            }
+        }
+
+        // Event listener para el formulario
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Limpiar errores previos
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('show');
+            });
+            document.querySelectorAll('input').forEach(el => {
+                el.classList.remove('error', 'success');
+            });
+
+            const formData = new FormData(form);
+            const userData = {};
+
+            // Solo agregar campos que tengan valor
+            const username = formData.get('username')?.trim();
+            const email = formData.get('email')?.trim();
+            const fullname = formData.get('fullname')?.trim();
+            const password = formData.get('password');
+            const elo = formData.get('elo');
+
+            if (username) userData.username = username;
+            if (email) userData.email = email;
+            if (fullname) userData.fullname = fullname;
+            if (password) userData.password = password;
+            if (elo && elo.trim() !== '') userData.elo = parseInt(elo);
+
+            // Enviar al backend sin validación
+            await createUser(userData);
+        });
+
+        // Cargar usuarios al inicio
+        loadUsers();
+
+        // Validación en tiempo real eliminada - dejamos que el backend valide
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', () => {
+                if (input.classList.contains('error')) {
+                    input.classList.remove('error');
+                    document.getElementById(`${input.name}Error`).classList.remove('show');
+                }
+            });
+        });
+
+        // Log inicial
+        console.log('🔧 Página de creación de usuarios cargada');
+        console.log('📡 API URL:', FULL_API_URL);
+        console.log('🌐 Origin:', window.location.origin);
+    </script>
+</body>
+</html>

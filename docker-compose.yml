@@ -19,9 +19,11 @@ services:
     container_name: backend
     volumes:
       - ./backend:/app # crea un vínculo en tiempo real entre el directorio ./backend de su máquina local y el directorio /app dentro del contenedor -> para usar la directiva --watch
-      - /app/node_modules # excluye la carpeta /node_modules de reemplazar la carpeta del mismo nombre dentro del contenedor. Para que use el directorio que ya se ha generado dentro del contenedor -> Las dependencias del contenedor y de la maquina host no son las mismas
+      - /app/node_modules # excluye la carpeta /node_modules de reemplazar la carpeta del mismo nombre dentro del contenedor. Para que use el directorio que ya se ha generado dentro del contenedor -> Las dependencias del contenedor y de la maquina host no son los mismos
     expose:
       - "9000"
+    ports:
+      - "9000:9000" #Eliminar esta linea en produccion, esto me deja conectarme desde fuera del doker
     environment:
       - APP_KEY=${APP_KEY}
     healthcheck:

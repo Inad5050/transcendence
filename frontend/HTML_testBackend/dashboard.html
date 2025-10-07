@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ft_transcendence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-item label {
+            font-size: 12px;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item .value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+            word-break: break-all;
+        }
+
+        .token-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+            border: 1px solid #dee2e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Contenedor para la información del usuario -->
+        <div id="userInfoContainer"></div>
+
+        <!-- Contenedor para el menú de navegación -->
+        <div id="navMenuContainer"></div>
+
+        <!-- Información del Usuario -->
+        <div class="card">
+            <h2>👤 Información del Usuario</h2>
+            <div class="info-grid" id="userDetailsGrid"></div>
+        </div>
+
+        <!-- Información de la Sesión JWT -->
+        <div class="card">
+            <h2>🔐 Sesión Actual (JWT)</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Estado</label>
+                    <div class="value">
+                        <span style="background: #d4edda; color: #155724; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">✓ Activa</span>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <label>Token Type</label>
+                    <div class="value">Bearer</div>
+                </div>
+                <div class="info-item">
+                    <label>Tiempo de Expiración</label>
+                    <div class="value" id="token-expiry"></div>
+                </div>
+            </div>
+
+            <label style="display: block; margin-top: 20px; color: #6c757d;">Access Token:</label>
+            <div class="token-display" id="access-token"></div>
+
+            <label style="display: block; margin-top: 20px; color: #6c757d;">Refresh Token:</label>
+            <div class="token-display" id="refresh-token"></div>
+
+            <div style="margin-top: 20px;">
+                <button onclick="validateToken()">✓ Validar Token</button>
+                <button onclick="refreshTokenManual()">🔄 Refrescar Token</button>
+                <button onclick="copyToken()">📋 Copiar Access Token</button>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas -->
+        <div class="card">
+            <h2>⚡ Acciones Rápidas</h2>
+            <div>
+                <button onclick="testProtectedRoute()">🛡️ Probar Ruta Protegida</button>
+                <button onclick="location.href='test2fa.html'" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🔐 Gestionar 2FA</button>
+                <button onclick="location.href='testJWT.html'">🧪 Probar JWT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incluir auth.js -->
+    <script src="auth.js"></script>
+    
+    <script>
+        // Inicializar página protegida
+        if (!initProtectedPage('dashboard.html')) {
+            // Si no está autenticado, initProtectedPage redirige automáticamente
+        } else {
+            // Página inicializada, mostrar información adicional
+            displayUserDetails();
+            displayTokenInfo();
+        }
+
+        function displayUserDetails() {
+            const user = authManager.getCurrentUser();
+            if (!user) return;
+
+            const grid = document.getElementById('userDetailsGrid');
+            
+            const lastLogin = user.last_login 
+                ? new Date(user.last_login).toLocaleString('es-ES')
+                : 'Nunca';
+
+            const createdAt = new Date(user.createdAt).toLocaleString('es-ES');
+            const updatedAt = new Date(user.updatedAt).toLocaleString('es-ES');
+
+            const is2FAEnabled = user.twofa_enabled;
+            const badge2FA = is2FAEnabled 
+                ? '<span style="background: #d4edda; color: #155724; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">🔒 2FA Activado</span>'
+                : '<span style="background: #f8d7da; color: #721c24; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold;">🔓 2FA Desactivado</span>';
+
+            grid.innerHTML = `
+                <div class="info-item">
+                    <label>ID</label>
+                    <div class="value">${user.id}</div>
+                </div>
+                <div class="info-item">
+                    <label>Username</label>
+                    <div class="value">${user.username}</div>
+                </div>
+                <div class="info-item">
+                    <label>Email</label>
+                    <div class="value">${user.email}</div>
+                </div>
+                <div class="info-item">
+                    <label>Nombre Completo</label>
+                    <div class="value">${user.fullname}</div>
+                </div>
+                <div class="info-item">
+                    <label>ELO</label>
+                    <div class="value">🎯 ${user.elo}</div>
+                </div>
+                <div class="info-item">
+                    <label>2FA Estado</label>
+                    <div class="value">${badge2FA}</div>
+                </div>
+                <div class="info-item">
+                    <label>Último Login</label>
+                    <div class="value">${lastLogin}</div>
+                </div>
+                <div class="info-item">
+                    <label>Fecha Creación</label>
+                    <div class="value">${createdAt}</div>
+                </div>
+                <div class="info-item">
+                    <label>Última Actualización</label>
+                    <div class="value">${updatedAt}</div>
+                </div>
+            `;
+        }
+
+        function displayTokenInfo() {
+            const accessToken = authManager.getAccessToken();
+            const refreshToken = authManager.getRefreshToken();
+
+            document.getElementById('access-token').textContent = accessToken || 'No disponible';
+            document.getElementById('refresh-token').textContent = refreshToken || 'No disponible';
+
+            // Calcular tiempo de expiración
+            try {
+                const payload = JSON.parse(atob(accessToken.split('.')[1]));
+                const exp = new Date(payload.exp * 1000);
+                const now = new Date();
+                const diffMinutes = Math.floor((exp - now) / 60000);
+                
+                document.getElementById('token-expiry').textContent = 
+                    `${diffMinutes} minutos (${exp.toLocaleTimeString()})`;
+            } catch (e) {
+                document.getElementById('token-expiry').textContent = 'No disponible';
+            }
+        }
+
+        async function validateToken() {
+            try {
+                const response = await authManager.authenticatedFetch('/api/auth/validate-session');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert('✅ Token válido! La sesión está activa.\n\nUsuario: ' + data.user.username);
+                } else {
+                    alert('❌ Token inválido o expirado.');
+                }
+            } catch (error) {
+                alert('❌ Error al validar token: ' + error.message);
+            }
+        }
+
+        async function refreshTokenManual() {
+            try {
+                const refreshed = await authManager.refreshAccessToken();
+                
+                if (refreshed) {
+                    alert('✅ Token refrescado exitosamente!');
+                    displayTokenInfo();
+                } else {
+                    alert('❌ No se pudo refrescar el token');
+                }
+            } catch (error) {
+                alert('❌ Error al refrescar token: ' + error.message);
+            }
+        }
+
+        function copyToken() {
+            const accessToken = authManager.getAccessToken();
+            navigator.clipboard.writeText(accessToken);
+            alert('✅ Access token copiado al portapapeles!');
+        }
+
+        async function testProtectedRoute() {
+            try {
+                const response = await authManager.authenticatedFetch('/api/users');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`✅ Acceso exitoso a ruta protegida!\n\nSe encontraron ${data.data.length} usuarios.`);
+                } else {
+                    alert('❌ No se pudo acceder a la ruta protegida.');
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
