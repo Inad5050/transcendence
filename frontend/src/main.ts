@@ -1,7 +1,7 @@
 // const appElement =>
 // Busca en el index.html el elemento <div> con el id 'app'.
 // Este <div> actuará como el contenedor principal donde se renderizará toda la aplicación.
-// <HTMLDivElement> => es una aserción de tipo para que TypeScript sepa que es un div.
+// 'as' es una aserción de tipo para que TypeScript sepa que es un div.
 
 // const routes: =>
 // Este objeto es el cerebro del router. Asocia una URL (ej: '/')
@@ -48,12 +48,16 @@
 // Ejecuta el router por primera vez para cargar la vista inicial.
 
 import { renderHomeView } from './views/Home.ts';
+import { renderRegister } from './views/Register.ts';
+import { renderLogin } from './views/Login.ts';
 
-const appElement = document.querySelector<HTMLDivElement>('#app');
+const appElement = document.querySelector('#app') as HTMLDivElement;
 
 const routes: { [key: string]: (element: HTMLElement) => void } =
 {
-	'/': renderHomeView
+	'/': renderHomeView,
+	'/register': renderRegister,
+	'/login': renderLogin,
 };
 
 function router()
