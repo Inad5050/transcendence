@@ -5,59 +5,78 @@ export function renderCharQP(appElement: HTMLElement): void
 {
 	if (!appElement)
 		return;
+
 	appElement.innerHTML = `
-	<div class="min-h-screen flex flex-col p-8">
-		
-		<div class="w-full flex justify-center">
-			<img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full mt-40">
-		</div>
+	<div id="main-container" class="min-h-screen flex flex-col items-center justify-center p-8 relative">
 
-		<div class="absolute bottom-[700px] left-1/2 -translate-x-1/2">
-			<img src="/assets/quickPlay.gif" alt="quickPlay" id="quickPlayButton"
-		class="w-[350px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+		<div id="character-art-container" class="absolute left-0 top-0 h-full w-1/3 flex items-center justify-center">
+			</div>
 
-		<div class="absolute bottom-[510px] left-1/2 -translate-x-1/2">
-			<img src="/assets/tournament.gif" alt="tournament" id="tournamentButton"
-		class="w-[700px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+		<div class="flex flex-col items-center">
+			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-16 flex flex-col items-center">
+				<img src="/assets/chooseYourFighter.png" alt="Elige tu luchador" class="w-full max-w-2xl mb-12">
+				<div id="character-selection" class="grid grid-cols-4 gap-12">
+					<img src="/assets/char1_profile.png" alt="Character 1" class="character-portrait w-64 h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="1">
+					<img src="/assets/char2_profile.png" alt="Character 2" class="character-portrait w-64 h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="2">
+					<img src="/assets/char3_profile.png" alt="Character 3" class="character-portrait w-64 h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="3">
+					<img src="/assets/char4_profile.png" alt="Character 4" class="character-portrait w-64 h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="4">
+				</div>
+			</div>
 
-		<div class="absolute bottom-[280px] left-1/2 -translate-x-1/2">
-			<img src="/assets/ticTacToe.png" alt="ticTacToe" id="ticTacToeButton"
-		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+			<div id="accept-container" class="mt-8">
+				<img src="/assets/accept.png" alt="Accept" id="accept-button" class="w-80 cursor-pointer transform hover:scale-110 transition-transform duration-200">
+			</div>
 		</div>
-
-		<div class="absolute right-5 top-5">           
-			<img src="/assets/profile.png" alt="profile" id="profileButton"
-		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
-
-		<div class="absolute left-5 bottom-5">           
-			<img src="/assets/about.png" alt="about" id="aboutButton"
-		class="w-[200px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
-
 	</div>
 	`;
 
 	playTrack('/assets/Techno_Syndrome.mp3');
 
-	const quickPlayButton = document.getElementById('quickPlayButton');
-	const tournamentButton = document.getElementById('tournamentButton');
+	const mainContainer = document.getElementById('main-container') as HTMLDivElement;
+	const artContainer = document.getElementById('character-art-container') as HTMLDivElement;
+	const selectionContainer = document.getElementById('character-selection');
+	const acceptButton = document.getElementById('accept-button');
 
-	if (quickPlayButton)
-	{
-		quickPlayButton.addEventListener('click', () =>
-		{
-			navigate('/quickPlay');
-		});
+	let selectedPortrait: HTMLElement | null = null;
+
+	function deselect() {
+		if (selectedPortrait) {
+			selectedPortrait.classList.remove('border-8');
+			selectedPortrait.classList.add('border-4');
+		}
+		selectedPortrait = null;
+		artContainer.innerHTML = '';
 	}
 
-	if (tournamentButton)
-	{
-		tournamentButton.addEventListener('click', () =>
-		{
-			navigate('/tournament');
-		});
-	}
+	selectionContainer?.addEventListener('click', (event) => {
+		event.stopPropagation();
+		const target = event.target as HTMLElement;
+
+		if (target.classList.contains('character-portrait')) {
+			if (selectedPortrait) {
+				selectedPortrait.classList.remove('border-8');
+				selectedPortrait.classList.add('border-4');
+			}
+			
+			selectedPortrait = target;
+			selectedPortrait.classList.remove('border-4');
+			selectedPortrait.classList.add('border-8');
+			
+			const charId = selectedPortrait.dataset.char;
+			if (charId) {
+				const heightClass = charId === '2' ? 'h-[50vh]' : 'h-[60vh]';
+				artContainer.innerHTML = `<img src="/assets/char${charId}_full.png" alt="Character ${charId} Full Art" class="${heightClass} max-w-full object-contain">`;
+			}
+		}
+	});
+
+	mainContainer.addEventListener('click', deselect);
+
+	acceptButton?.addEventListener('click', (event) => {
+		event.stopPropagation();
+		if (selectedPortrait) {
+			localStorage.setItem('selectedCharacter', selectedPortrait.dataset.char || '1'); // Guardar el personaje seleccionado en localStorage
+			navigate('/pong');
+		}
+	});
 }

@@ -5,40 +5,33 @@ export function renderAbout(appElement: HTMLElement): void
 {
 	if (!appElement)
 		return;
-	appElement.innerHTML = `
-	<div class="min-h-screen flex flex-col p-8">
-		
-		<div class="w-full flex justify-center">
-			<img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full mt-40">
-		</div>
+appElement.innerHTML = `
+<div class="min-h-screen flex flex-col p-8">
+    
+    <div class="w-full flex justify-center">
+        <img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full mt-40">
+    </div>
 
-		<div class="absolute bottom-[700px] left-1/2 -translate-x-1/2">
-			<img src="/assets/quickPlay.gif" alt="quickPlay" id="quickPlayButton"
-		class="w-[350px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+    <div class="flex-grow flex items-center justify-center">
+    
+        <div class="bg-blue-900 bg-opacity-75 border-4 border-black rounded-xl p-8 w-[1000px] text-white text-center shadow-lg">
+            
+            <h1 class="text-3xl font-semibold mb-4">
+                Este sitio web es un proyecto con fines exclusivamente educativos y didácticos, sin ánimo de lucro.
+            </h1>
+            
+            <p class="text-3xl">
+                Todo el material de terceros sujeto a derechos de autor (imágenes, textos, fragmentos audiovisuales, etc.) 
+                que se utiliza en esta web se reproduce al amparo del artículo 32 del Texto Refundido de la Ley de Propiedad Intelectual, 
+                aprobado por el Real Decreto Legislativo 1/1996, de 12 de abril, en la modalidad de "cita e ilustración de la enseñanza".
+            </p>
 
-		<div class="absolute bottom-[510px] left-1/2 -translate-x-1/2">
-			<img src="/assets/tournament.gif" alt="tournament" id="tournamentButton"
-		class="w-[700px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+        </div>
 
-		<div class="absolute bottom-[280px] left-1/2 -translate-x-1/2">
-			<img src="/assets/ticTacToe.png" alt="ticTacToe" id="ticTacToeButton"
-		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+    </div>
 
-		<div class="absolute right-5 top-5">           
-			<img src="/assets/profile.png" alt="profile" id="profileButton"
-		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
-
-		<div class="absolute left-5 bottom-5">           
-			<img src="/assets/about.png" alt="about" id="aboutButton"
-		class="w-[200px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
-
-	</div>
-	`;
+</div>
+`;
 
 	playTrack('/assets/Techno_Syndrome.mp3');
 

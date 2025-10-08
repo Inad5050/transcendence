@@ -18,7 +18,7 @@ export function renderStart(appElement: HTMLElement): void
 		</div>
 
 		<div class="absolute bottom-[500px] left-1/2 -translate-x-1/2">
-			<img src="/assets/tournament.gif" alt="tournament" id="tournamentButton"
+			<img src="/assets/tournament.png" alt="tournament" id="tournamentButton"
 		class="w-[700px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
 		</div>
 
@@ -34,7 +34,7 @@ export function renderStart(appElement: HTMLElement): void
 
 		<div class="absolute left-5 bottom-5">           
 			<img src="/assets/about.png" alt="about" id="aboutButton"
-		class="w-[200px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		class="w-[250px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
 		</div>
 
 	</div>
@@ -49,47 +49,17 @@ export function renderStart(appElement: HTMLElement): void
 	const aboutButton = document.getElementById('aboutButton');
 
 	if (quickPlayButton)
-	{
-		quickPlayButton.addEventListener('click', () =>
-		{
-			initializeAudio();
-			navigate('/charQP');
-		});
-	}
-
+		quickPlayButton.addEventListener('click', () => {navigate('/charQP'); initializeAudio(); });
+	
 	if (tournamentButton)
-	{
-		tournamentButton.addEventListener('click', () =>
-		{
-			initializeAudio();
-			navigate('/charTournament');
-		});
-	}
-
+		tournamentButton.addEventListener('click', () => {navigate('/charTournament'); initializeAudio(); });
+	
 	if (ticTacToeButton)
-	{
-		ticTacToeButton.addEventListener('click', () =>
-		{
-			initializeAudio();
-			navigate('/ticTacToe');
-		});
-	}
-
+		ticTacToeButton.addEventListener('click', () => {navigate('/ticTacToe'); initializeAudio(); });
+	
 	if (profileButton)
-	{
-		profileButton.addEventListener('click', () =>
-		{
-			initializeAudio();
-			navigate('/profile');
-		});
-	}
-
+		profileButton.addEventListener('click', () => {navigate('/profile'); initializeAudio(); });
+	
 	if (aboutButton)
-	{
-		aboutButton.addEventListener('click', () =>
-		{
-			initializeAudio();
-			navigate('/about');
-		});
-	}
+		aboutButton.addEventListener('click', () => {navigate('/about'); initializeAudio(); });
 }
