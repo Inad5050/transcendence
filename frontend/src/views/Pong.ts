@@ -1,3 +1,5 @@
+// frontend/src/pong.ts
+
 import {
   GameObjects,
   Score,
@@ -35,7 +37,7 @@ function checkCollision(ball: BallObject, paddle: PaddleObject): boolean {
 
 export function initializePongGame(container: HTMLElement) {
   container.innerHTML = `
-	<div class="w-full min-h-screen flex flex-col items-center justify-center p-4 text-white">
+    <div class="w-full min-h-screen flex flex-col max-w-4xl mx-auto p-4 text-white">
       <header id="game-controls" class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
         <div id="mode-selection" class="flex justify-center items-center gap-4">
           <span class="font-semibold">Modo de Juego:</span>
@@ -82,35 +84,39 @@ export function initializePongGame(container: HTMLElement) {
   const keysPressed: { [key: string]: boolean } = {};
   let playerVelocities = { p1: 0, p2: 0, p3: 0, p4: 0 };
 
-  function resetBall(directionX: number, is4P: boolean = false) {
+  // --- FUNCIÓN RESETBALL CON LÓGICA DE SAQUE CORREGIDA ---
+  function resetBall() {
     const { ball, player1, player2, player3, player4 } = gameObjects;
-
     ball.x = canvas.width / 2;
     ball.y = canvas.height / 2;
 
-    const maxAngle = Math.PI / 6; 
-    const randomAngle = (Math.random() - 0.5) * 2 * maxAngle;
-
-    ball.dx = directionX * INITIAL_BALL_SPEED * Math.cos(randomAngle);
-    ball.dy = INITIAL_BALL_SPEED * Math.sin(randomAngle);
-    
-    if (is4P) {
-        if(Math.random() > 0.5) {
-            [ball.dx, ball.dy] = [ball.dy, ball.dx];
-            if(Math.random() > 0.5) ball.dy *= -1;
-        }
-    }
-
-    const paddleLengthV = is4P ? PADDLE_LENGTH_4P : PADDLE_LENGTH_CLASSIC;
+    // Reposicionamos las palas al centro
+    const paddleLengthV = gameMode === 'FOUR_PLAYERS' ? PADDLE_LENGTH_4P : PADDLE_LENGTH_CLASSIC;
     player1.y = canvas.height / 2 - paddleLengthV / 2;
     player2.y = canvas.height / 2 - paddleLengthV / 2;
-
-    if (is4P) {
+    if (gameMode === 'FOUR_PLAYERS') {
       const paddleLengthH = PADDLE_LENGTH_4P;
       player3.x = canvas.width / 2 - paddleLengthH / 2;
       player4.x = canvas.width / 2 - paddleLengthH / 2;
     }
+
+    // Calculamos el ángulo de saque
+    let angle;
+    if (gameMode === 'FOUR_PLAYERS') {
+      // En 4P, un ángulo totalmente aleatorio
+      angle = Math.random() * 2 * Math.PI;
+    } else {
+      // En 1v1, un ángulo más horizontal
+      const maxAngle = Math.PI / 6; // 30 grados
+      angle = (Math.random() - 0.5) * 2 * maxAngle;
+      // Dirección aleatoria izquierda o derecha
+      if (Math.random() > 0.5) angle += Math.PI;
+    }
+
+    ball.dx = Math.cos(angle) * INITIAL_BALL_SPEED;
+    ball.dy = Math.sin(angle) * INITIAL_BALL_SPEED;
   }
+  // --- FIN DE LA CORRECCIÓN ---
 
   function resetGame() {
     gameState = 'MENU';
@@ -149,14 +155,11 @@ export function initializePongGame(container: HTMLElement) {
       playerVelocities.p1 = (keysPressed['s'] ? PADDLE_SPEED : 0) - (keysPressed['w'] ? PADDLE_SPEED : 0);
       player1.y += playerVelocities.p1;
     }
-
     if (player2.isAlive) {
       if (gameMode === 'ONE_PLAYER') {
         const currentDifficulty = DIFFICULTY_LEVELS[difficulty];
         const targetY = ball.y - player2.height / 2;
         const deltaY = targetY - player2.y;
-
-        // La IA solo se mueve si la pelota está fuera de su "margen de error"
         if (Math.abs(deltaY) > currentDifficulty.errorMargin) {
           player2.y += Math.sign(deltaY) * Math.min(PADDLE_SPEED, Math.abs(deltaY));
         }
@@ -165,7 +168,6 @@ export function initializePongGame(container: HTMLElement) {
         player2.y += playerVelocities.p2;
       }
     }
-    // --- FIN DE LA CORRECCIÓN ---
     
     player1.y = Math.max(0, Math.min(player1.y, canvas.height - player1.height));
     player2.y = Math.max(0, Math.min(player2.y, canvas.height - player2.height));
@@ -239,7 +241,7 @@ export function initializePongGame(container: HTMLElement) {
                 endGame(scorer);
               } else {
                 gameState = 'SCORED';
-                resetBall(scorer === 1 ? -1 : 1);
+                resetBall();
                 setTimeout(() => { gameState = 'PLAYING'; }, 1000);
               }
           }
@@ -261,7 +263,7 @@ export function initializePongGame(container: HTMLElement) {
           const winnerKey = Object.keys(score).find(k => score[k] > 0);
           endGame(winnerKey ? parseInt(winnerKey.replace('p', '')) : 0);
       } else {
-          resetBall(0, true);
+          resetBall();
           setTimeout(() => { gameState = 'PLAYING'; }, 1000);
       }
   }
@@ -318,7 +320,7 @@ export function initializePongGame(container: HTMLElement) {
       if (gameState === 'PLAYING') return;
       gameState = 'PLAYING';
       gameOverlay.classList.add('hidden');
-      resetBall(Math.random() > 0.5 ? 1 : -1, gameMode === 'FOUR_PLAYERS');
+      resetBall();
       
       if (!animationFrameId) {
         animationFrameId = requestAnimationFrame(gameLoop);

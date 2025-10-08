@@ -8,3 +8,4 @@
 /* Tailwind escaneará sus archivos HTML y TS en busca de estas clases y generará un archivo CSS */
 /* final que contiene solo las que realmente está utilizando, optimizando el tamaño del archivo. */
 @tailwind utilities;
+@tailwind components;

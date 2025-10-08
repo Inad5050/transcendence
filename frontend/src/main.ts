@@ -51,6 +51,7 @@ import { renderHomeView } from './views/Home.ts';
 import { renderRegister } from './views/Register.ts';
 import { renderLogin } from './views/Login.ts';
 import { initializePongGame } from './views/Pong.ts';
+import { renderTicTacToe } from './views/TicTacToe.ts'
 
 const appElement = document.querySelector('#app') as HTMLDivElement;
 
@@ -60,6 +61,7 @@ const routes: { [key: string]: (element: HTMLElement) => void } =
 	'/register': renderRegister,
 	'/login': renderLogin,
 	'/pong': initializePongGame,
+	'/tictactoe': renderTicTacToe,
 };
 
 function router()
