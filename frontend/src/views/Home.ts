@@ -1,7 +1,7 @@
 import { navigate } from '../main';
 import { initializeAudio, playTrack } from '../musicPlayer';
 
-export function renderHomeView(appElement: HTMLElement): void
+export function renderHome(appElement: HTMLElement): void
 {
 	if (!appElement)
 		return;
@@ -14,12 +14,12 @@ export function renderHomeView(appElement: HTMLElement): void
 
 		<div class="absolute bottom-[400px] left-1/2 -translate-x-1/2">           
 			<img src="/assets/register.png" alt="Register" id="registerButton" 
-		class="w-[400px] cursor-pointer transform hover:scale-110 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		class="w-[400px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
 		</div>
 
 		<div class="absolute bottom-[550px] left-1/2 -translate-x-1/2">           
 			<img src="/assets/login.png" alt="Login" id="loginButton" 
-		class="w-[400px] cursor-pointer transform hover:scale-110 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		class="w-[400px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
 		</div>
 	</div>
 	`;

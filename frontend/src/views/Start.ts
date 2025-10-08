@@ -1,0 +1,95 @@
+import { navigate } from '../main';
+import { initializeAudio, playTrack } from '../musicPlayer';
+
+export function renderStart(appElement: HTMLElement): void
+{
+	if (!appElement)
+		return;
+	appElement.innerHTML = `
+	<div class="min-h-screen flex flex-col p-8">
+		
+		<div class="w-full flex justify-center">
+			<img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full mt-40">
+		</div>
+
+		<div class="absolute bottom-[700px] left-1/2 -translate-x-1/2">
+			<img src="/assets/quickPlay.gif" alt="quickPlay" id="quickPlayButton"
+		class="w-[350px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		</div>
+
+		<div class="absolute bottom-[500px] left-1/2 -translate-x-1/2">
+			<img src="/assets/tournament.gif" alt="tournament" id="tournamentButton"
+		class="w-[700px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		</div>
+
+		<div class="absolute bottom-[300px] left-1/2 -translate-x-1/2">
+			<img src="/assets/ticTacToe.png" alt="ticTacToe" id="ticTacToeButton"
+		class="w-[600px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		</div>
+
+		<div class="absolute right-5 top-5">           
+			<img src="/assets/profile.png" alt="profile" id="profileButton"
+		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		</div>
+
+		<div class="absolute left-5 bottom-5">           
+			<img src="/assets/about.png" alt="about" id="aboutButton"
+		class="w-[200px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		</div>
+
+	</div>
+	`;
+
+	playTrack('/assets/Techno_Syndrome.mp3');
+
+	const quickPlayButton = document.getElementById('quickPlayButton');
+	const tournamentButton = document.getElementById('tournamentButton');
+	const ticTacToeButton = document.getElementById('ticTacToeButton');
+	const profileButton = document.getElementById('profileButton');
+	const aboutButton = document.getElementById('aboutButton');
+
+	if (quickPlayButton)
+	{
+		quickPlayButton.addEventListener('click', () =>
+		{
+			initializeAudio();
+			navigate('/charQP');
+		});
+	}
+
+	if (tournamentButton)
+	{
+		tournamentButton.addEventListener('click', () =>
+		{
+			initializeAudio();
+			navigate('/charTournament');
+		});
+	}
+
+	if (ticTacToeButton)
+	{
+		ticTacToeButton.addEventListener('click', () =>
+		{
+			initializeAudio();
+			navigate('/ticTacToe');
+		});
+	}
+
+	if (profileButton)
+	{
+		profileButton.addEventListener('click', () =>
+		{
+			initializeAudio();
+			navigate('/profile');
+		});
+	}
+
+	if (aboutButton)
+	{
+		aboutButton.addEventListener('click', () =>
+		{
+			initializeAudio();
+			navigate('/about');
+		});
+	}
+}
