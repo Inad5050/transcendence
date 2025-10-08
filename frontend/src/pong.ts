@@ -1,4 +1,5 @@
-// src/pong.ts
+// transcen/frontend/src/pong.ts
+
 import {
   GameObjects,
   MovementDirection,
@@ -17,10 +18,13 @@ import {
   INITIAL_BALL_SPEED,
   ACCELERATION_FACTOR,
   DIFFICULTY_LEVELS,
+  MAX_BOUNCE_ANGLE,
+  PADDLE_INFLUENCE_FACTOR, // Nueva constante para el efecto
+  MAX_BALL_SPEED,          // Nueva constante para la velocidad máxima
 } from './utils/constants';
 
-const MAX_BOUNCE_ANGLE = Math.PI / 4;
-
+// --- NUEVA LÓGICA DE COLISIÓN MEJORADA ---
+// Esta función ahora es más precisa para detectar colisiones entre un círculo (pelota) y un rectángulo (pala).
 function checkCollision(ball: BallObject, paddle: PaddleObject): boolean {
     const closestX = Math.max(paddle.x, Math.min(ball.x, paddle.x + PADDLE_WIDTH));
     const closestY = Math.max(paddle.y, Math.min(ball.y, paddle.y + PADDLE_HEIGHT));
@@ -31,6 +35,7 @@ function checkCollision(ball: BallObject, paddle: PaddleObject): boolean {
 }
 
 export function initializePongGame(container: HTMLElement) {
+  // El HTML del juego no cambia, se mantiene la estructura.
   container.innerHTML = `
     <div class="w-full max-w-4xl mx-auto p-4 text-white">
       <header id="game-controls" class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
@@ -58,7 +63,7 @@ export function initializePongGame(container: HTMLElement) {
     </div>
   `;
 
-  // --- CAMBIOS AQUÍ ---
+  // --- VARIABLES Y ESTADO DEL JUEGO ---
   const canvas = container.querySelector('#pong-canvas') as HTMLCanvasElement;
   const context = canvas.getContext('2d')!;
   const scoreboardElement = container.querySelector('#scoreboard')!;
@@ -66,128 +71,159 @@ export function initializePongGame(container: HTMLElement) {
   const winnerMessage = container.querySelector('#winner-message')!;
   const startButton = container.querySelector('#start-button')!;
   const difficultySelection = container.querySelector('#difficulty-selection')!;
-  // --- FIN DE LOS CAMBIOS ---
 
+  // Introducimos un estado de juego para un control más claro.
+  type GameState = 'MENU' | 'PLAYING' | 'SCORED' | 'GAME_OVER';
+  let gameState: GameState = 'MENU';
+  
   let score: Score;
-  let movementP1: MovementDirection = null;
-  let movementP2: MovementDirection = null;
   let gameObjects: GameObjects;
   let animationFrameId: number | null = null;
   let gameMode: GameMode = 'ONE_PLAYER';
   let difficulty: DifficultyLevel = 'EASY';
 
-  function resetBall() {
+  // --- NUEVA LÓGICA DE MOVIMIENTO DE PALAS ---
+  // Guardamos el estado de las teclas para un movimiento más fluido y para calcular la velocidad.
+  const keysPressed: { [key: string]: boolean } = {};
+  let player1VelocityY = 0;
+  let player2VelocityY = 0;
+
+  // --- LÓGICA PRINCIPAL DEL JUEGO ---
+
+  function resetBall(serveToPlayer: 1 | 2) {
     gameObjects.ball.x = canvas.width / 2;
     gameObjects.ball.y = canvas.height / 2;
-    gameObjects.ball.dx = (gameObjects.ball.dx > 0 ? -1 : 1) * INITIAL_BALL_SPEED;
-    gameObjects.ball.dy = (Math.random() > 0.5 ? 1 : -1) * INITIAL_BALL_SPEED;
-    const initialPaddleY = canvas.height / 2 - PADDLE_HEIGHT / 2;
-    gameObjects.player1.y = initialPaddleY;
-    gameObjects.player2.y = initialPaddleY;
+    // La pelota siempre sale hacia el jugador que no marcó.
+    gameObjects.ball.dx = (serveToPlayer === 1 ? -1 : 1) * INITIAL_BALL_SPEED;
+    // Añadimos una pequeña aleatoriedad vertical inicial.
+    gameObjects.ball.dy = (Math.random() - 0.5) * (INITIAL_BALL_SPEED / 2);
   }
 
   function resetGame() {
-    if (animationFrameId) {
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = null;
-    }
+    gameState = 'MENU';
     score = { player1: 0, player2: 0 };
+    const initialPaddleY = canvas.height / 2 - PADDLE_HEIGHT / 2;
     gameObjects = {
-      ball: { x: canvas.width / 2, y: canvas.height / 2, dx: INITIAL_BALL_SPEED, dy: INITIAL_BALL_SPEED },
-      player1: { x: 0, y: canvas.height / 2 - PADDLE_HEIGHT / 2 },
-      player2: { x: canvas.width - PADDLE_WIDTH, y: canvas.height / 2 - PADDLE_HEIGHT / 2 },
+      ball: { x: canvas.width / 2, y: canvas.height / 2, dx: 0, dy: 0 }, // La pelota empieza parada
+      player1: { x: PADDLE_WIDTH, y: initialPaddleY },
+      player2: { x: canvas.width - PADDLE_WIDTH * 2, y: initialPaddleY },
     };
     updateScoreboard();
     winnerMessage.classList.add('hidden');
     gameOverlay.classList.remove('hidden');
     startButton.textContent = 'Empezar Partida';
-    draw();
   }
   
+  // --- FUNCIÓN UPDATE TOTALMENTE REHECHA ---
   function update() {
-    // El resto de la función no necesita cambios...
-    const { ball, player1, player2 } = gameObjects;
-    
-    ball.x += ball.dx;
-    ball.y += ball.dy;
+    if (gameState !== 'PLAYING') return;
 
-    if (movementP1 === 'up') player1.y -= PADDLE_SPEED;
-    if (movementP1 === 'down') player1.y += PADDLE_SPEED;
+    const { ball, player1, player2 } = gameObjects;
+
+    // 1. Actualizar movimiento de las palas basado en las teclas pulsadas.
+    player1VelocityY = 0;
+    if (keysPressed['w']) player1VelocityY = -PADDLE_SPEED;
+    if (keysPressed['s']) player1VelocityY = PADDLE_SPEED;
+    player1.y += player1VelocityY;
     player1.y = Math.max(0, Math.min(player1.y, canvas.height - PADDLE_HEIGHT));
 
-    if (gameMode === 'ONE_PLAYER') {
+    if (gameMode === 'TWO_PLAYERS') {
+      player2VelocityY = 0;
+      if (keysPressed['o']) player2VelocityY = -PADDLE_SPEED;
+      if (keysPressed['l']) player2VelocityY = PADDLE_SPEED;
+      player2.y += player2VelocityY;
+    } else {
+      // Lógica de la IA (sin cambios)
       const currentDifficulty = DIFFICULTY_LEVELS[difficulty];
       const targetY = ball.y - PADDLE_HEIGHT / 2;
       const deltaY = targetY - player2.y;
       if (Math.abs(deltaY) > currentDifficulty.errorMargin) {
         player2.y += Math.sign(deltaY) * Math.min(PADDLE_SPEED, Math.abs(deltaY));
       }
-    } else {
-      if (movementP2 === 'up') player2.y -= PADDLE_SPEED;
-      if (movementP2 === 'down') player2.y += PADDLE_SPEED;
     }
     player2.y = Math.max(0, Math.min(player2.y, canvas.height - PADDLE_HEIGHT));
 
+    // 2. Mover la pelota.
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+
+    // 3. Colisiones con los bordes superior e inferior.
     if ((ball.y - BALL_RADIUS < 0 && ball.dy < 0) || (ball.y + BALL_RADIUS > canvas.height && ball.dy > 0)) {
       ball.dy *= -1;
     }
 
-    let paddle = ball.dx < 0 ? player1 : player2;
+    // 4. --- LÓGICA DE REBOTE AVANZADA ---
+    const paddle = ball.dx < 0 ? player1 : player2;
     if (checkCollision(ball, paddle)) {
         const paddleCenterY = paddle.y + PADDLE_HEIGHT / 2;
-        const impactPointY = ball.y;
-
-        if (impactPointY < paddle.y + BALL_RADIUS || impactPointY > paddle.y + PADDLE_HEIGHT - BALL_RADIUS) {
-            ball.dy *= -1;
-        }
-
-        const relativeImpact = (impactPointY - paddleCenterY) / (PADDLE_HEIGHT / 2);
+        const relativeImpact = (ball.y - paddleCenterY) / (PADDLE_HEIGHT / 2);
         const bounceAngle = relativeImpact * MAX_BOUNCE_ANGLE;
-        const speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy) * ACCELERATION_FACTOR;
         
-        ball.dx = speed * Math.cos(bounceAngle) * (ball.dx > 0 ? -1 : 1);
-        ball.dy = speed * Math.sin(bounceAngle);
+        // La velocidad de la pelota aumenta con cada golpe.
+        let currentSpeed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        let newSpeed = Math.min(currentSpeed * ACCELERATION_FACTOR, MAX_BALL_SPEED);
+        
+        // Invertimos la dirección horizontal.
+        ball.dx = newSpeed * Math.cos(bounceAngle) * (ball.dx > 0 ? -1 : 1);
+        
+        // --- REALISMO AÑADIDO: EFECTO DE LA PALA ---
+        // La velocidad vertical de la pala afecta al rebote de la pelota.
+        const paddleVelocity = paddle === player1 ? player1VelocityY : player2VelocityY;
+        let baseVerticalSpeed = newSpeed * Math.sin(bounceAngle);
+        ball.dy = baseVerticalSpeed + (paddleVelocity * PADDLE_INFLUENCE_FACTOR);
 
+        // Aseguramos que la pelota no se quede "pegada" a la pala.
         ball.x = (paddle === player1) 
             ? paddle.x + PADDLE_WIDTH + BALL_RADIUS 
             : paddle.x - BALL_RADIUS;
     }
 
+    // 5. Lógica de Puntuación.
     if (ball.x - BALL_RADIUS < 0) {
       score.player2++;
-      updateScoreboard();
-      if (score.player2 === WINNING_SCORE) {
-        endGame(2); return;
-      } else {
-        resetBall();
-      }
+      handleScore(2);
     } else if (ball.x + BALL_RADIUS > canvas.width) {
       score.player1++;
-      updateScoreboard();
-      if (score.player1 === WINNING_SCORE) {
-        endGame(1); return;
-      } else {
-        resetBall();
-      }
+      handleScore(1);
     }
   }
 
+  function handleScore(scoringPlayer: 1 | 2) {
+    updateScoreboard();
+    if (score.player1 >= WINNING_SCORE || score.player2 >= WINNING_SCORE) {
+      endGame(scoringPlayer);
+    } else {
+      gameState = 'SCORED';
+      // Reiniciamos la pelota sirviendo al jugador que no marcó.
+      resetBall(scoringPlayer === 1 ? 2 : 1); 
+      // Pausa de 1 segundo antes de reanudar.
+      setTimeout(() => { gameState = 'PLAYING'; }, 1000);
+    }
+  }
+
+  // --- FUNCIONES DE DIBUJO Y VISUALIZACIÓN ---
   function draw() {
     context.fillStyle = 'black';
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = 'white';
     context.fillRect(gameObjects.player1.x, gameObjects.player1.y, PADDLE_WIDTH, PADDLE_HEIGHT);
     context.fillRect(gameObjects.player2.x, gameObjects.player2.y, PADDLE_WIDTH, PADDLE_HEIGHT);
-    context.beginPath();
-    context.arc(gameObjects.ball.x, gameObjects.ball.y, BALL_RADIUS, 0, Math.PI * 2);
-    context.fill();
+    
+    // Solo dibujamos la pelota si el juego está activo o recién se ha marcado.
+    if (gameState === 'PLAYING' || gameState === 'SCORED') {
+      context.beginPath();
+      context.arc(gameObjects.ball.x, gameObjects.ball.y, BALL_RADIUS, 0, Math.PI * 2);
+      context.fill();
+    }
   }
   
   function updateScoreboard() {
-    let p1Name = 'Jugador 1';
-    let p2Name = gameMode === 'ONE_PLAYER' ? 'IA' : 'Jugador 2';
+    const p1Name = 'Jugador 1';
+    const p2Name = gameMode === 'ONE_PLAYER' ? 'IA' : 'Jugador 2';
     scoreboardElement.textContent = `${p1Name}: ${score.player1} - ${p2Name}: ${score.player2}`;
   }
+
+  // --- BUCLE PRINCIPAL Y GESTIÓN DE ESTADOS ---
 
   function gameLoop() {
     update();
@@ -195,83 +231,68 @@ export function initializePongGame(container: HTMLElement) {
     animationFrameId = requestAnimationFrame(gameLoop);
   }
 
-  function handleKeyDown(event: KeyboardEvent) {
-    switch (event.key.toLowerCase()) {
-      case 'w': case 'arrowup': movementP1 = 'up'; break;
-      case 's': case 'arrowdown': movementP1 = 'down'; break;
-      case 'o': if (gameMode === 'TWO_PLAYERS') movementP2 = 'up'; break;
-      case 'l': if (gameMode === 'TWO_PLAYERS') movementP2 = 'down'; break;
-    }
-  }
-
-  function handleKeyUp(event: KeyboardEvent) {
-    switch (event.key.toLowerCase()) {
-      case 'w': case 'arrowup': if (movementP1 === 'up') movementP1 = null; break;
-      case 's': case 'arrowdown': if (movementP1 === 'down') movementP1 = null; break;
-      case 'o': if (movementP2 === 'up') movementP2 = null; break;
-      case 'l': if (movementP2 === 'down') movementP2 = null; break;
-    }
-  }
-  
   function startGame() {
-      if (animationFrameId) return;
+      if (gameState === 'PLAYING') return;
+      gameState = 'PLAYING';
       gameOverlay.classList.add('hidden');
-      animationFrameId = requestAnimationFrame(gameLoop);
+      resetBall(Math.random() > 0.5 ? 1 : 2); // Saque inicial aleatorio
+      
+      if (!animationFrameId) {
+        animationFrameId = requestAnimationFrame(gameLoop);
+      }
   }
 
-  function endGame(winnerPlayerNumber: 1 | 2) {
-      if (animationFrameId) {
-          cancelAnimationFrame(animationFrameId);
-          animationFrameId = null;
-      }
-      
-      const winnerName = winnerPlayerNumber === 1 ? 'Jugador 1' : (gameMode === 'ONE_PLAYER' ? 'IA' : 'Jugador 2');
+  function endGame(winner: 1 | 2) {
+      gameState = 'GAME_OVER';
+      const winnerName = winner === 1 ? 'Jugador 1' : (gameMode === 'ONE_PLAYER' ? 'IA' : 'Jugador 2');
       winnerMessage.textContent = `¡${winnerName} ha ganado!`;
       startButton.textContent = 'Volver a Jugar';
-
       winnerMessage.classList.remove('hidden');
       gameOverlay.classList.remove('hidden');
   }
 
-  // --- MANEJO DE LA INTERFAZ ---
-  // --- CAMBIOS AQUÍ ---
+  // --- MANEJO DE EVENTOS (TECLADO Y BOTONES) ---
+
+  function handleKeyDown(event: KeyboardEvent) {
+    keysPressed[event.key.toLowerCase()] = true;
+  }
+  function handleKeyUp(event: KeyboardEvent) {
+    keysPressed[event.key.toLowerCase()] = false;
+  }
+  
+  // Event Listeners para la UI
   container.querySelectorAll('.mode-btn').forEach(button => {
     button.addEventListener('click', () => {
       gameMode = button.getAttribute('data-mode') as GameMode;
       difficultySelection.style.display = gameMode === 'ONE_PLAYER' ? 'flex' : 'none';
-      
-      container.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.classList.remove('bg-white', 'text-black');
-        btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
-      });
-      button.classList.add('bg-white', 'text-black');
-      button.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+      container.querySelectorAll('.mode-btn').forEach(btn => btn.classList.replace('bg-white', 'bg-gray-700'));
+      button.classList.replace('bg-gray-700', 'bg-white');
       resetGame();
+      draw();
     });
   });
 
   container.querySelectorAll('.difficulty-btn').forEach(button => {
     button.addEventListener('click', () => {
       difficulty = button.getAttribute('data-difficulty') as DifficultyLevel;
-      container.querySelectorAll('.difficulty-btn').forEach(btn => {
-        btn.classList.remove('bg-white', 'text-black');
-        btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
-      });
-      button.classList.add('bg-white', 'text-black');
-      button.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+      container.querySelectorAll('.difficulty-btn').forEach(btn => btn.classList.replace('bg-white', 'bg-gray-700'));
+      button.classList.replace('bg-gray-700', 'bg-white');
+      resetGame();
+      draw();
     });
   });
-  // --- FIN DE LOS CAMBIOS ---
 
   startButton.addEventListener('click', () => {
-    if (animationFrameId) {
-        resetGame();
-    } else {
+    if (gameState === 'MENU' || gameState === 'GAME_OVER') {
+        resetGame(); // Resetea el marcador y todo si la partida había terminado
         startGame();
     }
   });
   
   window.addEventListener('keydown', handleKeyDown);
   window.addEventListener('keyup', handleKeyUp);
+  
+  // Inicialización del juego
   resetGame();
+  draw(); // Dibujamos el estado inicial del menú.
 }

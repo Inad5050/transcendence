@@ -6,10 +6,12 @@ export const PADDLE_HEIGHT = 100;
 export const BALL_RADIUS = 10;
 export const WINNING_SCORE = 3;
 export const PADDLE_SPEED = 8;
-export const INITIAL_BALL_SPEED = 5;
+export const INITIAL_BALL_SPEED = 8;
 export const ACCELERATION_FACTOR = 1.05;
 export const BOUNCE_ANGLE_FACTOR = 15;
 export const MAX_BOUNCE_ANGLE = Math.PI / 4;
+export const PADDLE_INFLUENCE_FACTOR = 0.3;
+export const MAX_BALL_SPEED = 20;
 
 export const DIFFICULTY_LEVELS: Record<DifficultyLevel, DifficultyConfig> = {
   EASY: { name: 'Fácil', errorMargin: 70 },
