@@ -7,7 +7,7 @@ import {
   DifficultyLevel,
   PaddleObject,
   BallObject,
-} from './utils/types';
+} from '../utils/types';
 import {
   PADDLE_WIDTH,
   PADDLE_HEIGHT,
@@ -17,7 +17,7 @@ import {
   INITIAL_BALL_SPEED,
   ACCELERATION_FACTOR,
   DIFFICULTY_LEVELS,
-} from './utils/constants';
+} from '../utils/constants';
 
 const MAX_BOUNCE_ANGLE = Math.PI / 4;
 
@@ -32,7 +32,7 @@ function checkCollision(ball: BallObject, paddle: PaddleObject): boolean {
 
 export function initializePongGame(container: HTMLElement) {
   container.innerHTML = `
-    <div class="w-full max-w-4xl mx-auto p-4 text-white">
+	<div class="w-full min-h-screen flex flex-col items-center justify-center p-4 text-white">
       <header id="game-controls" class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
         <div id="mode-selection" class="flex justify-center items-center gap-4">
           <span class="font-semibold">Modo de Juego:</span>

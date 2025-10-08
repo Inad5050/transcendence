@@ -1,5 +1,5 @@
 import { navigate } from '../main';
-import { initializeAudio, playTrack } from '../MusicPlayer';
+import { initializeAudio, playTrack } from '../musicPlayer';
 
 export function renderHomeView(appElement: HTMLElement): void
 {
