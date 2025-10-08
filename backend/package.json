@@ -6,10 +6,22 @@
 	"type": "module",
 	"main": "server.js",
 	"scripts": {
-	  "start": "node server.js",
-	  "dev": "node --watch server.js"
+		"start": "node server.js",
+		"dev": "node --watch server.js"
 	},
 	"dependencies": {
-	  "fastify": "^4.26.2"
+		"@fastify/cors": "^11.1.0",
+		"bcryptjs": "^3.0.2",
+		"fastify": "^5.6.1",
+		"jsonwebtoken": "^9.0.2",
+		"qrcode": "^1.5.4",
+		"sequelize": "^6.37.7",
+		"speakeasy": "^2.0.0",
+		"sqlite3": "^5.1.7"
+	},
+	"devDependencies": {
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/qrcode": "^1.5.5",
+		"@types/speakeasy": "^2.0.10"
 	}
-  }
+}

@@ -1,8 +1,8 @@
-# Usar una imagen oficial de Node.js en su versión 18-alpine, que es ligera.
-FROM node:18-alpine
+# Usar una imagen oficial de Node.js en su versión 18 (Debian)
+FROM node:18
 
 # Instala curl
-RUN apk add --no-cache curl
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Establecer el directorio de trabajo a /app dentro del contenedor.
 WORKDIR /app
