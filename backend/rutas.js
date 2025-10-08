@@ -81,6 +81,24 @@ const rutas = [
 		method: "POST",
 		url: "/friends",
 		handler: FriendControler.createRequest
+	},
+	{
+		method: "POST",
+		url: "/friends/accept/:friendshipId",
+		preHandler: authMiddleware,
+		handler: FriendControler.acceptFriend
+	},
+	{
+		method: "GET",
+		url: "/friends",
+		preHandler: authMiddleware,
+		handler: FriendControler.getFriends
+	},
+	{
+		method: "DELETE", //Tambien se podria usar para cambiar el estado a "removed" o borrar la solicitud si esta en "pending"
+		url: "/friends/:friendshipId",
+		preHandler: authMiddleware,
+		handler: FriendControler.removeFriend
 	}
 ]
 
