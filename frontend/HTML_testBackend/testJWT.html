@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test JWT - ft_transcendence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        .token-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            margin-top: 10px;
+            border: 1px solid #dee2e6;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-item label {
+            font-size: 12px;
+            color: #6c757d;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .info-item .value {
+            font-size: 16px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .countdown {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: center;
+        }
+
+        .countdown.warning {
+            color: #ffc107;
+        }
+
+        .countdown.danger {
+            color: #dc3545;
+        }
+
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .result-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .result-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Contenedor para información del usuario -->
+        <div id="userInfoContainer"></div>
+
+        <!-- Contenedor para menú de navegación -->
+        <div id="navMenuContainer"></div>
+
+        <!-- Token Actual -->
+        <div class="card">
+            <h2>🔑 Token JWT Actual</h2>
+            <div class="info-item">
+                <label>Estado del Token</label>
+                <div class="value" id="token-status">✅ Activo</div>
+            </div>
+            <div class="info-item">
+                <label>Tiempo Restante</label>
+                <div class="countdown" id="token-countdown">--:--</div>
+            </div>
+
+            <label style="display: block; margin-top: 20px; color: #6c757d;">Access Token:</label>
+            <div class="token-display" id="current-access-token"></div>
+            <div style="margin-top: 10px;">
+                <button onclick="copyAccessToken()" class="secondary">📋 Copiar</button>
+                <button onclick="decodeCurrentToken()">🔍 Decodificar</button>
+            </div>
+
+            <div id="decoded-section" style="display: none; margin-top: 20px;"></div>
+                <label style="display: block; color: #6c757d;">Payload Decodificado:</label>
+                <div class="token-display" id="decoded-payload"></div>
+            </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="card">
+            <h2>⚡ Acciones con Token</h2>
+            <button onclick="validateToken()">✅ Validar Token</button>
+            <button onclick="refreshTokenManual()">🔄 Refrescar Token</button>
+            <button onclick="testProtectedRoute()">🛡️ Probar Ruta Protegida</button>
+            <div id="action-result" class="result-box"></div>
+        </div>
+    </div>
+
+    <!-- Incluir auth.js -->
+    <script src="auth.js"></script>
+
+    <script>
+        // Inicializar página protegida
+        if (!initProtectedPage('testJWT.html')) {
+            // Redirige automáticamente si no hay sesión
+        } else {
+            // Mostrar información del token
+            displayTokenInfo();
+            startCountdown();
+        }
+
+        let countdownInterval;
+
+        function displayTokenInfo() {
+            const accessToken = authManager.getAccessToken();
+            document.getElementById('current-access-token').textContent = accessToken || 'No disponible';
+        }
+
+        function startCountdown() {
+            const accessToken = authManager.getAccessToken();
+            if (!accessToken) {
+                document.getElementById('token-countdown').textContent = 'No hay token';
+                return;
+            }
+
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                try {
+                    const payload = JSON.parse(atob(accessToken.split('.')[1]));
+                    const exp = payload.exp * 1000;
+                    const now = Date.now();
+                    const diff = exp - now;
+
+                    if (diff <= 0) {
+                        document.getElementById('token-countdown').textContent = 'EXPIRADO';
+                        document.getElementById('token-countdown').className = 'countdown danger';
+                        clearInterval(countdownInterval);
+                        return;
+                    }
+
+                    const minutes = Math.floor(diff / 60000);
+                    const seconds = Math.floor((diff % 60000) / 1000);
+                    
+                    const countdownEl = document.getElementById('token-countdown');
+                    countdownEl.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                    
+                    if (minutes < 5) {
+                        countdownEl.className = 'countdown danger';
+                    } else if (minutes < 15) {
+                        countdownEl.className = 'countdown warning';
+                    } else {
+                        countdownEl.className = 'countdown';
+                    }
+
+                } catch (e) {
+                    document.getElementById('token-countdown').textContent = 'Error';
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+
+        function decodeCurrentToken() {
+            const accessToken = authManager.getAccessToken();
+            if (!accessToken) {
+                alert('No hay token para decodificar');
+                return;
+            }
+
+            try {
+                const parts = accessToken.split('.');
+                const payload = JSON.parse(atob(parts[1]));
+                
+                document.getElementById('decoded-payload').textContent = JSON.stringify(payload, null, 2);
+                document.getElementById('decoded-section').style.display = 'block';
+            } catch (e) {
+                alert('Error al decodificar token: ' + e.message);
+            }
+        }
+
+        function copyAccessToken() {
+            const accessToken = authManager.getAccessToken();
+            if (accessToken) {
+                navigator.clipboard.writeText(accessToken);
+                alert('✅ Access token copiado al portapapeles!');
+            }
+        }
+
+        async function validateToken() {
+            try {
+                const response = await authManager.authenticatedFetch('/api/auth/validate-session');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ Token válido!\n\nUsuario: ${data.user.username}`, true);
+                } else {
+                    showResult('❌ Token inválido o expirado', false);
+                }
+            } catch (error) {
+                showResult('❌ Error: ' + error.message, false);
+            }
+        }
+
+        async function refreshTokenManual() {
+            try {
+                const refreshed = await authManager.refreshAccessToken();
+                
+                if (refreshed) {
+                    showResult('✅ Token refrescado exitosamente!', true);
+                    displayTokenInfo();
+                    startCountdown();
+                } else {
+                    showResult('❌ No se pudo refrescar el token', false);
+                }
+            } catch (error) {
+                showResult('❌ Error: ' + error.message, false);
+            }
+        }
+
+        async function testProtectedRoute() {
+            try {
+                const response = await authManager.authenticatedFetch('/api/users');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showResult(`✅ Acceso exitoso!\n\nSe encontraron ${data.data.length} usuarios`, true);
+                } else {
+                    showResult('❌ Acceso denegado', false);
+                }
+            } catch (error) {
+                showResult('❌ Error: ' + error.message, false);
+            }
+        }
+
+        function showResult(message, isSuccess) {
+            const element = document.getElementById('action-result');
+            element.textContent = message;
+            element.className = 'result-box ' + (isSuccess ? 'result-success' : 'result-error');
+            element.style.display = 'block';
+
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

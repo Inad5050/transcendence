@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Verificación 2FA - ft_transcendence</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 450px;
+            width: 100%;
+            padding: 40px;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .user-info .username {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .user-info .email {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .shield-icon {
+            font-size: 80px;
+            text-align: center;
+            margin: 20px 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .description strong {
+            color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 24px;
+            text-align: center;
+            letter-spacing: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .code-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .code-input.error {
+            border-color: #e74c3c;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-verify:active {
+            transform: translateY(0);
+        }
+
+        .btn-verify:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-back {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-back:hover {
+            background: #f8f9fa;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .alert-error {
+            background: #fee;
+            color: #c33;
+            border: 1px solid #fcc;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #90caf9;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .tips {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-top: 25px;
+            border-radius: 5px;
+        }
+
+        .tips h3 {
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .tips ul {
+            margin-left: 20px;
+            font-size: 13px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .code-input {
+                font-size: 20px;
+                letter-spacing: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Verificación en Dos Pasos</h1>
+        </div>
+
+        <div class="user-info">
+            <div class="username" id="displayUsername">Cargando...</div>
+            <div class="email" id="displayEmail"></div>
+        </div>
+
+        <div class="shield-icon">🛡️</div>
+
+        <div class="description">
+            Ingresa el código de <strong>6 dígitos</strong> generado por tu aplicación de autenticación 
+            (Google Authenticator, Authy, etc.)
+        </div>
+
+        <div id="alertContainer" class="alert"></div>
+
+        <form id="verify2faForm">
+            <div class="form-group">
+                <label for="code2fa">Código de Verificación</label>
+                <input 
+                    type="text" 
+                    id="code2fa" 
+                    class="code-input" 
+                    placeholder="000000" 
+                    maxlength="6" 
+                    pattern="[0-9]{6}"
+                    autocomplete="off"
+                    required
+                    autofocus
+                >
+                <div class="helper-text">El código cambia cada 30 segundos</div>
+            </div>
+
+            <button type="submit" class="btn-verify" id="btnVerify">
+                ✓ Verificar y Continuar
+            </button>
+        </form>
+
+        <button class="btn-back" onclick="goBack()">
+            ← Volver al Login
+        </button>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Verificando...</p>
+        </div>
+
+        <div class="tips">
+            <h3>💡 Consejos:</h3>
+            <ul>
+                <li>Asegúrate de que tu móvil tenga la hora sincronizada</li>
+                <li>Si el código no funciona, espera al siguiente</li>
+                <li>Tienes un margen de ±60 segundos de validez</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let pendingLoginData = null;
+
+        // Al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('🔐 Página de verificación 2FA cargada');
+            
+            // Cargar datos del login pendiente
+            loadPendingLogin();
+            
+            // Configurar formulario
+            setupForm();
+            
+            // Auto-focus en el input
+            document.getElementById('code2fa').focus();
+        });
+
+        // Cargar datos del login pendiente desde localStorage
+        function loadPendingLogin() {
+            const pendingDataStr = localStorage.getItem('pending_2fa_login');
+            
+            if (!pendingDataStr) {
+                showAlert('No hay sesión de login pendiente. Redirigiendo...', 'error');
+                setTimeout(() => {
+                    window.location.href = 'loging.html';
+                }, 2000);
+                return;
+            }
+
+            try {
+                pendingLoginData = JSON.parse(pendingDataStr);
+                
+                // Verificar que tenga los datos necesarios
+                if (!pendingLoginData.username || !pendingLoginData.password) {
+                    throw new Error('Datos incompletos');
+                }
+
+                // Mostrar información del usuario
+                document.getElementById('displayUsername').textContent = `👤 ${pendingLoginData.username}`;
+                
+                if (pendingLoginData.email) {
+                    document.getElementById('displayEmail').textContent = `📧 ${pendingLoginData.email}`;
+                }
+
+                console.log('✅ Datos de login cargados:', pendingLoginData.username);
+
+            } catch (error) {
+                console.error('❌ Error al cargar datos pendientes:', error);
+                showAlert('Error al cargar datos. Vuelve al login.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'loging.html';
+                }, 2000);
+            }
+        }
+
+        // Configurar eventos del formulario
+        function setupForm() {
+            const form = document.getElementById('verify2faForm');
+            const codeInput = document.getElementById('code2fa');
+
+            // Solo permitir números
+            codeInput.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                
+                // Remover clase de error al escribir
+                if (e.target.classList.contains('error')) {
+                    e.target.classList.remove('error');
+                }
+
+                // Auto-submit cuando se ingresan 6 dígitos
+                if (e.target.value.length === 6) {
+                    setTimeout(() => {
+                        form.dispatchEvent(new Event('submit'));
+                    }, 300);
+                }
+            });
+
+            // Submit del formulario
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await verifyAndLogin();
+            });
+        }
+
+        // Verificar código y hacer login
+        async function verifyAndLogin() {
+            const codeInput = document.getElementById('code2fa');
+            const code = codeInput.value.trim();
+            const btnVerify = document.getElementById('btnVerify');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            // Validar código
+            if (code.length !== 6) {
+                showAlert('El código debe tener 6 dígitos', 'error');
+                codeInput.classList.add('error');
+                return;
+            }
+
+            // Verificar que tenemos datos de login
+            if (!pendingLoginData) {
+                showAlert('No hay datos de login. Vuelve al login.', 'error');
+                return;
+            }
+
+            try {
+                // Mostrar loading
+                btnVerify.disabled = true;
+                loadingIndicator.style.display = 'block';
+                hideAlert();
+
+                console.log('🔐 Intentando login con 2FA...');
+
+                // Hacer login con código 2FA
+                const response = await fetch(`${window.location.origin}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: pendingLoginData.username,
+                        password: pendingLoginData.password,
+                        twofa_code: code
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Código 2FA inválido');
+                }
+
+                // Login exitoso
+                console.log('✅ Login con 2FA exitoso');
+
+                // Guardar tokens en localStorage
+                localStorage.setItem('access_token', data.access_token);
+                localStorage.setItem('refresh_token', data.refresh_token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // Limpiar datos pendientes
+                localStorage.removeItem('pending_2fa_login');
+
+                // Mostrar mensaje de éxito
+                showAlert('✅ Verificación exitosa! Redirigiendo...', 'info');
+
+                // Redirigir al dashboard
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('❌ Error en verificación 2FA:', error);
+                
+                // Mostrar error
+                showAlert(`❌ ${error.message}`, 'error');
+                
+                // Marcar input con error
+                codeInput.classList.add('error');
+                codeInput.value = '';
+                codeInput.focus();
+
+            } finally {
+                // Ocultar loading
+                btnVerify.disabled = false;
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // Mostrar alerta
+        function showAlert(message, type = 'info') {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.className = `alert alert-${type}`;
+            alertContainer.textContent = message;
+            alertContainer.style.display = 'block';
+        }
+
+        // Ocultar alerta
+        function hideAlert() {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.style.display = 'none';
+        }
+
+        // Volver al login
+        function goBack() {
+            // Limpiar datos pendientes
+            localStorage.removeItem('pending_2fa_login');
+            
+            // Redirigir
+            window.location.href = 'loging.html';
+        }
+
+        // Atajos de teclado
+        document.addEventListener('keydown', (e) => {
+            // ESC para volver
+            if (e.key === 'Escape') {
+                goBack();
+            }
+
+            // Enter para verificar (si hay 6 dígitos)
+            if (e.key === 'Enter') {
+                const code = document.getElementById('code2fa').value;
+                if (code.length === 6) {
+                    verifyAndLogin();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

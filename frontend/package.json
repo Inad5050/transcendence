@@ -3,17 +3,27 @@
 	"version": "1.0.0",
 	"description": "Frontend user interface for the project.",
 	"private": true,
-	"scripts": {
-		"dev": "vite --host 0.0.0.0 --port 3000",
-		"build": "vite build",
-		"preview": "vite preview",
-		"start": "vite preview"
+	"scripts": 
+	{
+	  "dev": "vite --host 0.0.0.0 --port 3000",
+	  "build": "vite build",
+	  "preview": "vite preview",
+	  "start": "vite preview"
 	},
-	"devDependencies": {
+	"devDependencies": 
+	{
 	  "vite": "^5.0.0",
 	  "tailwindcss": "^3.4.1",
 	  "postcss": "^8.4.38",
-	  "autoprefixer": "^10.4.19"
+	  "autoprefixer": "^10.4.19",
+	  "typescript": "^5.9.3"
+	},
+	"dependencies": 
+	{
+		"@babylonjs/core": "^8.29.1",
+		"@babylonjs/loaders": "^8.29.1",
+		"babylonjs-gui": "^8.29.1",
+		"babylonjs-materials": "^8.29.1"
 	}
 }
 
