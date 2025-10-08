@@ -1,9 +1,9 @@
-// src/pong/utils/types.ts
+// src/utils/types.ts
 
 export type MovementDirection = 'up' | 'down' | null;
-export type GameMode = 'ONE_PLAYER' | 'TWO_PLAYERS' | 'TOURNAMENT';
-export type TournamentState = 'SETUP' | 'IN_PROGRESS' | 'FINISHED';
-export type DifficultyLevel = 'EASY' | 'MEDIUM' | 'HARD';
+// Se elimina el modo 'TOURNAMENT'
+export type GameMode = 'ONE_PLAYER' | 'TWO_PLAYERS';
+export type DifficultyLevel = 'EASY' | 'MEDIUM' | 'HARD' | 'IMPOSSIBLE';
 
 export interface Score {
   player1: number;
@@ -31,10 +31,4 @@ export interface GameObjects {
   ball: BallObject;
   player1: PaddleObject;
   player2: PaddleObject;
-}
-
-export interface Match {
-  p1: string;
-  p2: string;
-  winner: string | null;
 }
