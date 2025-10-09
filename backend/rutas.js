@@ -1,6 +1,7 @@
 import UserControler from "./controllers/Users.js";
 import AuthController from "./controllers/Auth.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
+import FriendControler from "./controllers/Friends.js";
 
 const rutas = [
 	// Rutas de autenticación (públicas)
@@ -74,6 +75,31 @@ const rutas = [
 		preHandler: authMiddleware,
 		handler: UserControler.delete,
 	},
+
+	//Rutas de amigos
+	{
+		method: "POST",
+		url: "/friends",
+		handler: FriendControler.createRequest
+	},
+	{
+		method: "POST",
+		url: "/friends/accept/:friendshipId",
+		preHandler: authMiddleware,
+		handler: FriendControler.acceptFriend
+	},
+	{
+		method: "GET",
+		url: "/friends",
+		preHandler: authMiddleware,
+		handler: FriendControler.getFriends
+	},
+	{
+		method: "DELETE", //Tambien se podria usar para cambiar el estado a "removed" o borrar la solicitud si esta en "pending"
+		url: "/friends/:friendshipId",
+		preHandler: authMiddleware,
+		handler: FriendControler.removeFriend
+	}
 ]
 
 export default rutas;
