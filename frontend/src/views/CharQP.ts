@@ -19,6 +19,7 @@ export function renderCharQP(appElement: HTMLElement): void
 				<div id="mode-selection" class="flex justify-center items-center gap-6">
 					<img src="/assets/vs_IA.png" alt="vs IA" data-mode="ONE_PLAYER" class="mode-btn h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
 					<img src="/assets/2_players.png" alt="2 Players" data-mode="TWO_PLAYERS" class="mode-btn h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
+					<img src="/assets/4_players.png" alt="4 Players" data-mode="FOUR_PLAYERS" class="mode-btn h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
 				</div>
 				<div id="difficulty-selection" class="flex justify-center items-center gap-6">
 					<img src="/assets/easy.png" alt="Easy" data-difficulty="EASY" class="difficulty-btn h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
