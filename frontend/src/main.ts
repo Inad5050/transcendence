@@ -53,11 +53,11 @@ import { renderLogin } from './views/Login.ts';
 import { renderStart } from './views/Start.ts';
 import { renderCharQP } from './views/CharQP.ts';
 import { renderCharTournament } from './views/CharTournament.ts';
-import { renderTicTacToe } from './views/TicTacToe.ts';
 import { renderProfile } from './views/Profile.ts';
 import { renderAbout } from './views/About.ts';
 import { initializePongGame } from './views/Pong.ts';
-import { renderTicTacToe } from './views/TicTacToe.ts'
+import { renderTicTacToe } from './views/TicTacToe.ts';
+import { renderFriends } from './views/Friends.ts';
 
 const appElement = document.querySelector('#app') as HTMLDivElement;
 
@@ -74,6 +74,7 @@ const routes: { [key: string]: (element: HTMLElement) => void } =
 	'/about': renderAbout,
 	'/pong': initializePongGame,
 	'/tictactoe': renderTicTacToe,
+	'/friends': renderFriends,
 };
 
 function router()

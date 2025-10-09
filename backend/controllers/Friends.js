@@ -1,4 +1,4 @@
-import { where } from "sequelize";
+import { Op } from "sequelize";
 import UserModel from "../models/Users.js";
 import FriendModel from "../models/Friends.js";
 import { create } from "qrcode";
@@ -62,7 +62,7 @@ class FriendControler {
             const friends = await FriendModel.findAll({
                 where: {
                     state: 'accepted',
-                    [where.or]: [
+                    [Op.or]: [
                         { one_user_id: userId },
                         { two_user_id: userId }
                     ]
@@ -115,7 +115,7 @@ class FriendControler {
             const friendship = await FriendModel.findOne({
                 where: {
                     id: friendshipId,
-                    [where.or]: [
+                    [Op.or]: [
                         { one_user_id: userId },
                         { two_user_id: userId }
                     ]
@@ -141,7 +141,7 @@ class FriendControler {
 
             await FriendModel.destroy({
                 where: {
-                    [where.or]: [
+                    [Op.or]: [
                         {
                             one_user_id: friendship.one_user_id,
                             two_user_id: friendship.two_user_id
