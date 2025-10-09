@@ -22,6 +22,7 @@ import {
 	PADDLE_SPEED_CLASSIC,
 	PADDLE_LENGTH_4P,
 	PADDLE_SPEED_4P,
+	shuffleArray,
   } from '../utils/constants';
   
   function checkCollision(ball: BallObject, paddle: PaddleObject): boolean {
@@ -37,16 +38,21 @@ import {
   
   export function initializePongGame(container: HTMLElement) {
 	container.innerHTML = `
-	  <div class="w-full min-h-screen flex flex-col items-center justify-center p-4 text-white">
-		<div id="scoreboard-container" class="w-full max-w-4xl bg-gray-800 rounded-xl mb-4 p-4">
-		</div>
-		<main class="relative w-full max-w-4xl">
-		  <canvas id="pong-canvas" class="w-full block shadow-2xl shadow-cyan-400/50 border-4 border-cyan-400 bg-black"></canvas>
-		  <div id="game-overlay" class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-gray-900/80 gap-4">
-			<h1 id="winner-message" class="text-5xl font-black text-center text-cyan-400 p-4 rounded-lg border-4 border-cyan-400 animate-pulse hidden"></h1>
-			<button id="start-button" class="px-8 py-4 font-bold text-lg rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 bg-cyan-400 text-gray-900 hover:bg-white">Empezar Partida</button>
+	  <div class="w-full min-h-screen flex items-center justify-center p-4 text-white relative">
+		<div id="player-arts-left" class="absolute left-0 top-0 h-full w-1/4 flex flex-col justify-center items-center gap-4"></div>
+		<div id="player-arts-right" class="absolute right-0 top-0 h-full w-1/4 flex flex-col justify-center items-center gap-4"></div>
+  
+		<div class="flex flex-col items-center">
+		  <div id="scoreboard-container" class="w-full max-w-4xl bg-gray-800 rounded-xl mb-4 p-4">
 		  </div>
-		</main>
+		  <main class="relative w-full max-w-4xl">
+			<canvas id="pong-canvas" class="w-full block shadow-2xl shadow-cyan-400/50 border-4 border-cyan-400 bg-black"></canvas>
+			<div id="game-overlay" class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-gray-900/80 gap-4">
+			  <h1 id="winner-message" class="text-5xl font-black text-center text-cyan-400 p-4 rounded-lg border-4 border-cyan-400 animate-pulse hidden"></h1>
+			  <button id="start-button" class="px-8 py-4 font-bold text-lg rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 bg-cyan-400 text-gray-900 hover:bg-white">Empezar Partida</button>
+			</div>
+		  </main>
+		</div>
 	  </div>
 	`;
   
@@ -56,6 +62,8 @@ import {
 	const gameOverlay = container.querySelector('#game-overlay')!;
 	const winnerMessage = container.querySelector('#winner-message')!;
 	const startButton = container.querySelector('#start-button')!;
+	const playerArtsLeft = container.querySelector('#player-arts-left') as HTMLElement;
+	const playerArtsRight = container.querySelector('#player-arts-right') as HTMLElement;
 	
 	type GameState = 'MENU' | 'PLAYING' | 'SCORED' | 'GAME_OVER';
 	let gameState: GameState = 'MENU';
@@ -64,13 +72,46 @@ import {
 	let gameObjects: GameObjects;
 	let animationFrameId: number | null = null;
   
-	// Leer configuración desde localStorage
 	const gameMode: GameMode = localStorage.getItem('gameMode') as GameMode || 'ONE_PLAYER';
 	const difficulty: DifficultyLevel = localStorage.getItem('difficulty') as DifficultyLevel || 'EASY';
-  
+	const selectedChar = localStorage.getItem('selectedCharacter') || '1';
+	
+	let playerCharacterMap: { [key: string]: string } = {};
   
 	const keysPressed: { [key: string]: boolean } = {};
 	let playerVelocities = { p1: 0, p2: 0, p3: 0, p4: 0 };
+  
+	function setupCharacters() {
+	  const allChars = ['1', '2', '3', '4'];
+	  const remainingChars = allChars.filter(c => c !== selectedChar);
+	  const shuffledRemaining = shuffleArray(remainingChars);
+  
+	  if (gameMode === 'FOUR_PLAYERS') {
+		  playerCharacterMap = {
+			  p1: selectedChar,
+			  p2: shuffledRemaining[0],
+			  p3: shuffledRemaining[1],
+			  p4: shuffledRemaining[2],
+		  };
+		  
+		  playerArtsLeft.innerHTML = `
+			  <img id="char-p1" src="/assets/char${playerCharacterMap.p1}_full.png" class="h-1/3 object-contain transition-opacity duration-500">
+			  <img id="char-p3" src="/assets/char${playerCharacterMap.p3}_full.png" class="h-1/3 object-contain transition-opacity duration-500">
+		  `;
+		  playerArtsRight.innerHTML = `
+			  <img id="char-p2" src="/assets/char${playerCharacterMap.p2}_full.png" class="h-1/3 object-contain transition-opacity duration-500">
+			  <img id="char-p4" src="/assets/char${playerCharacterMap.p4}_full.png" class="h-1/3 object-contain transition-opacity duration-500">
+		  `;
+  
+	  } else {
+		  playerCharacterMap = {
+			  p1: selectedChar,
+			  p2: shuffledRemaining[0],
+		  };
+		  playerArtsLeft.innerHTML = `<img id="char-p1" src="/assets/char${playerCharacterMap.p1}_full.png" class="h-2/3 object-contain transition-opacity duration-500">`;
+		  playerArtsRight.innerHTML = `<img id="char-p2" src="/assets/char${playerCharacterMap.p2}_full.png" class="h-2/3 object-contain transition-opacity duration-500">`;
+	  }
+	}
   
 	function resetBall() {
 	  const { ball, player1, player2, player3, player4 } = gameObjects;
@@ -101,6 +142,7 @@ import {
   
 	function resetGame() {
 	  gameState = 'MENU';
+	  setupCharacters();
   
 	  const PADDLE_LENGTH = gameMode === 'FOUR_PLAYERS' ? PADDLE_LENGTH_4P : PADDLE_LENGTH_CLASSIC;
 	  if (gameMode === 'FOUR_PLAYERS') {
@@ -230,24 +272,30 @@ import {
 	}
   
 	function loseLife(playerNumber: number) {
-		gameState = 'SCORED';
-		const playerKey = `p${playerNumber}` as keyof Score;
-		score[playerKey]--;
-		const gameObjectKey = `player${playerNumber}` as keyof GameObjects;
-		if(score[playerKey] <= 0) {
-		  gameObjects[gameObjectKey].isAlive = false;
+	  gameState = 'SCORED';
+	  const playerKey = `p${playerNumber}` as keyof Score;
+	  score[playerKey]--;
+	  const gameObjectKey = `player${playerNumber}` as keyof GameObjects;
+	  if(score[playerKey] <= 0) {
+		gameObjects[gameObjectKey].isAlive = false;
+		// Ocultar la imagen del personaje eliminado
+		const charImg = document.getElementById(`char-p${playerNumber}`);
+		if (charImg) {
+			charImg.classList.add('opacity-25');
 		}
-		updateScoreboard();
+	  }
+	  updateScoreboard();
   
-		const playersAlive = Object.values(gameObjects).filter(p => p.isAlive === true).length;
-		if (playersAlive <= 1) {
-			const winnerKey = Object.keys(score).find(k => score[k] > 0);
-			endGame(winnerKey ? parseInt(winnerKey.replace('p', '')) : 0);
-		} else {
-			resetBall();
-			setTimeout(() => { gameState = 'PLAYING'; }, 1000);
-		}
-	}
+	  const alivePlayers = Object.keys(gameObjects).filter(key => key.startsWith('player') && gameObjects[key as keyof GameObjects].isAlive).length;
+  
+	  if (gameMode === 'FOUR_PLAYERS' && alivePlayers <= 1) {
+		  const winnerKey = Object.keys(score).find(k => score[k] > 0);
+		  endGame(winnerKey ? parseInt(winnerKey.replace('p', '')) : 0);
+	  } else {
+		  resetBall();
+		  setTimeout(() => { gameState = 'PLAYING'; }, 1000);
+	  }
+  }
   
 	function draw() {
 	  context.clearRect(0, 0, canvas.width, canvas.height);
@@ -277,28 +325,27 @@ import {
 	}
 	
 	function updateScoreboard() {
-		if (gameMode === 'FOUR_PLAYERS') {
-			scoreboardContainer.innerHTML = `
-			  <div class="grid grid-cols-3 grid-rows-3 text-center text-5xl font-extrabold text-white h-32">
-				<div class="col-start-2 row-start-1 flex justify-center items-center">${score.p3}</div>
-				<div class="col-start-1 row-start-2 flex justify-center items-center">${score.p1}</div>
-				<div class="col-start-3 row-start-2 flex justify-center items-center">${score.p2}</div>
-				<div class="col-start-2 row-start-3 flex justify-center items-center">${score.p4}</div>
-			  </div>
-			`;
-		} else {
-			const p1Name = 'J1';
-			const p2Name = gameMode === 'ONE_PLAYER' ? 'IA' : 'J2';
-			scoreboardContainer.innerHTML = `
-			  <div class="flex justify-between items-center text-5xl font-extrabold text-white px-8">
-				<span>${p1Name}</span>
-				<span>${score.p1 || 0} - ${score.p2 || 0}</span>
-				<span>${p2Name}</span>
-			  </div>
-			`;
-		}
-	}
-  
+	  if (gameMode === 'FOUR_PLAYERS') {
+		  scoreboardContainer.innerHTML = `
+			<div class="grid grid-cols-3 grid-rows-3 text-center text-5xl font-extrabold text-white h-32">
+			  <div class="col-start-2 row-start-1 flex justify-center items-center">${score.p3}</div>
+			  <div class="col-start-1 row-start-2 flex justify-center items-center">${score.p1}</div>
+			  <div class="col-start-3 row-start-2 flex justify-center items-center">${score.p2}</div>
+			  <div class="col-start-2 row-start-3 flex justify-center items-center">${score.p4}</div>
+			</div>
+		  `;
+	  } else {
+		  const p1Name = 'J1';
+		  const p2Name = gameMode === 'ONE_PLAYER' ? 'IA' : 'J2';
+		  scoreboardContainer.innerHTML = `
+			<div class="flex justify-between items-center text-5xl font-extrabold text-white px-8">
+			  <span>${p1Name}</span>
+			  <span>${score.p1 || 0} - ${score.p2 || 0}</span>
+			  <span>${p2Name}</span>
+			</div>
+		  `;
+	  }
+  }
   
 	function gameLoop() {
 	  update();
@@ -347,4 +394,3 @@ import {
 	resetGame();
 	draw();
   }
-  
