@@ -39,7 +39,7 @@ export function renderFriends(appElement: HTMLElement): void {
                 </div>
         </div>
 
-        <div class="w-full flex justify-center bottom-[100px]">
+        <div class="w-full flex justify-center">
             <img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full">
         </div>
 
@@ -50,8 +50,8 @@ export function renderFriends(appElement: HTMLElement): void {
                 <div id="friends-container" class="w-full h-[50vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-2xl shadow-cyan-400/50"></div>
             </div>
 
-			<div id="friend-requests-section" class="absolute bottom-[5%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/4 flex flex-col items-center">
-			</div>
+            <div id="friend-requests-section" class="w-1/4 flex flex-col items-center">
+            </div>
 
             <div class="w-1/5 flex flex-col items-center">
                 <img src="/assets/users.png" alt="Users" id="users-button" class="w-[150px] mb-4">
@@ -116,58 +116,61 @@ export function renderFriends(appElement: HTMLElement): void {
 
     async function loadFriendRequests() 
     {
+        friendRequestsSection.innerHTML = `
+            <img src="/assets/requests.png" alt="Friend Requests" class="w-[300px] mb-4">
+            <div id="requests-container" class="w-full h-[25vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-2xl shadow-cyan-400/50">
+            </div>
+        `;
+        const requestsContainer = document.getElementById('requests-container')!;
+
         try 
         {
             const response = await authenticatedFetch('/api/friends/requests');
             if (!response.ok) throw new Error('Error al cargar solicitudes');
             const requests: FriendRequest[] = await response.json();
 
-            if (requests.length === 0) {
-                friendRequestsSection.innerHTML = '';
-                return;
-            }
-
-            friendRequestsSection.innerHTML = `
-                <img src="/assets/requests.png" alt="Friend Requests" class="w-[300px] mb-4">
-                <div id="requests-container" class="w-full h-[25vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-2xl shadow-cyan-400/50">
-                    ${requests.map(req => `
-                        <div class="flex flex-col items-center text-white text-3xl p-3 mb-3 border-b border-gray-600">
-                            <span>${req.username}</span>
-                            <div class="flex gap-4 mt-2">
-                                <img src="/assets/accept.png" alt="Accept" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="accept" data-id="${req.friendshipId}">
-                                <img src="/assets/cancel.png" alt="Decline" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="reject" data-id="${req.friendshipId}">
-                                <img src="/assets/details.png" alt="Details" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="details" data-user-id="${req.id}">
-                            </div>
+            if (requests.length > 0) {
+                requestsContainer.innerHTML = requests.map(req => `
+                    <div class="flex flex-col items-center text-white text-3xl p-3 mb-3 border-b border-gray-600">
+                        <span>${req.username}</span>
+                        <div class="flex gap-4 mt-2">
+                            <img src="/assets/accept.png" alt="Accept" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="accept" data-id="${req.friendshipId}">
+                            <img src="/assets/cancel.png" alt="Decline" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="reject" data-id="${req.friendshipId}">
+                            <img src="/assets/details.png" alt="Details" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="details" data-user-id="${req.id}">
                         </div>
-                    `).join('')}
-                </div>
-            `;
+                    </div>
+                `).join('');
             
-            friendRequestsSection.querySelectorAll('.request-action-btn').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const target = e.target as HTMLElement;
-                    const action = target.dataset.action;
-                    const id = target.dataset.id; 
+                // CAMBIO: Lógica corregida para el event listener
+                friendRequestsSection.querySelectorAll('.request-action-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const target = e.target as HTMLElement;
+                        const action = target.dataset.action;
+                        const friendshipId = target.dataset.id;
+                        const userId = target.dataset.userId;
 
-                    if (action === 'accept' && id) {
-                        await handleFriendRequest(id, 'accept');
-                    } else if (action === 'reject' && id) {
-                        await handleFriendRequest(id, 'reject');
-                    } else if (action === 'details' && id) {
-                        try {
-                            const userResponse = await authenticatedFetch(`/api/users/${id}`);
-                            const userData: User = await userResponse.json();
-                            showUserDetailsInModal(userData);
-                        } catch (error) {
-                            alert(`Error: ${(error as Error).message}`);
+                        if (action === 'accept' && friendshipId) {
+                            await handleFriendRequest(friendshipId, 'accept');
+                        } else if (action === 'reject' && friendshipId) {
+                            await handleFriendRequest(friendshipId, 'reject');
+                        } else if (action === 'details' && userId) {
+                            try {
+                                const userResponse = await authenticatedFetch(`/api/users/${userId}`);
+                                const userData: User = await userResponse.json();
+                                showUserDetailsInModal(userData);
+                            } catch (error) {
+                                alert(`Error: ${(error as Error).message}`);
+                            }
                         }
-                    }
+                    });
                 });
-            });
+            } else {
+                requestsContainer.innerHTML = `<div class="text-gray-400 text-center text-2xl">No hay solicitudes pendientes</div>`;
+            }
 
         } catch (error) {
             console.error(error);
-            friendRequestsSection.innerHTML = ``;
+            requestsContainer.innerHTML = `<div class="text-red-500 p-2">Error al cargar</div>`;
         }
     }
 

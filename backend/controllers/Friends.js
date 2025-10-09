@@ -82,29 +82,38 @@ class FriendControler {
             res.status(500).send({ error: e.message });
         }
     }
-    async getFriendRequests(req, res) {
-        try {
-            const userId = req.user.id;
-
-            // Buscar todas las solicitudes de amistad pendientes donde el usuario es el receptor
-            const friendRequests = await FriendModel.findAll({
-                where: {
-                    two_user_id: userId,
-                    state: 'pending'
-                }
-            });
-            const requesterIds = friendRequests.map(f => f.one_user_id);
-
-            const requesterDetails = await UserModel.findAll({
-                where: { id: requesterIds },
-                attributes: { exclude: ['password', 'email', 'twofa_secret'] }
-            });
-
-            res.status(200).send(requesterDetails);
-        } catch (e) {
-            res.status(500).send({ error: e.message });
-        }
-    }
+	async getFriendRequests(req, res) {
+		try {
+			const userId = req.user.id;
+	
+			// 1. Busca las solicitudes pendientes e INCLUYE los datos del usuario que la envió
+			const friendRequests = await FriendModel.findAll({
+				where: {
+					two_user_id: userId,
+					state: 'pending'
+				},
+				include: [{ // Esto une la tabla de usuarios
+					model: UserModel,
+					as: 'userOne', // Usando el alias definido en el modelo
+					attributes: ['id', 'username', 'email', 'elo'] // Solo trae estos campos
+				}]
+			});
+	
+			// 2. Mapea el resultado para crear un objeto con los datos que el frontend necesita
+			const responseData = friendRequests.map(request => ({
+				friendshipId: request.id, // <-- LA CLAVE: Se añade el ID de la amistad
+				id: request.userOne.id,
+				username: request.userOne.username,
+				email: request.userOne.email,
+				elo: request.userOne.elo
+			}));
+	
+			// 3. Envía la lista de objetos completa al frontend
+			res.status(200).send(responseData);
+		} catch (e) {
+			res.status(500).send({ error: e.message });
+		}
+	}
 
     async deleteFriend(req, res) {
         try {
