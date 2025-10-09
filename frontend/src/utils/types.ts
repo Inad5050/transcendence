@@ -1,13 +1,12 @@
-// src/utils/types.ts
+// frontend/src/utils/types.ts
 
-export type MovementDirection = 'up' | 'down' | null;
-// Se elimina el modo 'TOURNAMENT'
-export type GameMode = 'ONE_PLAYER' | 'TWO_PLAYERS';
+export type MovementDirection = 'up' | 'down' | 'left' | 'right' | null;
+export type GameMode = 'ONE_PLAYER' | 'TWO_PLAYERS' | 'FOUR_PLAYERS';
 export type DifficultyLevel = 'EASY' | 'MEDIUM' | 'HARD' | 'IMPOSSIBLE';
 
+// Ahora 'Score' puede manejar tanto el modo normal como el de 4 jugadores
 export interface Score {
-  player1: number;
-  player2: number;
+  [key: string]: number;
 }
 
 export interface DifficultyConfig {
@@ -25,10 +24,15 @@ export interface BallObject {
 export interface PaddleObject {
   x: number;
   y: number;
+  width: number;
+  height: number;
+  isAlive: boolean; // Nuevo: para saber si el jugador sigue en partida
 }
 
 export interface GameObjects {
   ball: BallObject;
   player1: PaddleObject;
   player2: PaddleObject;
+  player3: PaddleObject;
+  player4: PaddleObject;
 }

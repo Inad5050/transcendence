@@ -57,6 +57,7 @@ import { renderTicTacToe } from './views/TicTacToe.ts';
 import { renderProfile } from './views/Profile.ts';
 import { renderAbout } from './views/About.ts';
 import { initializePongGame } from './views/Pong.ts';
+import { renderTicTacToe } from './views/TicTacToe.ts'
 
 const appElement = document.querySelector('#app') as HTMLDivElement;
 
@@ -72,6 +73,7 @@ const routes: { [key: string]: (element: HTMLElement) => void } =
 	'/profile': renderProfile,
 	'/about': renderAbout,
 	'/pong': initializePongGame,
+	'/tictactoe': renderTicTacToe,
 };
 
 function router()

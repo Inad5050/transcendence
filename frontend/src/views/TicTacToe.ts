@@ -1,63 +1,210 @@
-import { navigate } from '../main';
-import { playTrack } from '../musicPlayer';
+// frontend/src/views/TicTacToe.ts
 
-export function renderTicTacToe(appElement: HTMLElement): void
-{
-	if (!appElement)
-		return;
-	appElement.innerHTML = `
-	<div class="min-h-screen flex flex-col p-8">
-		
-		<div class="w-full flex justify-center">
-			<img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full mt-40">
-		</div>
+export function renderTicTacToe(container: HTMLElement): void {
+  container.innerHTML = `
+    <div class="w-full min-h-screen flex flex-col items-center justify-center p-4 text-white">
+      <div class="w-full max-w-md">
+        <header class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
+          <div id="mode-selection" class="flex justify-center items-center gap-4">
+            <button data-mode="HvsH" class="mode-btn px-4 py-2 text-sm font-bold rounded-full bg-white text-black">Humano vs Humano</button>
+            <button data-mode="HvsAI" class="mode-btn px-4 py-2 text-sm font-bold rounded-full bg-gray-700 hover:bg-gray-600">Humano vs IA</button>
+          </div>
+          <h1 id="status-display" class="font-extrabold text-3xl text-cyan-400 pt-2">Turno del Jugador X</h1>
+        </header>
+        <main class="relative">
+          <div id="game-board" class="grid grid-cols-3 gap-4">
+            ${Array(9).fill(0).map((_, i) => `
+              <div data-cell-index="${i}" class="cell w-full aspect-square bg-black border-4 border-cyan-400 rounded-lg flex items-center justify-center text-6xl font-black cursor-pointer hover:bg-gray-900 transition-colors duration-200"></div>
+            `).join('')}
+          </div>
+          <div id="game-overlay" class="absolute top-0 left-0 w-full h-full flex-col justify-center items-center bg-gray-900/90 gap-4 hidden">
+            <h1 id="winner-message" class="text-5xl font-black text-cyan-400 p-4 rounded-lg"></h1>
+            <button id="restart-button" class="px-8 py-4 font-bold text-lg rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 bg-cyan-400 text-gray-900 hover:bg-white">Jugar de Nuevo</button>
+          </div>
+        </main>
+      </div>
+    </div>
+  `;
 
-		<div class="absolute bottom-[700px] left-1/2 -translate-x-1/2">
-			<img src="/assets/quickPlay.gif" alt="quickPlay" id="quickPlayButton"
-		class="w-[350px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+  // --- LÓGICA DEL JUEGO CON IA ---
 
-		<div class="absolute bottom-[510px] left-1/2 -translate-x-1/2">
-			<img src="/assets/tournament.gif" alt="tournament" id="tournamentButton"
-		class="w-[700px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+  const statusDisplay = container.querySelector('#status-display')!;
+  const cells = container.querySelectorAll('.cell');
+  const gameOverlay = container.querySelector('#game-overlay') as HTMLElement;
+  const winnerMessage = container.querySelector('#winner-message')!;
+  const restartButton = container.querySelector('#restart-button')!;
 
-		<div class="absolute bottom-[280px] left-1/2 -translate-x-1/2">
-			<img src="/assets/ticTacToe.png" alt="ticTacToe" id="ticTacToeButton"
-		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+  let gameMode = "HvsH"; // 'HvsH' o 'HvsAI'
+  let isGameActive = true;
+  let currentPlayer = "X";
+  let gameState = ["", "", "", "", "", "", "", "", ""];
 
-		<div class="absolute right-5 top-5">           
-			<img src="/assets/profile.png" alt="profile" id="profileButton"
-		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+  const winningConditions = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+    [0, 4, 8], [2, 4, 6]
+  ];
 
-		<div class="absolute left-5 bottom-5">           
-			<img src="/assets/about.png" alt="about" id="aboutButton"
-		class="w-[200px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+  function handleResultValidation() {
+    let roundWon = false;
+    for (const winCondition of winningConditions) {
+      const a = gameState[winCondition[0]];
+      const b = gameState[winCondition[1]];
+      const c = gameState[winCondition[2]];
+      if (a === '' || b === '' || c === '') continue;
+      if (a === b && b === c) {
+        roundWon = true;
+        break;
+      }
+    }
 
-	</div>
-	`;
+    if (roundWon) {
+      const winner = currentPlayer === 'X' ? 'Jugador X' : (gameMode === 'HvsAI' ? 'IA' : 'Jugador O');
+      statusDisplay.innerHTML = `¡${winner} ha ganado!`;
+      winnerMessage.innerHTML = `¡Gana ${winner}!`;
+      isGameActive = false;
+      gameOverlay.style.display = 'flex';
+      return;
+    }
 
-	playTrack('/assets/Techno_Syndrome.mp3');
+    if (!gameState.includes("")) {
+      statusDisplay.innerHTML = `¡Es un empate!`;
+      winnerMessage.innerHTML = '¡Empate!';
+      isGameActive = false;
+      gameOverlay.style.display = 'flex';
+      return;
+    }
 
-	const quickPlayButton = document.getElementById('quickPlayButton');
-	const tournamentButton = document.getElementById('tournamentButton');
+    handlePlayerChange();
+  }
 
-	if (quickPlayButton)
-	{
-		quickPlayButton.addEventListener('click', () =>
-		{
-			navigate('/quickPlay');
-		});
-	}
+  function handlePlayerChange() {
+    currentPlayer = currentPlayer === "X" ? "O" : "X";
+    const nextPlayerText = currentPlayer === 'X' ? 'Jugador X' : (gameMode === 'HvsAI' ? 'IA' : 'Jugador O');
+    statusDisplay.innerHTML = `Turno de ${nextPlayerText}`;
 
-	if (tournamentButton)
-	{
-		tournamentButton.addEventListener('click', () =>
-		{
-			navigate('/tournament');
-		});
-	}
+    if (gameMode === 'HvsAI' && currentPlayer === 'O' && isGameActive) {
+      // Es el turno de la IA, deshabilita el tablero temporalmente
+      container.querySelector('#game-board')!.classList.add('pointer-events-none');
+      setTimeout(makeAIMove, 700); // Pequeño delay para simular que "piensa"
+    }
+  }
+  
+  function handleCellPlayed(cell: HTMLElement, cellIndex: number) {
+    gameState[cellIndex] = currentPlayer;
+    cell.innerHTML = currentPlayer;
+    cell.classList.add(currentPlayer === 'X' ? 'text-cyan-400' : 'text-white');
+    handleResultValidation();
+  }
+
+  function handleCellClick(event: Event) {
+    const clickedCell = event.target as HTMLElement;
+    const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index')!);
+
+    if (gameState[clickedCellIndex] !== "" || !isGameActive) {
+      return;
+    }
+    // En modo IA, el jugador humano (X) no puede jugar en el turno de la IA (O)
+    if (gameMode === 'HvsAI' && currentPlayer === 'O') {
+      return;
+    }
+    
+    handleCellPlayed(clickedCell, clickedCellIndex);
+  }
+
+  // --- LÓGICA DE LA INTELIGENCIA ARTIFICIAL ---
+
+  function makeAIMove() {
+    const bestMove = findBestMove();
+    if (bestMove !== -1) {
+      const cell = container.querySelector(`[data-cell-index='${bestMove}']`) as HTMLElement;
+      handleCellPlayed(cell, bestMove);
+    }
+    // Habilita el tablero de nuevo para el jugador
+    container.querySelector('#game-board')!.classList.remove('pointer-events-none');
+  }
+
+  function findBestMove(): number {
+    // 1. Ganar si es posible
+    for (let i = 0; i < 9; i++) {
+      if (gameState[i] === "") {
+        gameState[i] = "O";
+        if (checkWinner("O")) {
+          gameState[i] = ""; // Deshacer el movimiento
+          return i;
+        }
+        gameState[i] = "";
+      }
+    }
+
+    // 2. Bloquear al oponente
+    for (let i = 0; i < 9; i++) {
+      if (gameState[i] === "") {
+        gameState[i] = "X";
+        if (checkWinner("X")) {
+          gameState[i] = "";
+          return i;
+        }
+        gameState[i] = "";
+      }
+    }
+    
+    // 3. Tomar el centro si está libre
+    if (gameState[4] === "") return 4;
+
+    // 4. Tomar una esquina libre
+    const corners = [0, 2, 6, 8];
+    const emptyCorners = corners.filter(i => gameState[i] === "");
+    if (emptyCorners.length > 0) {
+      return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
+    }
+
+    // 5. Tomar un lado libre
+    const sides = [1, 3, 5, 7];
+    const emptySides = sides.filter(i => gameState[i] === "");
+    if (emptySides.length > 0) {
+      return emptySides[Math.floor(Math.random() * emptySides.length)];
+    }
+    
+    return -1; // No hay movimientos posibles
+  }
+
+  function checkWinner(player: string): boolean {
+    return winningConditions.some(condition => {
+      return condition.every(index => gameState[index] === player);
+    });
+  }
+
+  // --- REINICIO Y MANEJO DE LA UI ---
+
+  function handleRestartGame() {
+    isGameActive = true;
+    currentPlayer = "X";
+    gameState = ["", "", "", "", "", "", "", "", ""];
+    statusDisplay.innerHTML = `Turno del Jugador X`;
+    cells.forEach(cell => {
+      cell.innerHTML = "";
+      cell.classList.remove('text-cyan-400', 'text-white');
+    });
+    gameOverlay.style.display = 'none';
+    container.querySelector('#game-board')!.classList.remove('pointer-events-none');
+  }
+
+  // Event Listeners
+  cells.forEach(cell => cell.addEventListener('click', handleCellClick));
+  restartButton.addEventListener('click', handleRestartGame);
+  container.querySelectorAll('.mode-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      gameMode = button.getAttribute('data-mode') as string;
+      handleRestartGame(); // Reinicia el juego al cambiar de modo
+
+      // Actualizar estilo de los botones
+      container.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('bg-white', 'text-black');
+        btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
+      });
+      button.classList.add('bg-white', 'text-black');
+      button.classList.remove('bg-gray-700', 'hover:bg-gray-600');
+    });
+  });
 }
