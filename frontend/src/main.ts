@@ -47,9 +47,15 @@
 // router(); =>
 // Ejecuta el router por primera vez para cargar la vista inicial.
 
-import { renderHomeView } from './views/Home.ts';
+import { renderHome } from './views/Home.ts';
 import { renderRegister } from './views/Register.ts';
 import { renderLogin } from './views/Login.ts';
+import { renderStart } from './views/Start.ts';
+import { renderCharQP } from './views/CharQP.ts';
+import { renderCharTournament } from './views/CharTournament.ts';
+import { renderTicTacToe } from './views/TicTacToe.ts';
+import { renderProfile } from './views/Profile.ts';
+import { renderAbout } from './views/About.ts';
 import { initializePongGame } from './views/Pong.ts';
 import { renderTicTacToe } from './views/TicTacToe.ts'
 
@@ -57,9 +63,15 @@ const appElement = document.querySelector('#app') as HTMLDivElement;
 
 const routes: { [key: string]: (element: HTMLElement) => void } =
 {
-	'/': renderHomeView,
+	'/': renderHome,
 	'/register': renderRegister,
 	'/login': renderLogin,
+	'/start': renderStart,
+	'/charQP': renderCharQP,
+	'/charTournament': renderCharTournament,
+	'/ticTacToe': renderTicTacToe,
+	'/profile': renderProfile,
+	'/about': renderAbout,
 	'/pong': initializePongGame,
 	'/tictactoe': renderTicTacToe,
 };

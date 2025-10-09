@@ -1,4 +1,3 @@
-// frontend/src/views/TicTacToe.ts
 
 export function renderTicTacToe(container: HTMLElement): void {
   container.innerHTML = `

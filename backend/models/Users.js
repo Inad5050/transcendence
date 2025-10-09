@@ -23,7 +23,8 @@ const UserModel = db.define('users', {
 	},
 	fullname: {
 		type: sequelize.STRING,
-		allowNull: false
+		allowNull: true,
+		defaultValue: null
 	},
 	password: {
 		type: sequelize.STRING,
