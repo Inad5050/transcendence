@@ -1,26 +1,25 @@
 import { navigate } from '../main';
 import { playTrack } from '../musicPlayer';
 
-
-interface User // Mock de datos de usuario para la ventana de detalles
-{
+interface User {
     id: number;
     username: string;
     email: string;
     elo: number;
 }
 
+// Interfaz extendida para las solicitudes, ya que la API devuelve más datos
+interface FriendRequest extends User {
+    friendshipId: number; 
+}
 
-function getAccessToken(): string | null // Función para obtener el token de acceso de localStorage
-{
+function getAccessToken(): string | null {
     return localStorage.getItem('access_token');
 }
 
-async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> // Función para realizar peticiones autenticadas
-{
+async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
     const token = getAccessToken();
-    if (!token) 
-	{
+    if (!token) {
         navigate('/login');
         throw new Error('No estás autenticado.');
     }
@@ -29,33 +28,38 @@ async function authenticatedFetch(url: string, options: RequestInit = {}): Promi
     return fetch(url, { ...options, headers });
 }
 
-// Renderiza la vista de Amigos
 export function renderFriends(appElement: HTMLElement): void {
     if (!appElement) return;
 
     appElement.innerHTML = `
     <div class="min-h-screen flex flex-col p-8 relative">
 
-		<div class="w-full flex justify-center">
-			<img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full mt-40">
-		</div>
+        <div id="user-details-modal" class="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center hidden z-50">
+            <div id="modal-content" class="bg-gray-800 bg-opacity-75 border-4 border-cyan-400 rounded-lg p-6 text-white text-center w-full max-w-sm relative">
+                </div>
+        </div>
 
-        <div class="w-full flex justify-around items-start mt-16">
+        <div class="w-full flex justify-center bottom-[100px]">
+            <img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full">
+        </div>
 
-            <div class="w-1/4 flex flex-col items-center">
-                <img src="/assets/friends.png" alt="Friends" class="w-[250px] mb-4">
-                <div id="friends-container" class="w-full h-[400px] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-2xl shadow-cyan-400/50"></div>
+        <div class="flex-grow flex justify-around items-center relative">
+            
+            <div class="w-1/5 flex flex-col items-center">
+                <img src="/assets/friends.png" alt="Friends" class="w-[200px] mb-4">
+                <div id="friends-container" class="w-full h-[50vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-2xl shadow-cyan-400/50"></div>
             </div>
 
-            <div id="user-details-container" class="w-1/4 flex justify-center"></div>
+			<div id="friend-requests-section" class="absolute bottom-[5%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-1/4 flex flex-col items-center">
+			</div>
 
-            <div class="w-1/4 flex flex-col items-center">
-                <img src="/assets/users.png" alt="Users" id="users-button" class="w-[200px] mb-4 cursor-pointer">
-                <div id="users-container" class="w-full h-[400px] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-2xl shadow-cyan-400/50 hidden"></div>
+            <div class="w-1/5 flex flex-col items-center">
+                <img src="/assets/users.png" alt="Users" id="users-button" class="w-[150px] mb-4">
+                <div id="users-container" class="w-full h-[50vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-2xl shadow-cyan-400/50"></div>
             </div>
 
         </div>
-
+        
     </div>
     `;
 
@@ -63,46 +67,129 @@ export function renderFriends(appElement: HTMLElement): void {
 
     const friendsContainer = document.getElementById('friends-container')!;
     const usersContainer = document.getElementById('users-container')!;
-    const userDetailsContainer = document.getElementById('user-details-container')!;
-    const usersButton = document.getElementById('users-button')!;
+    const friendRequestsSection = document.getElementById('friend-requests-section')!;
+    const modal = document.getElementById('user-details-modal')!;
+    
+    function showUserDetailsInModal(user: User) {
+        const modalContent = document.getElementById('modal-content')!;
+        modalContent.innerHTML = `
+            <button id="close-modal-btn" class="absolute top-2 right-4 text-white text-3xl font-bold">&times;</button>
+            <h2 class="text-3xl font-bold mb-4">${user.username}</h2>
+            <p class="text-xl"><strong>Email:</strong> ${user.email}</p>
+            <p class="text-xl"><strong>ELO:</strong> ${user.elo}</p>
+        `;
+        modal.classList.remove('hidden');
+        document.getElementById('close-modal-btn')?.addEventListener('click', () => modal.classList.add('hidden'));
+    }
 
-    async function loadFriends() 
-	{
-        try 
-		{
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+
+    async function loadFriends() {
+        try {
             const response = await authenticatedFetch('/api/friends');
-            if (!response.ok) 
-				throw new Error('Error al cargar amigos');
-
+            if (!response.ok) throw new Error('Error al cargar amigos');
             const friends: User[] = await response.json();
 
-            friendsContainer.innerHTML = friends.map(friend => `<div class="text-white text-2xl p-2 cursor-pointer hover:bg-gray-700" data-user-id="${friend.id}">${friend.username}</div>`).join('');
+            friendsContainer.innerHTML = friends.map(friend => `<div class="text-white text-3xl p-2 cursor-pointer hover:bg-gray-700" data-user-id="${friend.id}">${friend.username}</div>`).join('');
 
             friendsContainer.querySelectorAll('[data-user-id]').forEach(el => {
                 el.addEventListener('click', async () => {
                     const userId = el.getAttribute('data-user-id');
-                    const userResponse = await authenticatedFetch(`/api/users/${userId}`);
-                    const userData: User = await userResponse.json();
-                    showUserDetails(userData);
+                    try {
+                        const userResponse = await authenticatedFetch(`/api/users/${userId}`);
+                        const userData: User = await userResponse.json();
+                        showUserDetailsInModal(userData);
+                    } catch (error) {
+                        alert(`Error al cargar detalles del usuario: ${(error as Error).message}`);
+                    }
                 });
             });
         } catch (error) {
             console.error(error);
-            friendsContainer.innerHTML = `<div class="text-red-500 p-2">${error.message}</div>`;
+            friendsContainer.innerHTML = `<div class="text-red-500 p-2">${(error as Error).message}</div>`;
         }
     }
-    
-    // Mostrar/ocultar lista de todos los usuarios
-    usersButton.addEventListener('click', async () => {
-        if (usersContainer.classList.contains('hidden')) {
-            await loadAllUsers();
-            usersContainer.classList.remove('hidden');
-        } else {
-            usersContainer.classList.add('hidden');
-        }
-    });
 
-    // Cargar todos los usuarios (que no son amigos)
+    async function loadFriendRequests() 
+    {
+        try 
+        {
+            const response = await authenticatedFetch('/api/friends/requests');
+            if (!response.ok) throw new Error('Error al cargar solicitudes');
+            const requests: FriendRequest[] = await response.json();
+
+            if (requests.length === 0) {
+                friendRequestsSection.innerHTML = '';
+                return;
+            }
+
+            friendRequestsSection.innerHTML = `
+                <img src="/assets/requests.png" alt="Friend Requests" class="w-[300px] mb-4">
+                <div id="requests-container" class="w-full h-[25vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-2xl shadow-cyan-400/50">
+                    ${requests.map(req => `
+                        <div class="flex flex-col items-center text-white text-3xl p-3 mb-3 border-b border-gray-600">
+                            <span>${req.username}</span>
+                            <div class="flex gap-4 mt-2">
+                                <img src="/assets/accept.png" alt="Accept" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="accept" data-id="${req.friendshipId}">
+                                <img src="/assets/cancel.png" alt="Decline" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="reject" data-id="${req.friendshipId}">
+                                <img src="/assets/details.png" alt="Details" class="w-[70px] h-[50px] cursor-pointer request-action-btn" data-action="details" data-user-id="${req.id}">
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            friendRequestsSection.querySelectorAll('.request-action-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const target = e.target as HTMLElement;
+                    const action = target.dataset.action;
+                    const id = target.dataset.id; 
+
+                    if (action === 'accept' && id) {
+                        await handleFriendRequest(id, 'accept');
+                    } else if (action === 'reject' && id) {
+                        await handleFriendRequest(id, 'reject');
+                    } else if (action === 'details' && id) {
+                        try {
+                            const userResponse = await authenticatedFetch(`/api/users/${id}`);
+                            const userData: User = await userResponse.json();
+                            showUserDetailsInModal(userData);
+                        } catch (error) {
+                            alert(`Error: ${(error as Error).message}`);
+                        }
+                    }
+                });
+            });
+
+        } catch (error) {
+            console.error(error);
+            friendRequestsSection.innerHTML = ``;
+        }
+    }
+
+    async function handleFriendRequest(requestId: string, action: 'accept' | 'reject') {
+        const url = action === 'accept' ? `/api/friends/accept/${requestId}` : `/api/friends/${requestId}`;
+        const method = action === 'accept' ? 'POST' : 'DELETE';
+
+        try {
+            const response = await authenticatedFetch(url, { method });
+            if (!response.ok) throw new Error(`Error al ${action === 'accept' ? 'aceptar' : 'rechazar'}`);
+            
+            alert(`Solicitud ${action === 'accept' ? 'aceptada' : 'rechazada'}.`);
+            
+            await loadFriends();
+            await loadFriendRequests();
+            await loadAllUsers();
+
+        } catch (error) {
+            alert(`Error: ${(error as Error).message}`);
+        }
+    }
+
     async function loadAllUsers() {
         try {
             const [usersResponse, friendsResponse] = await Promise.all([
@@ -120,29 +207,27 @@ export function renderFriends(appElement: HTMLElement): void {
             const otherUsers = allUsers.filter(user => user.id !== currentUser.id && !friendIds.has(user.id));
             
             usersContainer.innerHTML = otherUsers.map(user => `
-                <div class="flex justify-between items-center text-white text-2xl p-2 hover:bg-gray-700">
+                <div class="flex justify-between items-center text-white text-3xl p-2 hover:bg-gray-700">
                     <span>${user.username}</span>
-                    <img src="/assets/accept.png" alt="Add Friend" class="w-8 h-8 cursor-pointer add-friend-btn" data-user-id="${user.id}">
+                    <img src="/assets/add.png" alt="AddFriend" class="w-[60px] h-[40px] cursor-pointer add-friend-btn" data-user-id="${user.id}">
                 </div>
             `).join('');
             
-            // Añadir event listeners a los botones de añadir amigo
             usersContainer.querySelectorAll('.add-friend-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const targetUser = (e.target as HTMLElement).dataset.userId;
                     if (targetUser && currentUser.id) {
-                        sendFriendRequest(currentUser.id, parseInt(targetUser));
+                        await sendFriendRequest(currentUser.id, parseInt(targetUser));
                     }
                 });
             });
 
         } catch (error) {
             console.error(error);
-            usersContainer.innerHTML = `<div class="text-red-500 p-2">${error.message}</div>`;
+            usersContainer.innerHTML = `<div class="text-red-500 p-2">${(error as Error).message}</div>`;
         }
     }
     
-    // Enviar solicitud de amistad
     async function sendFriendRequest(fromId: number, toId: number) {
         try {
             const response = await authenticatedFetch('/api/friends', {
@@ -154,20 +239,11 @@ export function renderFriends(appElement: HTMLElement): void {
             if (!response.ok) throw new Error(result.message || 'Error al enviar la solicitud');
             alert('Solicitud de amistad enviada!');
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            alert(`Error: ${(error as Error).message}`);
         }
     }
 
-    // Mostrar detalles de un usuario
-    function showUserDetails(user: User) {
-        userDetailsContainer.innerHTML = `
-        <div class="bg-gray-800 bg-opacity-75 border-4 border-cyan-400 rounded-lg p-6 text-white text-center w-full max-w-sm">
-            <h2 class="text-3xl font-bold mb-4">${user.username}</h2>
-            <p class="text-xl"><strong>Email:</strong> ${user.email}</p>
-            <p class="text-xl"><strong>ELO:</strong> ${user.elo}</p>
-        </div>
-        `;
-    }
-
     loadFriends();
+    loadFriendRequests();
+    loadAllUsers();
 }
