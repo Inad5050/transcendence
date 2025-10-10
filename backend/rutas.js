@@ -2,6 +2,7 @@ import UserControler from "./controllers/Users.js";
 import AuthController from "./controllers/Auth.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
 import FriendControler from "./controllers/Friends.js";
+import ChatController from "./controllers/chat.js";
 
 const rutas = [
 	// Rutas de autenticación (públicas)
@@ -105,6 +106,32 @@ const rutas = [
 		url: "/friends/:friendshipId",
 		preHandler: authMiddleware,
 		handler: FriendControler.deleteFriend
+	},
+
+	// Rutas de chat
+	{
+		method: "POST",
+		url: "/chat/private",
+		preHandler: authMiddleware,
+		handler: ChatController.sendMessage
+	},
+	{
+		method: "POST",
+		url: "/chat/public",
+		preHandler: authMiddleware,
+		handler: ChatController.sendPublicMessage
+	},
+	{
+		method: "GET",
+		url: "/chat/private/:otherUserId",
+		preHandler: authMiddleware,
+		handler: ChatController.getMessages
+	},
+	{
+		method: "GET",
+		url: "/chat/public",
+		preHandler: authMiddleware,
+		handler: ChatController.getPublicMessages
 	}
 ]
 
