@@ -13,8 +13,6 @@ services:
         condition: service_healthy
       frontend:
         condition: service_healthy
-      # game:
-      #   condition: service_healthy
 
   backend:
     build: ./backend
@@ -29,7 +27,7 @@ services:
     environment:
       - APP_KEY=${APP_KEY}
     healthcheck:
-      test: ["CMD", "curl", "-f", "--silent" ,"http://localhost:9000/health"] # curl -f (o --fail) hace que curl devuelva un código de salida distinto de cero si el servidor responde con un error HTTP (4xx o 5xx)
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"] # curl -f (o --fail) hace que curl devuelva un código de salida distinto de cero si el servidor responde con un error HTTP (4xx o 5xx)
       interval: 30s
       timeout: 10s
       retries: 1
@@ -42,7 +40,7 @@ services:
       container_name: frontend
       volumes:
         - ./frontend:/app
-        - /app/node_modules
+        - /app/node_modules # crea un volumén gestionado por docker dónde se almacena el cotenido de /app/node_modules -> así el contenedor no tiene que hacer 'npm install' cada vez que levantamos los contenedores
       expose:
         - "3000"
       healthcheck:
@@ -53,17 +51,6 @@ services:
         start_period: 30s
       networks:
         - default
-
-  # game:
-  #   build: ./game
-  #   container_name: game
-  #   volumes:
-  #     - ./frontend:/app
-  #     - /app/node_modules
-  #   ports:
-  #     - "5000:5000"
-  #   networks:
-  #     - default
 
 networks:
   default:

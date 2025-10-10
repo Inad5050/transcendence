@@ -1,4 +1,3 @@
-# Usar una imagen oficial de Node.js. Alpine es ligera.
 FROM node:18-alpine
 # Instala curl
 RUN apk add --no-cache curl
@@ -12,5 +11,5 @@ RUN npm install
 COPY . .
 # Exponer el puerto en el que el servidor de desarrollo de Vite se ejecutará.
 EXPOSE 3000
-# El comando para iniciar el servidor de desarrollo. Se usará el script "dev" del package.json.
+# El comando para iniciar el servidor de desarrollo. Se ejecuta el script 'dev' definido en package.json, que a su vez inicia el servidor de Vite.
 CMD ["npm", "run", "dev"]
