@@ -37,12 +37,12 @@ ChatModel.belongsTo(UserModel, { as: 'reciver', foreignKey: 'reciver_id' });
 
 // Sincronizar el modelo con la base de datos
 // (En producción, considera usar migraciones en lugar de sync)
-ChatModel.sync()
-    .then(() => {
-        console.log('Tabla Chat sincronizada correctamente.');
-    })
-    .catch((error) => {
-        console.error('Error al sincronizar la tabla Chat:', error);
-    });
+// ChatModel.sync()
+//     .then(() => {
+//         console.log('Tabla Chat sincronizada correctamente.');
+//     })
+//     .catch((error) => {
+//         console.error('Error al sincronizar la tabla Chat:', error);
+//     });
 
 export default ChatModel;

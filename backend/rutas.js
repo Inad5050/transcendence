@@ -2,7 +2,7 @@ import UserControler from "./controllers/Users.js";
 import AuthController from "./controllers/Auth.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
 import FriendControler from "./controllers/Friends.js";
-import ChatController from "./controllers/chat.js";
+import ChatController from "./controllers/Chat.js";
 
 const rutas = [
 	// Rutas de autenticación (públicas)
