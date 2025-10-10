@@ -25,7 +25,8 @@ import {
 } from '../utils/constants';
 
 function checkCollision(ball: BallObject, paddle: PaddleObject): boolean {
-    if (!paddle.isAlive) return false;
+    if (!paddle.isAlive)
+      return false;
     
     const closestX = Math.max(paddle.x, Math.min(ball.x, paddle.x + paddle.width));
     const closestY = Math.max(paddle.y, Math.min(ball.y, paddle.y + paddle.height));
@@ -146,7 +147,8 @@ export function initializePongGame(container: HTMLElement) {
   }
   
   function update() {
-    if (gameState !== 'PLAYING') return;
+    if (gameState !== 'PLAYING') 
+      return;
 
     const PADDLE_SPEED = gameMode === 'FOUR_PLAYERS' ? PADDLE_SPEED_4P : PADDLE_SPEED_CLASSIC;
     const { ball, player1, player2, player3, player4 } = gameObjects;
@@ -317,7 +319,8 @@ export function initializePongGame(container: HTMLElement) {
   }
 
   function startGame() {
-      if (gameState === 'PLAYING') return;
+      if (gameState === 'PLAYING')
+        return;
       gameState = 'PLAYING';
       gameOverlay.classList.add('hidden');
       resetBall();

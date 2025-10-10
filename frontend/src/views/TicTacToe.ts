@@ -85,7 +85,7 @@ export function renderTicTacToe(container: HTMLElement): void {
     if (gameMode === 'HvsAI' && currentPlayer === 'O' && isGameActive) {
       // Es el turno de la IA, deshabilita el tablero temporalmente
       container.querySelector('#game-board')!.classList.add('pointer-events-none');
-      setTimeout(makeAIMove, 700); // Pequeño delay para simular que "piensa"
+      setTimeout(makeAIMove, 500); // Pequeño delay para simular que "piensa"
     }
   }
   
@@ -165,7 +165,7 @@ export function renderTicTacToe(container: HTMLElement): void {
       return emptySides[Math.floor(Math.random() * emptySides.length)];
     }
     
-    return -1; // No hay movimientos posibles
+    return -1;
   }
 
   function checkWinner(player: string): boolean {
@@ -195,9 +195,8 @@ export function renderTicTacToe(container: HTMLElement): void {
   container.querySelectorAll('.mode-btn').forEach(button => {
     button.addEventListener('click', () => {
       gameMode = button.getAttribute('data-mode') as string;
-      handleRestartGame(); // Reinicia el juego al cambiar de modo
+      handleRestartGame();
 
-      // Actualizar estilo de los botones
       container.querySelectorAll('.mode-btn').forEach(btn => {
         btn.classList.remove('bg-white', 'text-black');
         btn.classList.add('bg-gray-700', 'hover:bg-gray-600');
