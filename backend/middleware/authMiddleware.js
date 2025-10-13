@@ -5,7 +5,7 @@ import UserModel from '../models/Users.js';
  * Middleware para verificar que el usuario esté autenticado
  */
 
-async function authMiddleware(req, res) {
+async function authMiddleware(req, res, next) {
     try {
         const authHeader = req.headers.authorization;
 
@@ -58,6 +58,9 @@ async function authMiddleware(req, res) {
             console.error('Error actualizando actividad:', error);
         });
 
+        // ✅ CRÍTICO: Llamar a next() para continuar
+        next();
+
     } catch (error) {
         console.error('Error en authMiddleware:', error);
         return res.status(401).send({
@@ -70,27 +73,29 @@ async function authMiddleware(req, res) {
 /**
  * Middleware opcional - no falla si no hay token
  */
-async function optionalAuthMiddleware(request, reply) {
-	try {
-		const authHeader = request.headers.authorization;
-		
-		if (authHeader && authHeader.startsWith('Bearer ')) {
-			const token = authHeader.substring(7);
-			const validation = await jwtUtils.isSessionValid(token);
+async function optionalAuthMiddleware(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
+        
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.substring(7);
+            const validation = await jwtUtils.isSessionValid(token);
 
-			if (validation.valid) {
-				request.user = {
-					id: validation.decoded.id,
-					username: validation.decoded.username,
-					email: validation.decoded.email
-				};
-			}
-		}
-		
-		// Continuar siempre
-	} catch (error) {
-		// Ignorar errores en modo opcional
-	}
+            if (validation.valid) {
+                req.user = {
+                    id: validation.decoded.id,
+                    username: validation.decoded.username,
+                    email: validation.decoded.email
+                };
+            }
+        }
+        
+        // ✅ Siempre llamar a next()
+        next();
+    } catch (error) {
+        // En modo opcional, continuar aunque haya error
+        next();
+    }
 }
 
 export { authMiddleware, optionalAuthMiddleware };

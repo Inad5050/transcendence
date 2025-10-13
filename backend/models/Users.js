@@ -90,4 +90,5 @@ UserModel.prototype.verifyPassword = function (plain) {
 	return bcrypt.compare(plain, this.password);
 };
 
+
 export default UserModel;

@@ -102,7 +102,7 @@
         <!-- Añadir un header -->
         <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
             <h1>🎮 Dashboard</h1>
-            <button onclick="logout()" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
+            <button onclick="logoutUser()" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">
                 🚪 Cerrar Sesión
             </button>
         </div>
@@ -159,7 +159,7 @@
                 <button onclick="testProtectedRoute()">🛡️ Probar Ruta Protegida</button>
                 <button onclick="location.href='test2fa.html'" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🔐 Gestionar 2FA</button>
                 <button onclick="location.href='testJWT.html'">🧪 Probar JWT</button>
-                <button onclick="logout()" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">🚪 Cerrar Sesión</button>
+                <button onclick="logoutUser()" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);">🚪 Cerrar Sesión</button>
             </div>
         </div>
     </div>
@@ -336,6 +336,26 @@
                 // Aunque falle el endpoint, limpiar tokens locales
                 authManager.logout();
                 window.location.href = 'login.html';
+            }
+        }
+
+        async function logoutUser() {
+            if (!confirm('¿Estás seguro que deseas cerrar sesión?')) {
+                return;
+            }
+
+            try {
+                // Usar el método de authManager
+                await authManager.logout();
+                
+                alert('✅ Sesión cerrada exitosamente');
+                window.location.href = 'loging.html';
+            } catch (error) {
+                console.error('Error en logout:', error);
+                
+                // Aunque falle, limpiar sesión local
+                authManager.clearSession();
+                window.location.href = 'loging.html';
             }
         }
     </script>
