@@ -14,6 +14,7 @@ const rutas = [
 	{
 		method: "POST",
 		url: "/auth/logout",
+		preHandler: authMiddleware,
 		handler: AuthController.logout,
 	},
 	{
@@ -52,16 +53,19 @@ const rutas = [
 	{
 		method: "POST",
 		url: "/users",
+		preHandler: authMiddleware,
 		handler: UserControler.create,
 	},
 	{
 		method: "GET",
 		url: "/users",
+		preHandler: authMiddleware,
 		handler: UserControler.getAll,
 	},
 	{
 		method: "GET",
 		url: "/users/:identifier",
+		preHandler: authMiddleware,
 		handler: UserControler.getOne,
 	},
 	{

@@ -34,14 +34,14 @@ const ChatModel = db.define('chat', {
 ChatModel.belongsTo(UserModel, { as: 'sender', foreignKey: 'sender_id' });
 ChatModel.belongsTo(UserModel, { as: 'reciver', foreignKey: 'reciver_id' });
 
-// Sincronizar el modelo con la base de datos
-// (En producción, considera usar migraciones en lugar de sync)
-// ChatModel.sync()
-//     .then(() => {
-//         console.log('Tabla Chat sincronizada correctamente.');
-//     })
-//     .catch((error) => {
-//         console.error('Error al sincronizar la tabla Chat:', error);
-//     });
+// En UserModel.js o en un archivo de asociaciones
+UserModel.hasMany(ChatModel, {
+    foreignKey: 'sender_id',
+    as: 'sentMessages'
+});
 
+UserModel.hasMany(ChatModel, {
+    foreignKey: 'reciver_id',
+    as: 'receivedMessages'
+});
 export default ChatModel;

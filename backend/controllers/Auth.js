@@ -71,6 +71,8 @@ class AuthController {
 
 			// Actualizar last_login
 			userModel.last_login = new Date();
+			userModel.status = 'online';
+			userModel.last_activity = new Date();
 			await userModel.save();
 
 			// Generar tokens JWT
@@ -83,6 +85,7 @@ class AuthController {
 
 			// Guardar sesión en la base de datos
 			await jwtUtils.saveSession(userModel.id, accessToken, refreshToken, req);
+
 
 			// Obtener datos del usuario sin la contraseña ni el secreto 2FA
 			const userData = userModel.get({ plain: true });
@@ -111,11 +114,25 @@ class AuthController {
 		try {
 			 // Obtener el token del header
 			const authHeader = req.headers.authorization;
-			
+
+			const userId = req.user.id;  // ✅ Viene del middleware
+
 			if (authHeader && authHeader.startsWith('Bearer ')) {
 				const token = authHeader.substring(7);
 				await jwtUtils.invalidateSession(token);
 			}
+
+        // Buscar y actualizar el usuario
+        const userModel = await UserModel.findByPk(userId);
+        if (!userModel) {
+            return res.status(404).send({
+                status: false,
+                message: 'Usuario no encontrado'
+            });
+        }
+
+        userModel.status = 'offline';
+        await userModel.save();
 
 			return res.status(200).send({
 				status: true,
