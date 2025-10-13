@@ -1,5 +1,4 @@
 import sequelize from "sequelize";
-import bcrypt from "bcryptjs";
 import db from '../db.js';
 import UserModel from "./Users.js"
 
