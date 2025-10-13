@@ -1,63 +1,334 @@
 import { navigate } from '../main';
 import { playTrack } from '../musicPlayer';
+import { authenticatedFetch } from '../utils/auth';
 
-export function renderProfile(appElement: HTMLElement): void
-{
-	if (!appElement)
-		return;
-	appElement.innerHTML = `
-	<div class="min-h-screen flex flex-col p-8">
-		
-		<div class="w-full flex justify-center">
-			<img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full mt-40">
-		</div>
+interface User {
+    id: number;
+    username: string;
+    email: string;
+    fullname: string;
+    elo: number;
+    twofa_enabled: boolean;
+    avatar_url?: string; // El avatar es opcional.
+}
 
-		<div class="absolute bottom-[700px] left-1/2 -translate-x-1/2">
-			<img src="/assets/quickPlay.gif" alt="quickPlay" id="quickPlayButton"
-		class="w-[350px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+const mockStats = {
+    played: 128,
+    victories: 80,
+    defeats: 48,
+};
 
-		<div class="absolute bottom-[510px] left-1/2 -translate-x-1/2">
-			<img src="/assets/tournament.gif" alt="tournament" id="tournamentButton"
-		class="w-[700px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+const mockHistory = [
+    { opponent: 'user2', result: 'Victoria', score: '3-1' },
+    { opponent: 'user5', result: 'Derrota', score: '0-3' },
+    { opponent: 'user3', result: 'Victoria', score: '3-2' },
+];
 
-		<div class="absolute bottom-[280px] left-1/2 -translate-x-1/2">
-			<img src="/assets/ticTacToe.png" alt="ticTacToe" id="ticTacToeButton"
-		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+/**
+ * Renderiza la vista del perfil de usuario.
+ * @param appElement El elemento principal de la aplicación donde se dibujará la vista.
+ */
+export function renderProfile(appElement: HTMLElement): void {
+    if (!appElement) return;
 
-		<div class="absolute right-5 top-5">           
-			<img src="/assets/profile.png" alt="profile" id="profileButton"
-		class="w-[300px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+    // Obtiene los datos del usuario del localStorage. Si no existen, no puede mostrar el perfil.
+    const user: User | null = JSON.parse(localStorage.getItem('user') || 'null');
 
-		<div class="absolute left-5 bottom-5">           
-			<img src="/assets/about.png" alt="about" id="aboutButton"
-		class="w-[200px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
+    // Si no hay usuario, significa que no ha iniciado sesión. Se le redirige a la página de login.
+    if (!user) {
+        navigate('/login');
+        return;
+    }
 
-	</div>
-	`;
+    // --- RENDERIZADO DEL HTML DE LA VISTA ---
+    appElement.innerHTML = `
+        <div class="min-h-screen flex flex-col items-center justify-center p-4 text-white">
+            <h1 class="text-6xl font-bold mb-8 text-cyan-300 drop-shadow-lg">PERFIL DE USUARIO</h1>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-7xl">
+                <div class="col-span-1 space-y-8">
+                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+                        <div class="flex flex-col items-center">
+                            <div class="relative mb-4">
+                                <img id="avatar-img" src="${user.avatar_url || `/assets/char${user.id % 4 + 1}_profile.png`}" alt="Avatar" class="w-40 h-40 rounded-full border-4 border-cyan-400 object-cover">
+                                <label for="avatar-upload" class="absolute bottom-0 right-0 bg-gray-900 p-2 rounded-full cursor-pointer hover:bg-cyan-500">
+                                    ✏️
+                                </label>
+                                <input type="file" id="avatar-upload" class="hidden" accept="image/*">
+                            </div>
+                            
+                            <div class="w-full">
+                                <label class="font-bold">Username</label>
+                                <input id="username-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3" value="${user.username}">
+                                
+                                <label class="font-bold">Email</label>
+                                <input id="email-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3" value="${user.email}">
 
-	playTrack('/assets/Techno_Syndrome.mp3');
+                                <p class="text-lg"><span class="font-bold">ELO:</span> <span class="text-cyan-300 font-bold">${user.elo}</span></p>
 
-	const quickPlayButton = document.getElementById('quickPlayButton');
-	const tournamentButton = document.getElementById('tournamentButton');
+                                <button id="save-profile-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded mt-4 font-bold">Guardar Cambios</button>
+                            </div>
+                        </div>
+                    </div>
 
-	if (quickPlayButton)
-	{
-		quickPlayButton.addEventListener('click', () =>
-		{
-			navigate('/quickPlay');
-		});
-	}
+                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+                        <h3 class="text-2xl font-bold mb-4">Seguridad</h3>
+                        <div id="2fa-section"></div>
+                    </div>
+                </div>
 
-	if (tournamentButton)
-	{
-		tournamentButton.addEventListener('click', () =>
-		{
-			navigate('/tournament');
-		});
-	}
+                <div class="col-span-1 md:col-span-2 space-y-8">
+                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+                        <h3 class="text-2xl font-bold mb-4">Estadísticas</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                            <div>
+                                <p class="text-4xl font-bold text-cyan-300">${mockStats.played}</p>
+                                <p class="text-gray-400">Partidas</p>
+                            </div>
+                            <div>
+                                <p class="text-4xl font-bold text-green-400">${mockStats.victories}</p>
+                                <p class="text-gray-400">Victorias</p>
+                            </div>
+                            <div>
+                                <p class="text-4xl font-bold text-red-400">${mockStats.defeats}</p>
+                                <p class="text-gray-400">Derrotas</p>
+                            </div>
+                            <div>
+                                <p class="text-4xl font-bold text-yellow-400">${((mockStats.victories / mockStats.played) * 100).toFixed(1)}%</p>
+                                <p class="text-gray-400">Ratio Vic.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+                        <h3 class="text-2xl font-bold mb-4">Historial de Partidas</h3>
+                        <div id="history-container" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+                            ${mockHistory.map(match => `
+                                <div class="flex justify-between items-center bg-gray-700 p-3 rounded">
+                                    <p>vs <span class="font-bold">${match.opponent}</span></p>
+                                    <p class="${match.result === 'Victoria' ? 'text-green-400' : 'text-red-400'} font-bold">${match.result}</p>
+                                    <p class="font-mono bg-gray-900 px-2 py-1 rounded">${match.score}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button id="back-btn" class="mt-8 bg-gray-600 hover:bg-gray-700 py-2 px-8 rounded font-bold">Volver</button>
+        </div>
+
+        <div id="2fa-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50">
+            <div id="2fa-modal-content" class="bg-gray-900 p-8 rounded-lg border-4 border-cyan-500 shadow-2xl text-center relative max-w-md w-full">
+            </div>
+        </div>
+    `;
+
+    playTrack('/assets/Techno_Syndrome.mp3');
+
+    // --- LÓGICA Y MANEJADORES DE EVENTOS ---
+    document.getElementById('back-btn')?.addEventListener('click', () => navigate('/start'));
+
+    // Llama a las funciones que configuran la interactividad de la página.
+    setupProfileEditing(user);
+    setupAvatarUpload(user);
+    setup2FA(user);
+}
+
+/**
+ * Configura el guardado de cambios del perfil (username, email).
+ */
+function setupProfileEditing(user: User) {
+    document.getElementById('save-profile-btn')?.addEventListener('click', async () => {
+        const usernameInput = document.getElementById('username-input') as HTMLInputElement;
+        const emailInput = document.getElementById('email-input') as HTMLInputElement;
+
+        const updatedData: Partial<User> = {};
+        if (usernameInput.value !== user.username) updatedData.username = usernameInput.value;
+        if (emailInput.value !== user.email) updatedData.email = emailInput.value;
+
+        if (Object.keys(updatedData).length === 0) {
+            alert('No hay cambios para guardar.');
+            return;
+        }
+
+        try {
+            // Llama a la API para actualizar el usuario con los nuevos datos.
+            const response = await authenticatedFetch(`/api/users/${user.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(updatedData),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Error al actualizar el perfil.');
+            }
+
+            // Si la API responde con éxito, actualiza el objeto de usuario en localStorage.
+            const updatedUser = await response.json();
+            localStorage.setItem('user', JSON.stringify(updatedUser));
+            alert('Perfil actualizado con éxito.');
+            location.reload(); // Recarga la página para mostrar los cambios.
+        } catch (error) {
+            alert(`Error: ${(error as Error).message}`);
+        }
+    });
+}
+
+/**
+ * Configura la previsualización del avatar al seleccionarlo.
+ */
+function setupAvatarUpload(user: User) {
+    const uploadInput = document.getElementById('avatar-upload') as HTMLInputElement;
+    const avatarImg = document.getElementById('avatar-img') as HTMLImageElement;
+
+    uploadInput.addEventListener('change', () => {
+        const file = uploadInput.files?.[0];
+        if (!file) return;
+
+        // Usa FileReader para leer el archivo local y mostrar una previsualización.
+        const reader = new FileReader();
+        reader.onload = () => {
+            avatarImg.src = reader.result as string;
+        };
+        reader.readAsDataURL(file);
+        
+        // El backend no soporta la subida de archivos, por lo que esto es solo una simulación visual.
+        alert("La subida de avatares no está implementada en el backend. Esto es solo una previsualización.");
+    });
+}
+
+/**
+ * Gestiona la sección de 2FA, mostrando el estado actual y los botones correspondientes.
+ */
+function setup2FA(user: User) {
+    const twoFASection = document.getElementById('2fa-section')!;
+    
+    // Función para dibujar el estado actual del 2FA.
+    const update2FAStatus = () => {
+        if (user.twofa_enabled) {
+            twoFASection.innerHTML = `
+                <p class="text-green-400 mb-2">✔️ 2FA está ACTIVO.</p>
+                <button id="disable-2fa-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Desactivar 2FA</button>
+            `;
+            document.getElementById('disable-2fa-btn')?.addEventListener('click', showDisable2FAModal);
+        } else {
+            twoFASection.innerHTML = `
+                <p class="text-yellow-400 mb-2">⚠️ 2FA está INACTIVO.</p>
+                <button id="enable-2fa-btn" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">Activar 2FA</button>
+            `;
+            document.getElementById('enable-2fa-btn')?.addEventListener('click', handleSetup2FA);
+        }
+    };
+
+    update2FAStatus();
+}
+
+/**
+ * Inicia el proceso de activación de 2FA llamando al endpoint de 'setup'.
+ */
+async function handleSetup2FA() {
+    try {
+        const response = await authenticatedFetch('/api/auth/2fa/setup', { method: 'POST' });
+        if (!response.ok) throw new Error('Error al iniciar la configuración de 2FA.');
+        
+        const data = await response.json();
+        // Muestra el modal con el QR que ha enviado el backend.
+        showEnable2FAModal(data.qr_code);
+
+    } catch (error) {
+        alert(`Error: ${(error as Error).message}`);
+    }
+}
+
+/**
+ * Muestra el modal para escanear el QR y verificar el código de activación.
+ */
+function showEnable2FAModal(qrCode: string) {
+    const modal = document.getElementById('2fa-modal')!;
+    const modalContent = document.getElementById('2fa-modal-content')!;
+    
+    modalContent.innerHTML = `
+        <h3 class="text-2xl font-bold mb-4">Activar 2FA</h3>
+        <p class="mb-4">Escanea este código QR con tu aplicación de autenticación.</p>
+        <img src="${qrCode}" alt="QR Code" class="mx-auto border-4 border-white rounded-lg mb-4">
+        <p class="mb-2">Luego, introduce el código de 6 dígitos para verificar.</p>
+        <input id="2fa-code-input" class="w-full bg-gray-700 p-2 rounded text-center text-2xl tracking-[0.5em]" placeholder="000000" maxlength="6">
+        <div class="flex gap-4 mt-4">
+            <button id="verify-2fa-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded font-bold">Verificar</button>
+            <button id="cancel-2fa-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancelar</button>
+        </div>
+    `;
+    modal.classList.remove('hidden');
+
+    document.getElementById('cancel-2fa-btn')?.addEventListener('click', () => modal.classList.add('hidden'));
+    document.getElementById('verify-2fa-btn')?.addEventListener('click', async () => {
+        const code = (document.getElementById('2fa-code-input') as HTMLInputElement).value;
+        if (code.length !== 6) return alert('Por favor, introduce un código válido de 6 dígitos.');
+
+        try {
+            // Llama al endpoint de 'enable' para finalizar la activación.
+            const response = await authenticatedFetch('/api/auth/2fa/enable', {
+                method: 'POST',
+                body: JSON.stringify({ code }),
+            });
+            if (!response.ok) throw new Error('Código de verificación incorrecto.');
+            
+            alert('¡2FA activado con éxito!');
+            modal.classList.add('hidden');
+            location.reload(); // Recarga para actualizar el estado del usuario en el localStorage.
+        } catch (error) {
+            alert(`Error: ${(error as Error).message}`);
+        }
+    });
+}
+
+/**
+ * Muestra el modal para confirmar la desactivación de 2FA.
+ */
+function showDisable2FAModal() {
+    const modal = document.getElementById('2fa-modal')!;
+    const modalContent = document.getElementById('2fa-modal-content')!;
+
+    modalContent.innerHTML = `
+        <h3 class="text-2xl font-bold mb-4">Desactivar 2FA</h3>
+        <p class="mb-4">Para confirmar, introduce tu contraseña y un código 2FA actual.</p>
+        
+        <label>Contraseña</label>
+        <input id="password-input" type="password" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3">
+
+        <label>Código 2FA</label>
+        <input id="2fa-code-input" class="w-full bg-gray-700 p-2 rounded text-center text-2xl tracking-[0.5em] mt-1" placeholder="000000" maxlength="6">
+        
+        <div class="flex gap-4 mt-4">
+            <button id="confirm-disable-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Desactivar</button>
+            <button id="cancel-disable-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancelar</button>
+        </div>
+    `;
+    modal.classList.remove('hidden');
+
+    document.getElementById('cancel-disable-btn')?.addEventListener('click', () => modal.classList.add('hidden'));
+    document.getElementById('confirm-disable-btn')?.addEventListener('click', async () => {
+        const password = (document.getElementById('password-input') as HTMLInputElement).value;
+        const code = (document.getElementById('2fa-code-input') as HTMLInputElement).value;
+
+        if (!password || !code) return alert('Debes completar ambos campos.');
+
+        try {
+            // Llama al endpoint de 'disable' con la doble verificación.
+            const response = await authenticatedFetch('/api/auth/2fa/disable', {
+                method: 'POST',
+                body: JSON.stringify({ password, code }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.message || 'Error al desactivar 2FA.');
+            
+            alert('¡2FA desactivado con éxito! Se cerrarán todas tus sesiones.');
+            modal.classList.add('hidden');
+            // Como el backend cierra todas las sesiones, el frontend debe hacer lo mismo.
+            localStorage.clear();
+            navigate('/login');
+        } catch (error) {
+            alert(`Error: ${(error as Error).message}`);
+        }
+    });
 }

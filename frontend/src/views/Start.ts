@@ -1,27 +1,10 @@
 import { navigate } from '../main';
 import { initializeAudio, playTrack } from '../musicPlayer';
+import { authenticatedFetch } from '../utils/auth';
 
 // Interfaz para el check de solicitudes
 interface FriendRequest {
     id: number;
-}
-
-// Función para obtener el token de acceso
-function getAccessToken(): string | null 
-{
-    return localStorage.getItem('access_token');
-}
-
-// Función para peticiones autenticadas
-async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-    const token = getAccessToken();
-    if (!token) {
-        navigate('/login');
-        throw new Error('No autenticado.');
-    }
-    const headers = new Headers(options.headers || {});
-    headers.append('Authorization', `Bearer ${token}`);
-    return fetch(url, { ...options, headers });
 }
 
 export function renderStart(appElement: HTMLElement): void
@@ -119,7 +102,6 @@ export function renderStart(appElement: HTMLElement): void
         }
     }
 
-    if (getAccessToken()) {
+    if (localStorage.getItem('access_token'))
         checkForFriendRequests();
-    }
 }

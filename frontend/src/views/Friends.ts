@@ -1,5 +1,6 @@
 import { navigate } from '../main';
 import { playTrack } from '../musicPlayer';
+import { authenticatedFetch } from '../utils/auth';
 
 interface User {
     id: number;
@@ -11,21 +12,6 @@ interface User {
 // Interfaz extendida para las solicitudes, ya que la API devuelve más datos
 interface FriendRequest extends User {
     friendshipId: number; 
-}
-
-function getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
-}
-
-async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response> {
-    const token = getAccessToken();
-    if (!token) {
-        navigate('/login');
-        throw new Error('No estás autenticado.');
-    }
-    const headers = new Headers(options.headers || {});
-    headers.append('Authorization', `Bearer ${token}`);
-    return fetch(url, { ...options, headers });
 }
 
 export function renderFriends(appElement: HTMLElement): void {
