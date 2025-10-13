@@ -1,4 +1,4 @@
-// frontend/src/views/Pong.ts
+import { playTrack } from '../musicPlayer';
 
 import {
 	GameObjects,
@@ -55,6 +55,8 @@ import {
 		</div>
 	  </div>
 	`;
+
+	playTrack('/assets/DangerZone.mp3');
   
 	const canvas = container.querySelector('#pong-canvas') as HTMLCanvasElement;
 	const context = canvas.getContext('2d')!;

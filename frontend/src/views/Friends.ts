@@ -88,10 +88,13 @@ export function renderFriends(appElement: HTMLElement): void {
         }
     });
 
-    async function loadFriends() {
-        try {
+    async function loadFriends() 
+	{
+        try 
+		{
             const response = await authenticatedFetch('/api/friends');
-            if (!response.ok) throw new Error('Error al cargar amigos');
+            if (!response.ok) 
+				throw new Error('Error al cargar amigos');
             const friends: User[] = await response.json();
 
             friendsContainer.innerHTML = friends.map(friend => `<div class="text-white text-3xl p-2 cursor-pointer hover:bg-gray-700" data-user-id="${friend.id}">${friend.username}</div>`).join('');

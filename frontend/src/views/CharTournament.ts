@@ -30,7 +30,7 @@ export function renderCharTournament(appElement: HTMLElement): void
 	</div>
 	`;
 
-	playTrack('/assets/Techno_Syndrome.mp3');
+	playTrack('/assets/DangerZone.mp3');
 
 	const mainContainer = document.getElementById('main-container') as HTMLDivElement;
 	const artContainer = document.getElementById('character-art-container') as HTMLDivElement;

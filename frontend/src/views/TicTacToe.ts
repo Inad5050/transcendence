@@ -1,13 +1,11 @@
-// frontend/src/views/TicTacToe.ts
-
 export function renderTicTacToe(container: HTMLElement): void {
   container.innerHTML = `
     <div class="w-full min-h-screen flex flex-col items-center justify-center p-4 text-white">
       <div class="w-full max-w-md">
         <header class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
           <div id="mode-selection" class="flex justify-center items-center gap-4">
-            <button data-mode="HvsH" class="mode-btn px-4 py-2 text-sm font-bold rounded-full bg-white text-black">Humano vs Humano</button>
-            <button data-mode="HvsAI" class="mode-btn px-4 py-2 text-sm font-bold rounded-full bg-gray-700 hover:bg-gray-600">Humano vs IA</button>
+		  	<img src="/assets/PvP.png" alt="vs IA" data-mode="HvsH" class="mode-btn h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-100">
+			<img src="/assets/vs_IA.png" alt="vs IA" data-mode="HvsAI" class="mode-btn h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-100">
           </div>
           <h1 id="status-display" class="font-extrabold text-3xl text-cyan-400 pt-2">Turno del Jugador X</h1>
         </header>

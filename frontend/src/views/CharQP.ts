@@ -48,7 +48,7 @@ export function renderCharQP(appElement: HTMLElement): void
 	</div>
 	`;
 
-	playTrack('/assets/Techno_Syndrome.mp3');
+		playTrack('/assets/DangerZone.mp3');
 
 	const artContainer = document.getElementById('character-art-container') as HTMLDivElement;
 	const selectionContainer = document.getElementById('character-selection');
