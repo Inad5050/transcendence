@@ -19,26 +19,41 @@ const mockStats = {
 };
 
 const mockHistory = [
-    { opponent: 'user2', result: 'Victoria', score: '3-1' },
-    { opponent: 'user5', result: 'Derrota', score: '0-3' },
-    { opponent: 'user3', result: 'Victoria', score: '3-2' },
+    { opponent: 'user2', result: 'Victory', score: '3-1' },
+    { opponent: 'user5', result: 'Defeat', score: '0-3' },
+    { opponent: 'user3', result: 'Victory', score: '3-2' },
 ];
 
-export function renderProfile(appElement: HTMLElement): void {
-    if (!appElement) return;
+async function handleLogout() {
+    try {
+        await authenticatedFetch('/api/auth/logout', {
+            method: 'POST',
+        });
+    } catch (error) {
+        console.error("Error contacting server to log out:", (error as Error).message);
+    } finally {
+        localStorage.clear();
+        navigate('/login');
+    }
+}
+
+export function renderProfile(appElement: HTMLElement): void 
+{
+    if (!appElement) 
+		return;
 
     const user: User | null = JSON.parse(localStorage.getItem('user') || 'null');
-
-    if (!user) {
+    if (!user) 
+	{
         navigate('/login');
         return;
     }
 
     appElement.innerHTML = `
-        <div class="h-screen flex flex-col items-center justify-center p-4 text-white overflow-y-auto">
-            <div class="w-full flex justify-center mb-8">
+        <div class="h-screen flex flex-col items-center justify-start p-4 text-white overflow-y-auto">
+            <div class="w-full flex justify-center mt-10 md:mt-20 mb-8">
                 <button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
-                    <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl mt-10 md:mt-40">
+                    <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl">
                 </button>
             </div>
             
@@ -47,7 +62,7 @@ export function renderProfile(appElement: HTMLElement): void {
                     <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
                         <div class="flex flex-col items-center">
                             <div class="relative mb-4">
-                                <img id="avatar-img" src="${user.avatar_url || `/assets/char${user.id % 4 + 1}_profile.png`}" alt="Avatar" class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-cyan-400 object-cover">
+                                <img id="avatar-img" src="${user.avatar_url || `/assets/placeholder.png`}" alt="Avatar" class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-cyan-400 object-cover">
                                 <label for="avatar-upload" class="absolute bottom-0 right-0 bg-gray-900 p-2 rounded-full cursor-pointer hover:bg-cyan-500">
                                     ✏️
                                 </label>
@@ -69,41 +84,45 @@ export function renderProfile(appElement: HTMLElement): void {
                     </div>
 
                     <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-                        <h3 class="text-xl md:text-2xl font-bold mb-4">Seguridad</h3>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Security</h3>
                         <div id="2fa-section"></div>
+                    </div>
+
+                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+                        <button id="logout-btn" class="bg-[url('/assets/logOut.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
                     </div>
                 </div>
 
                 <div class="col-span-1 lg:col-span-2 space-y-8">
                     <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-                        <h3 class="text-xl md:text-2xl font-bold mb-4">Estadísticas</h3>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Statistics</h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                             <div>
                                 <p class="text-3xl md:text-4xl font-bold text-cyan-300">${mockStats.played}</p>
-                                <p class="text-gray-400 text-sm">Partidas</p>
+                                <p class="text-gray-400 text-sm">Matches</p>
                             </div>
                             <div>
                                 <p class="text-3xl md:text-4xl font-bold text-green-400">${mockStats.victories}</p>
-                                <p class="text-gray-400 text-sm">Victorias</p>
+                                <p class="text-gray-400 text-sm">Victories</p>
                             </div>
                             <div>
                                 <p class="text-3xl md:text-4xl font-bold text-red-400">${mockStats.defeats}</p>
-                                <p class="text-gray-400 text-sm">Derrotas</p>
+                                <p class="text-gray-400 text-sm">Defeats</p>
                             </div>
                             <div>
                                 <p class="text-3xl md:text-4xl font-bold text-yellow-400">${((mockStats.victories / mockStats.played) * 100).toFixed(1)}%</p>
-                                <p class="text-gray-400 text-sm">Ratio Vic.</p>
+                                <p class="text-gray-400 text-sm">Win Rate</p>
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-                        <h3 class="text-xl md:text-2xl font-bold mb-4">Historial de Partidas</h3>
+                        <h3 class="text-xl md:text-2xl font-bold mb-4">Match History</h3>
                         <div id="history-container" class="space-y-3 max-h-60 md:max-h-80 overflow-y-auto pr-2">
                             ${mockHistory.map(match => `
                                 <div class="flex flex-wrap justify-between items-center bg-gray-700 p-3 rounded text-sm md:text-base">
                                     <p>vs <span class="font-bold">${match.opponent}</span></p>
-                                    <p class="${match.result === 'Victoria' ? 'text-green-400' : 'text-red-400'} font-bold">${match.result}</p>
+                                    <p class="${match.result === 'Victory' ? 'text-green-400' : 'text-red-400'} font-bold">${match.result}</p>
                                     <p class="font-mono bg-gray-900 px-2 py-1 rounded">${match.score}</p>
                                 </div>
                             `).join('')}
@@ -122,6 +141,7 @@ export function renderProfile(appElement: HTMLElement): void {
     playTrack('/assets/Techno_Syndrome.mp3');
 
     document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
+    document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
     
     setupProfileEditing(user);
     setupAvatarUpload(user);
@@ -138,7 +158,7 @@ async function setupProfileEditing(user: User) {
         if (emailInput.value !== user.email) updatedData.email = emailInput.value;
 
         if (Object.keys(updatedData).length === 0) {
-            alert('No hay cambios para guardar.');
+            alert('No changes to save.');
             return;
         }
 
@@ -150,12 +170,12 @@ async function setupProfileEditing(user: User) {
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.message || 'Error al actualizar el perfil.');
+                throw new Error(error.message || 'Error updating profile.');
             }
 
             const updatedUser = await response.json();
             localStorage.setItem('user', JSON.stringify(updatedUser));
-            alert('Perfil actualizado con éxito.');
+            alert('Profile updated successfully.');
             location.reload();
         } catch (error) {
             alert(`Error: ${(error as Error).message}`);
@@ -177,7 +197,7 @@ function setupAvatarUpload(user: User) {
         };
         reader.readAsDataURL(file);
         
-        alert("La subida de avatares no está implementada en el backend. Esto es solo una previsualización.");
+        alert("Avatar upload is not implemented on the backend. This is just a preview.");
     });
 }
 
@@ -187,14 +207,14 @@ function setup2FA(user: User) {
     const update2FAStatus = () => {
         if (user.twofa_enabled) {
             twoFASection.innerHTML = `
-                <p class="text-green-400 mb-2">✔️ 2FA está ACTIVO.</p>
-                <button id="disable-2fa-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Desactivar 2FA</button>
+                <p class="text-green-400 mb-2">✔️ 2FA is ACTIVE.</p>
+                <button id="disable-2fa-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Disable 2FA</button>
             `;
             document.getElementById('disable-2fa-btn')?.addEventListener('click', showDisable2FAModal);
         } else {
             twoFASection.innerHTML = `
-                <p class="text-yellow-400 mb-2">⚠️ 2FA está INACTIVO.</p>
-                <button id="enable-2fa-btn" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded font-bold">Activar 2FA</button>
+                <p class="text-yellow-400 mb-2">⚠️ 2FA is INACTIVE.</p>
+                <button id="enable-2fa-btn" class="bg-[url('/assets/activate2FA.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
             `;
             document.getElementById('enable-2fa-btn')?.addEventListener('click', handleSetup2FA);
         }
@@ -206,7 +226,7 @@ function setup2FA(user: User) {
 async function handleSetup2FA() {
     try {
         const response = await authenticatedFetch('/api/auth/2fa/setup', { method: 'POST' });
-        if (!response.ok) throw new Error('Error al iniciar la configuración de 2FA.');
+        if (!response.ok) throw new Error('Error starting 2FA setup.');
         
         const data = await response.json();
         showEnable2FAModal(data.qr_code);
@@ -221,14 +241,14 @@ function showEnable2FAModal(qrCode: string) {
     const modalContent = document.getElementById('2fa-modal-content')!;
     
     modalContent.innerHTML = `
-        <h3 class="text-2xl font-bold mb-4">Activar 2FA</h3>
-        <p class="mb-4">Escanea este código QR con tu aplicación de autenticación.</p>
+        <h3 class="text-2xl font-bold mb-4">Enable 2FA</h3>
+        <p class="mb-4">Scan this QR code with your authenticator app.</p>
         <img src="${qrCode}" alt="QR Code" class="mx-auto border-4 border-white rounded-lg mb-4">
-        <p class="mb-2">Luego, introduce el código de 6 dígitos para verificar.</p>
+        <p class="mb-2">Then, enter the 6-digit code to verify.</p>
         <input id="2fa-code-input" class="w-full bg-gray-700 p-2 rounded text-center text-2xl tracking-[0.5em]" placeholder="000000" maxlength="6">
         <div class="flex gap-4 mt-4">
-            <button id="verify-2fa-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded font-bold">Verificar</button>
-            <button id="cancel-2fa-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancelar</button>
+            <button id="verify-2fa-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded font-bold">Verify</button>
+            <button id="cancel-2fa-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancel</button>
         </div>
     `;
     modal.classList.remove('hidden');
@@ -236,16 +256,16 @@ function showEnable2FAModal(qrCode: string) {
     document.getElementById('cancel-2fa-btn')?.addEventListener('click', () => modal.classList.add('hidden'));
     document.getElementById('verify-2fa-btn')?.addEventListener('click', async () => {
         const code = (document.getElementById('2fa-code-input') as HTMLInputElement).value;
-        if (code.length !== 6) return alert('Por favor, introduce un código válido de 6 dígitos.');
+        if (code.length !== 6) return alert('Please enter a valid 6-digit code.');
 
         try {
             const response = await authenticatedFetch('/api/auth/2fa/enable', {
                 method: 'POST',
                 body: JSON.stringify({ code }),
             });
-            if (!response.ok) throw new Error('Código de verificación incorrecto.');
+            if (!response.ok) throw new Error('Incorrect verification code.');
             
-            alert('¡2FA activado con éxito!');
+            alert('2FA enabled successfully!');
             modal.classList.add('hidden');
             location.reload();
         } catch (error) {
@@ -259,18 +279,18 @@ function showDisable2FAModal() {
     const modalContent = document.getElementById('2fa-modal-content')!;
 
     modalContent.innerHTML = `
-        <h3 class="text-2xl font-bold mb-4">Desactivar 2FA</h3>
-        <p class="mb-4">Para confirmar, introduce tu contraseña y un código 2FA actual.</p>
+        <h3 class="text-2xl font-bold mb-4">Disable 2FA</h3>
+        <p class="mb-4">To confirm, enter your password and a current 2FA code.</p>
         
-        <label>Contraseña</label>
+        <label>Password</label>
         <input id="password-input" type="password" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3">
 
-        <label>Código 2FA</label>
+        <label>2FA Code</label>
         <input id="2fa-code-input" class="w-full bg-gray-700 p-2 rounded text-center text-2xl tracking-[0.5em] mt-1" placeholder="000000" maxlength="6">
         
         <div class="flex gap-4 mt-4">
-            <button id="confirm-disable-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Desactivar</button>
-            <button id="cancel-disable-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancelar</button>
+            <button id="confirm-disable-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Disable</button>
+            <button id="cancel-disable-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancel</button>
         </div>
     `;
     modal.classList.remove('hidden');
@@ -280,7 +300,7 @@ function showDisable2FAModal() {
         const password = (document.getElementById('password-input') as HTMLInputElement).value;
         const code = (document.getElementById('2fa-code-input') as HTMLInputElement).value;
 
-        if (!password || !code) return alert('Debes completar ambos campos.');
+        if (!password || !code) return alert('You must fill in both fields.');
 
         try {
             const response = await authenticatedFetch('/api/auth/2fa/disable', {
@@ -288,9 +308,9 @@ function showDisable2FAModal() {
                 body: JSON.stringify({ password, code }),
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Error al desactivar 2FA.');
+            if (!response.ok) throw new Error(data.message || 'Error disabling 2FA.');
             
-            alert('¡2FA desactivado con éxito! Se cerrarán todas tus sesiones.');
+            alert('2FA disabled successfully! All your sessions will be logged out.');
             modal.classList.add('hidden');
             localStorage.clear();
             navigate('/login');

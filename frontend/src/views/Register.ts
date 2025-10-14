@@ -1,5 +1,6 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
+import { authenticatedFetch } from '../utils/auth';
 
 async function handleRegister(event: Event): Promise<void> {
 	event.preventDefault();

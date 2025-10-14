@@ -47,6 +47,7 @@
 // router(); =>
 // Ejecuta el router por primera vez para cargar la vista inicial.
 
+import { protectedRoute } from './utils/auth.ts';
 import { renderHome } from './views/Home.ts';
 import { renderRegister } from './views/Register.ts';
 import { renderLogin } from './views/Login.ts';
@@ -65,14 +66,14 @@ const routes: { [key: string]: (element: HTMLElement) => void } =
 	'/': renderHome,
 	'/register': renderRegister,
 	'/login': renderLogin,
-	'/start': renderStart,
-	'/charQP': renderCharQP,
-	'/ticTacToe': renderTicTacToe,
-	'/profile': renderProfile,
-	'/about': renderAbout,
-	'/pong': initializePongGame,
-	'/tictactoe': renderTicTacToe,
-	'/friends': renderFriends,
+	'/start': protectedRoute(renderStart),
+	'/charQP': protectedRoute(renderCharQP),
+	'/ticTacToe': protectedRoute(renderTicTacToe),
+	'/profile': protectedRoute(renderProfile),
+	'/about': protectedRoute(renderAbout),
+	'/pong': protectedRoute(initializePongGame),
+	'/tictactoe': protectedRoute(renderTicTacToe),
+	'/friends': protectedRoute(renderFriends),
 };
 
 function router()

@@ -1,3 +1,10 @@
+// viewFunction() -> es el parametro de protectedRoute()
+// (element: HTMLElement) => void) -> es el tipo de parametro viewFunction() -> acepta un parametro (element: HTMLElement) y devuelve void.
+// (element: HTMLElement) => void) -> el segundo bloque es la firma de la propia protectedRoute()
+// return (element: HTMLElement) => -> protectedRoute() devuelve una función anónima.
+// return; -> Detiene la ejecución y no renderiza la vista protegida
+// viewFunction(element); -> Si el usuario existe, ejecuta la función de la vista original
+
 // authenticatedFetch() -> Realiza peticiones a los endpoints del backend protegidos por middleware -> requieren el JWT.
 // url -> La URL a la que se hará la petición. 
 // options -> Opciones adicionales para la petición fetch (method, body, etc.).
@@ -10,22 +17,86 @@
 
 import { navigate } from '../main';
 
+export function protectedRoute(viewFunction: (element: HTMLElement) => void): (element: HTMLElement) => void 
+{
+    return (element: HTMLElement) => 
+	{
+		const user = localStorage.getItem('user');
+		if (!user)
+		{
+		    navigate('/login');
+		    return;
+		}
+		viewFunction(element);
+    };
+}
+
 export async function authenticatedFetch(url: string, options: RequestInit = {}): Promise<Response>
 {
     const token = localStorage.getItem('access_token');
     if (!token)
-	{
+    {
         navigate('/login');
-        throw new Error('Usuario no autenticado.');
+        throw new Error('User not authenticated.');
     }
+
     const headers = new Headers(options.headers || {});
     headers.append('Authorization', `Bearer ${token}`);
-    const response = await fetch(url, { ...options, headers });
+
+    let response = await fetch(url, { ...options, headers });
+
     if (response.status === 401) 
-	{
-        console.error("Token de acceso expirado o inválido.");
-        navigate('/login');
-        throw new Error('La sesión ha expirado.');
+    {
+        console.warn("Access token expired or invalid. Attempting to refresh...");
+        const newAccessToken = await refreshAccessToken();
+        if (newAccessToken)
+        {
+            console.log("Retrying the request with the new token.");
+            headers.set('Authorization', `Bearer ${newAccessToken}`);
+            response = await fetch(url, { ...options, headers });
+        }
+        else
+        {
+            console.error("Token refresh failed. Logging out.");
+            localStorage.clear();
+            navigate('/login');
+            throw new Error('Session has expired. Please log in again.');
+        }
     }
     return response;
+}
+
+async function refreshAccessToken(): Promise<string | null> 
+{
+    const refreshToken = localStorage.getItem('refresh_token');
+    if (!refreshToken) 
+    {
+        console.error('No refresh token available.');
+        return null;
+    }
+    try 
+    {
+        const response = await fetch('/api/auth/refresh', 
+		{
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+        if (!response.ok) 
+        {
+            const error = await response.json();
+            throw new Error(error.message || 'Could not refresh token.');
+        }
+
+        const data = await response.json();
+        const newAccessToken = data.access_token;
+        localStorage.setItem('access_token', newAccessToken);
+        console.log('Access token refreshed successfully.');
+        return newAccessToken;
+    } 
+    catch (error) 
+    {
+        console.error('Error refreshing token:', error);
+        return null;
+    }
 }
