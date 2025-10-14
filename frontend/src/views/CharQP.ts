@@ -49,9 +49,9 @@ export function renderCharQP(appElement: HTMLElement): void
 	playTrack('/assets/DangerZone.mp3');
 
     document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
-	const selectionContainer = document.getElementById('character-selection');
 	const acceptButton = document.getElementById('accept-button');
 	const difficultySelectionContainer = document.getElementById('difficulty-selection')!;
+	const characterPortraits = document.querySelectorAll('.character-portrait');
 
 	let selectedPortrait: HTMLElement | null = null;
 	let gameMode: GameMode = 'ONE_PLAYER';
@@ -60,17 +60,26 @@ export function renderCharQP(appElement: HTMLElement): void
 	localStorage.setItem('gameMode', gameMode);
 	localStorage.setItem('difficulty', difficulty);
 
-	selectionContainer?.addEventListener('click', (event) => {
-		const target = event.target as HTMLElement;
-		if (target.classList.contains('character-portrait')) {
-			if (selectedPortrait) {
-				selectedPortrait.classList.remove('border-cyan-400', 'border-8');
-				selectedPortrait.classList.add('border-white', 'border-4');
-			}
-			selectedPortrait = target;
-			selectedPortrait.classList.remove('border-white', 'border-4');
-			selectedPortrait.classList.add('border-cyan-400', 'border-8');
+	function selectCharacter(portrait: HTMLElement) {
+		if (selectedPortrait) {
+			selectedPortrait.classList.remove('border-cyan-400', 'border-8');
+			selectedPortrait.classList.add('border-white', 'border-4');
 		}
+		selectedPortrait = portrait;
+		selectedPortrait.classList.remove('border-white', 'border-4');
+		selectedPortrait.classList.add('border-cyan-400', 'border-8');
+	}
+
+	characterPortraits.forEach(portrait => {
+		portrait.addEventListener('click', () => {
+			selectCharacter(portrait as HTMLElement);
+		});
+
+		portrait.addEventListener('keydown', (event) => {
+			if ((event as KeyboardEvent).key === 'Enter') {
+				selectCharacter(portrait as HTMLElement);
+			}
+		});
 	});
 
 	acceptButton?.addEventListener('click', (event) => {

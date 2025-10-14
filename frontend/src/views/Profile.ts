@@ -35,8 +35,12 @@ export function renderProfile(appElement: HTMLElement): void {
     }
 
     appElement.innerHTML = `
-        <div class="h-screen flex flex-col items-center p-4 text-white overflow-y-auto">
-            <h1 class="text-4xl md:text-6xl font-bold my-8 text-cyan-300 drop-shadow-lg text-center">PERFIL DE USUARIO</h1>
+        <div class="h-screen flex flex-col items-center justify-center p-4 text-white overflow-y-auto">
+            <div class="w-full flex justify-center mb-8">
+                <button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                    <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl mt-10 md:mt-40">
+                </button>
+            </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
                 <div class="col-span-1 space-y-8">
@@ -59,7 +63,7 @@ export function renderProfile(appElement: HTMLElement): void {
 
                                 <p class="text-base md:text-lg"><span class="font-bold">ELO:</span> <span class="text-cyan-300 font-bold">${user.elo}</span></p>
 
-                                <button id="save-profile-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded mt-4 font-bold">Guardar Cambios</button>
+                                <button id="save-profile-btn" class="bg-[url('/assets/accept.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg mt-4"></button>
                             </div>
                         </div>
                     </div>
@@ -107,7 +111,6 @@ export function renderProfile(appElement: HTMLElement): void {
                     </div>
                 </div>
             </div>
-            <button id="back-btn" class="my-8 bg-gray-600 hover:bg-gray-700 py-2 px-8 rounded font-bold">Volver</button>
         </div>
 
         <div id="2fa-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50 p-4">
@@ -118,7 +121,7 @@ export function renderProfile(appElement: HTMLElement): void {
 
     playTrack('/assets/Techno_Syndrome.mp3');
 
-    document.getElementById('back-btn')?.addEventListener('click', () => navigate('/start'));
+    document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
     
     setupProfileEditing(user);
     setupAvatarUpload(user);
