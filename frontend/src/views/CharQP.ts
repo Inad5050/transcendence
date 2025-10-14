@@ -12,12 +12,12 @@ export function renderCharQP(appElement: HTMLElement): void
 
 		<div class="flex flex-col items-center">
 			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-4 md:p-8 flex flex-col items-center space-y-6 mb-8">
-				<div id="mode-selection" class="flex justify-center items-center gap-4 md:gap-6">
+				<div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4 md:gap-6">
 					<img src="/assets/vs_IA.png" alt="vs IA" data-mode="ONE_PLAYER" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
 					<img src="/assets/2_players.png" alt="2 Players" data-mode="TWO_PLAYERS" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
 					<img src="/assets/4_players.png" alt="4 Players" data-mode="FOUR_PLAYERS" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
 				</div>
-				<div id="difficulty-selection" class="flex justify-center items-center gap-4 md:gap-6">
+				<div id="difficulty-selection" class="flex flex-wrap justify-center items-center gap-4 md:gap-6">
 					<img src="/assets/easy.png" alt="Easy" data-difficulty="EASY" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
 					<img src="/assets/medium.png" alt="Medium" data-difficulty="MEDIUM" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
 					<img src="/assets/hard.png" alt="Hard" data-difficulty="HARD" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
