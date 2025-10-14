@@ -2,7 +2,8 @@ import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
 import { authenticatedFetch } from '../utils/auth';
 
-interface User {
+interface User
+{
     id: number;
     username: string;
     email: string;
@@ -12,42 +13,92 @@ interface User {
     avatar_url?: string;
 }
 
-const mockStats = {
-    played: 128,
-    victories: 80,
-    defeats: 48,
-};
+interface Match
+{
+    id: number;
+    player_one_id: number;
+    player_two_id: number;
+    player_one_points: number;
+    player_two_points: number;
+    match_status: 'pending' | 'playing' | 'finish';
+    createdAt: string;
+    player_one?: User;
+    player_two?: User;
+}
 
-const mockHistory = [
-    { opponent: 'user2', result: 'Victory', score: '3-1' },
-    { opponent: 'user5', result: 'Defeat', score: '0-3' },
-    { opponent: 'user3', result: 'Victory', score: '3-2' },
-];
+interface Stats
+{
+    played: number;
+    victories: number;
+    defeats: number;
+}
 
-async function handleLogout() {
-    try {
+
+async function handleLogout()
+{
+    try
+    {
         await authenticatedFetch('/api/auth/logout', {
             method: 'POST',
         });
-    } catch (error) {
+    }
+    catch (error)
+    {
         console.error("Error contacting server to log out:", (error as Error).message);
-    } finally {
+    }
+    finally
+    {
         localStorage.clear();
         navigate('/login');
     }
 }
 
-export function renderProfile(appElement: HTMLElement): void 
+export async function renderProfile(appElement: HTMLElement): Promise<void>
 {
-    if (!appElement) 
-		return;
+    if (!appElement)
+    {
+        return;
+    }
 
     const user: User | null = JSON.parse(localStorage.getItem('user') || 'null');
-    if (!user) 
-	{
+    if (!user)
+    {
         navigate('/login');
         return;
     }
+
+    const stats: Stats = { played: 0, victories: 0, defeats: 0 };
+    let history: Match[] = [];
+
+    try
+    {
+        const response = await authenticatedFetch(`/api/match/getall`);
+        if (!response.ok)
+        {
+            throw new Error('Failed to fetch match history');
+        }
+        const allMatches: Match[] = await response.json();
+
+        // Filter matches for the current user and where the status is 'finish'
+        history = allMatches.filter(match =>
+            (match.player_one_id === user.id || match.player_two_id === user.id) && match.match_status === 'finish'
+        );
+
+        // Calculate stats
+        stats.played = history.length;
+        stats.victories = history.filter(match =>
+        {
+            const isPlayerOne = match.player_one_id === user.id;
+            return isPlayerOne ? match.player_one_points > match.player_two_points : match.player_two_points > match.player_one_points;
+        }).length;
+        stats.defeats = stats.played - stats.victories;
+
+    }
+    catch (error)
+    {
+        console.error("Failed to load match history and stats:", (error as Error).message);
+    }
+
 
     appElement.innerHTML = `
         <div class="h-screen flex flex-col items-center justify-start p-4 text-white overflow-y-auto">
@@ -56,7 +107,7 @@ export function renderProfile(appElement: HTMLElement): void
                     <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl">
                 </button>
             </div>
-            
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
                 <div class="col-span-1 space-y-8">
                     <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
@@ -68,11 +119,11 @@ export function renderProfile(appElement: HTMLElement): void
                                 </label>
                                 <input type="file" id="avatar-upload" class="hidden" accept="image/*">
                             </div>
-                            
+
                             <div class="w-full">
                                 <label class="font-bold">Username</label>
                                 <input id="username-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3 text-sm md:text-base" value="${user.username}">
-                                
+
                                 <label class="font-bold">Email</label>
                                 <input id="email-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3 text-sm md:text-base" value="${user.email}">
 
@@ -89,43 +140,52 @@ export function renderProfile(appElement: HTMLElement): void
                     </div>
 
                     <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-                        <button id="logout-btn" class="bg-[url('/assets/logOut.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+                        <button id="logout-btn" class="bg-[url('/assets/logOut.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl"></button>
                     </div>
                 </div>
 
-                <div class="col-span-1 lg:col-span-2 space-y-8">
+                <div class="col-span-1 lg:col-span-2 space-y-8 lg:flex lg:flex-col">
                     <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
                         <h3 class="text-xl md:text-2xl font-bold mb-4">Statistics</h3>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                             <div>
-                                <p class="text-3xl md:text-4xl font-bold text-cyan-300">${mockStats.played}</p>
+                                <p class="text-3xl md:text-4xl font-bold text-cyan-300">${stats.played}</p>
                                 <p class="text-gray-400 text-sm">Matches</p>
                             </div>
                             <div>
-                                <p class="text-3xl md:text-4xl font-bold text-green-400">${mockStats.victories}</p>
+                                <p class="text-3xl md:text-4xl font-bold text-green-400">${stats.victories}</p>
                                 <p class="text-gray-400 text-sm">Victories</p>
                             </div>
                             <div>
-                                <p class="text-3xl md:text-4xl font-bold text-red-400">${mockStats.defeats}</p>
+                                <p class="text-3xl md:text-4xl font-bold text-red-400">${stats.defeats}</p>
                                 <p class="text-gray-400 text-sm">Defeats</p>
                             </div>
                             <div>
-                                <p class="text-3xl md:text-4xl font-bold text-yellow-400">${((mockStats.victories / mockStats.played) * 100).toFixed(1)}%</p>
+                                <p class="text-3xl md:text-4xl font-bold text-yellow-400">${(stats.played > 0 ? (stats.victories / stats.played) * 100 : 0).toFixed(1)}%</p>
                                 <p class="text-gray-400 text-sm">Win Rate</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg lg:flex lg:flex-col lg:flex-grow">
                         <h3 class="text-xl md:text-2xl font-bold mb-4">Match History</h3>
-                        <div id="history-container" class="space-y-3 max-h-60 md:max-h-80 overflow-y-auto pr-2">
-                            ${mockHistory.map(match => `
+                        <div id="history-container" class="space-y-3 max-h-80 lg:max-h-none overflow-y-auto pr-2 lg:flex-grow">
+                            ${history.length > 0 ? history.map(match =>
+                            {
+                                const isPlayerOne = match.player_one_id === user.id;
+                                const result = (isPlayerOne ? match.player_one_points > match.player_two_points : match.player_two_points > match.player_one_points) ? 'Victory' : 'Defeat';
+                                const score = isPlayerOne ? `${match.player_one_points}-${match.player_two_points}` : `${match.player_two_points}-${match.player_one_points}`;
+                                const opponentId = isPlayerOne ? match.player_two_id : match.player_one_id;
+                                // You might want to fetch opponent's username here if not already available
+                                const opponentUsername = `user${opponentId}`;
+
+                                return `
                                 <div class="flex flex-wrap justify-between items-center bg-gray-700 p-3 rounded text-sm md:text-base">
-                                    <p>vs <span class="font-bold">${match.opponent}</span></p>
-                                    <p class="${match.result === 'Victory' ? 'text-green-400' : 'text-red-400'} font-bold">${match.result}</p>
-                                    <p class="font-mono bg-gray-900 px-2 py-1 rounded">${match.score}</p>
+                                    <p>vs <span class="font-bold">${opponentUsername}</span></p>
+                                    <p class="${result === 'Victory' ? 'text-green-400' : 'text-red-400'} font-bold">${result}</p>
+                                    <p class="font-mono bg-gray-900 px-2 py-1 rounded">${score}</p>
                                 </div>
-                            `).join('')}
+                            `}).join('') : '<p class="text-center text-gray-400">No match history found.</p>'}
                         </div>
                     </div>
                 </div>
@@ -142,14 +202,16 @@ export function renderProfile(appElement: HTMLElement): void
 
     document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
     document.getElementById('logout-btn')?.addEventListener('click', handleLogout);
-    
+
     setupProfileEditing(user);
     setupAvatarUpload(user);
     setup2FA(user);
 }
 
-async function setupProfileEditing(user: User) {
-    document.getElementById('save-profile-btn')?.addEventListener('click', async () => {
+async function setupProfileEditing(user: User)
+{
+    document.getElementById('save-profile-btn')?.addEventListener('click', async () =>
+    {
         const usernameInput = document.getElementById('username-input') as HTMLInputElement;
         const emailInput = document.getElementById('email-input') as HTMLInputElement;
 
@@ -157,18 +219,24 @@ async function setupProfileEditing(user: User) {
         if (usernameInput.value !== user.username) updatedData.username = usernameInput.value;
         if (emailInput.value !== user.email) updatedData.email = emailInput.value;
 
-        if (Object.keys(updatedData).length === 0) {
+        if (Object.keys(updatedData).length === 0)
+        {
             alert('No changes to save.');
             return;
         }
 
-        try {
+        try
+        {
             const response = await authenticatedFetch(`/api/users/${user.id}`, {
                 method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(updatedData),
             });
 
-            if (!response.ok) {
+            if (!response.ok)
+            {
                 const error = await response.json();
                 throw new Error(error.message || 'Error updating profile.');
             }
@@ -177,41 +245,52 @@ async function setupProfileEditing(user: User) {
             localStorage.setItem('user', JSON.stringify(updatedUser));
             alert('Profile updated successfully.');
             location.reload();
-        } catch (error) {
+        }
+        catch (error)
+        {
             alert(`Error: ${(error as Error).message}`);
         }
     });
 }
 
-function setupAvatarUpload(user: User) {
+function setupAvatarUpload(user: User)
+{
     const uploadInput = document.getElementById('avatar-upload') as HTMLInputElement;
     const avatarImg = document.getElementById('avatar-img') as HTMLImageElement;
 
-    uploadInput.addEventListener('change', () => {
+    uploadInput.addEventListener('change', () =>
+    {
         const file = uploadInput.files?.[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onload = () => {
+        reader.onload = () =>
+        {
             avatarImg.src = reader.result as string;
         };
         reader.readAsDataURL(file);
-        
+
         alert("Avatar upload is not implemented on the backend. This is just a preview.");
     });
 }
 
-function setup2FA(user: User) {
+function setup2FA(user: User)
+{
     const twoFASection = document.getElementById('2fa-section')!;
-    
-    const update2FAStatus = () => {
-        if (user.twofa_enabled) {
+
+    const update2FAStatus = () =>
+    {
+        const currentUser: User = JSON.parse(localStorage.getItem('user') || '{}');
+        if (currentUser.twofa_enabled)
+        {
             twoFASection.innerHTML = `
                 <p class="text-green-400 mb-2">✔️ 2FA is ACTIVE.</p>
                 <button id="disable-2fa-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Disable 2FA</button>
             `;
             document.getElementById('disable-2fa-btn')?.addEventListener('click', showDisable2FAModal);
-        } else {
+        }
+        else
+        {
             twoFASection.innerHTML = `
                 <p class="text-yellow-400 mb-2">⚠️ 2FA is INACTIVE.</p>
                 <button id="enable-2fa-btn" class="bg-[url('/assets/activate2FA.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
@@ -223,23 +302,28 @@ function setup2FA(user: User) {
     update2FAStatus();
 }
 
-async function handleSetup2FA() {
-    try {
+async function handleSetup2FA()
+{
+    try
+    {
         const response = await authenticatedFetch('/api/auth/2fa/setup', { method: 'POST' });
         if (!response.ok) throw new Error('Error starting 2FA setup.');
-        
+
         const data = await response.json();
         showEnable2FAModal(data.qr_code);
 
-    } catch (error) {
+    }
+    catch (error)
+    {
         alert(`Error: ${(error as Error).message}`);
     }
 }
 
-function showEnable2FAModal(qrCode: string) {
+function showEnable2FAModal(qrCode: string)
+{
     const modal = document.getElementById('2fa-modal')!;
     const modalContent = document.getElementById('2fa-modal-content')!;
-    
+
     modalContent.innerHTML = `
         <h3 class="text-2xl font-bold mb-4">Enable 2FA</h3>
         <p class="mb-4">Scan this QR code with your authenticator app.</p>
@@ -254,40 +338,54 @@ function showEnable2FAModal(qrCode: string) {
     modal.classList.remove('hidden');
 
     document.getElementById('cancel-2fa-btn')?.addEventListener('click', () => modal.classList.add('hidden'));
-    document.getElementById('verify-2fa-btn')?.addEventListener('click', async () => {
+    document.getElementById('verify-2fa-btn')?.addEventListener('click', async () =>
+    {
         const code = (document.getElementById('2fa-code-input') as HTMLInputElement).value;
         if (code.length !== 6) return alert('Please enter a valid 6-digit code.');
 
-        try {
+        try
+        {
             const response = await authenticatedFetch('/api/auth/2fa/enable', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ code }),
             });
             if (!response.ok) throw new Error('Incorrect verification code.');
-            
+
             alert('2FA enabled successfully!');
+            const user: User | null = JSON.parse(localStorage.getItem('user') || 'null');
+            if (user)
+            {
+                user.twofa_enabled = true;
+                localStorage.setItem('user', JSON.stringify(user));
+            }
             modal.classList.add('hidden');
-            location.reload();
-        } catch (error) {
+            renderProfile(document.getElementById('app') as HTMLElement); // Re-render the profile
+        }
+        catch (error)
+        {
             alert(`Error: ${(error as Error).message}`);
         }
     });
 }
 
-function showDisable2FAModal() {
+function showDisable2FAModal()
+{
     const modal = document.getElementById('2fa-modal')!;
     const modalContent = document.getElementById('2fa-modal-content')!;
 
     modalContent.innerHTML = `
         <h3 class="text-2xl font-bold mb-4">Disable 2FA</h3>
         <p class="mb-4">To confirm, enter your password and a current 2FA code.</p>
-        
+
         <label>Password</label>
         <input id="password-input" type="password" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3">
 
         <label>2FA Code</label>
         <input id="2fa-code-input" class="w-full bg-gray-700 p-2 rounded text-center text-2xl tracking-[0.5em] mt-1" placeholder="000000" maxlength="6">
-        
+
         <div class="flex gap-4 mt-4">
             <button id="confirm-disable-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Disable</button>
             <button id="cancel-disable-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancel</button>
@@ -296,25 +394,32 @@ function showDisable2FAModal() {
     modal.classList.remove('hidden');
 
     document.getElementById('cancel-disable-btn')?.addEventListener('click', () => modal.classList.add('hidden'));
-    document.getElementById('confirm-disable-btn')?.addEventListener('click', async () => {
+    document.getElementById('confirm-disable-btn')?.addEventListener('click', async () =>
+    {
         const password = (document.getElementById('password-input') as HTMLInputElement).value;
         const code = (document.getElementById('2fa-code-input') as HTMLInputElement).value;
 
         if (!password || !code) return alert('You must fill in both fields.');
 
-        try {
+        try
+        {
             const response = await authenticatedFetch('/api/auth/2fa/disable', {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify({ password, code }),
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || 'Error disabling 2FA.');
-            
+
             alert('2FA disabled successfully! All your sessions will be logged out.');
             modal.classList.add('hidden');
             localStorage.clear();
             navigate('/login');
-        } catch (error) {
+        }
+        catch (error)
+        {
             alert(`Error: ${(error as Error).message}`);
         }
     });
