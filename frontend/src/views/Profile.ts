@@ -35,7 +35,7 @@ export function renderProfile(appElement: HTMLElement): void {
     }
 
     appElement.innerHTML = `
-        <div class="min-h-screen flex flex-col items-center p-4 text-white overflow-y-auto">
+        <div class="h-screen flex flex-col items-center p-4 text-white overflow-y-auto">
             <h1 class="text-4xl md:text-6xl font-bold my-8 text-cyan-300 drop-shadow-lg text-center">PERFIL DE USUARIO</h1>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
@@ -125,8 +125,6 @@ export function renderProfile(appElement: HTMLElement): void {
     setup2FA(user);
 }
 
-// ... (El resto de las funciones: setupProfileEditing, setupAvatarUpload, setup2FA, etc., permanecen igual)
-// ... (Pega aquí el resto de las funciones de tu archivo Profile.ts)
 async function setupProfileEditing(user: User) {
     document.getElementById('save-profile-btn')?.addEventListener('click', async () => {
         const usernameInput = document.getElementById('username-input') as HTMLInputElement;
@@ -161,6 +159,7 @@ async function setupProfileEditing(user: User) {
         }
     });
 }
+
 function setupAvatarUpload(user: User) {
     const uploadInput = document.getElementById('avatar-upload') as HTMLInputElement;
     const avatarImg = document.getElementById('avatar-img') as HTMLImageElement;
@@ -178,6 +177,7 @@ function setupAvatarUpload(user: User) {
         alert("La subida de avatares no está implementada en el backend. Esto es solo una previsualización.");
     });
 }
+
 function setup2FA(user: User) {
     const twoFASection = document.getElementById('2fa-section')!;
     
@@ -199,6 +199,7 @@ function setup2FA(user: User) {
 
     update2FAStatus();
 }
+
 async function handleSetup2FA() {
     try {
         const response = await authenticatedFetch('/api/auth/2fa/setup', { method: 'POST' });
@@ -211,6 +212,7 @@ async function handleSetup2FA() {
         alert(`Error: ${(error as Error).message}`);
     }
 }
+
 function showEnable2FAModal(qrCode: string) {
     const modal = document.getElementById('2fa-modal')!;
     const modalContent = document.getElementById('2fa-modal-content')!;
@@ -248,6 +250,7 @@ function showEnable2FAModal(qrCode: string) {
         }
     });
 }
+
 function showDisable2FAModal() {
     const modal = document.getElementById('2fa-modal')!;
     const modalContent = document.getElementById('2fa-modal-content')!;

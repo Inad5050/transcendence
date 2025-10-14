@@ -10,51 +10,43 @@ export function renderCharQP(appElement: HTMLElement): void
 	appElement.innerHTML = `
 	<div id="main-container" class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative">
 
-		<div class="relative flex flex-col lg:flex-row justify-center items-center lg:items-start w-full">
-			
-			<div id="character-art-container" class="w-full lg:w-[30vw] lg:absolute lg:right-full lg:top-0 h-auto lg:h-full flex items-center justify-center lg:justify-end mb-8 lg:mb-0 lg:pr-8">
+		<div class="flex flex-col items-center">
+			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-4 md:p-8 flex flex-col items-center space-y-6 mb-8">
+				<div id="mode-selection" class="flex justify-center items-center gap-4 md:gap-6">
+					<img src="/assets/vs_IA.png" alt="vs IA" data-mode="ONE_PLAYER" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
+					<img src="/assets/2_players.png" alt="2 Players" data-mode="TWO_PLAYERS" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
+					<img src="/assets/4_players.png" alt="4 Players" data-mode="FOUR_PLAYERS" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
+				</div>
+				<div id="difficulty-selection" class="flex justify-center items-center gap-4 md:gap-6">
+					<img src="/assets/easy.png" alt="Easy" data-difficulty="EASY" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
+					<img src="/assets/medium.png" alt="Medium" data-difficulty="MEDIUM" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
+					<img src="/assets/hard.png" alt="Hard" data-difficulty="HARD" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
+					<img src="/assets/impossible.png" alt="Impossible" data-difficulty="IMPOSSIBLE" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
+				</div>
 			</div>
 
-			<div class="flex flex-col items-center">
-				<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-4 md:p-8 flex flex-col items-center space-y-6 mb-8">
-					<div id="mode-selection" class="flex justify-center items-center gap-4 md:gap-6">
-						<img src="/assets/vs_IA.png" alt="vs IA" data-mode="ONE_PLAYER" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
-						<img src="/assets/2_players.png" alt="2 Players" data-mode="TWO_PLAYERS" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
-						<img src="/assets/4_players.png" alt="4 Players" data-mode="FOUR_PLAYERS" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
-					</div>
-					<div id="difficulty-selection" class="flex justify-center items-center gap-4 md:gap-6">
-						<img src="/assets/easy.png" alt="Easy" data-difficulty="EASY" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
-						<img src="/assets/medium.png" alt="Medium" data-difficulty="MEDIUM" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
-						<img src="/assets/hard.png" alt="Hard" data-difficulty="HARD" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
-						<img src="/assets/impossible.png" alt="Impossible" data-difficulty="IMPOSSIBLE" class="difficulty-btn h-8 md:h-10 cursor-pointer transition-transform transform hover:scale-110 opacity-50">
-					</div>
+			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-6 md:p-16 flex flex-col items-center mb-8">
+				<img src="/assets/chooseYourFighter.png" alt="Elige tu luchador" class="w-full max-w-sm md:max-w-2xl mb-8 md:mb-12">
+				<div id="character-selection" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-12">
+					<img src="/assets/char1_profile.png" alt="Character 1" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="1">
+					<img src="/assets/char2_profile.png" alt="Character 2" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="2">
+					<img src="/assets/char3_profile.png" alt="Character 3" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="3">
+					<img src="/assets/char4_profile.png" alt="Character 4" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="4">
 				</div>
+			</div>
 
-				<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-6 md:p-16 flex flex-col items-center mb-8">
-					<img src="/assets/chooseYourFighter.png" alt="Elige tu luchador" class="w-full max-w-sm md:max-w-2xl mb-8 md:mb-12">
-					<div id="character-selection" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-12">
-						<img src="/assets/char1_profile.png" alt="Character 1" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="1">
-						<img src="/assets/char2_profile.png" alt="Character 2" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="2">
-						<img src="/assets/char3_profile.png" alt="Character 3" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="3">
-						<img src="/assets/char4_profile.png" alt="Character 4" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="4">
-					</div>
-				</div>
-
-				<div id="accept-container">
-					<img src="/assets/accept.png" alt="Accept" id="accept-button" class="w-64 md:w-80 cursor-pointer transform hover:scale-110 transition-transform duration-200">
-				</div>
+			<div id="accept-container">
+				<img src="/assets/accept.png" alt="Accept" id="accept-button" class="w-64 md:w-80 cursor-pointer transform hover:scale-110 transition-transform duration-200">
 			</div>
 		</div>
 	</div>
 	`;
 
-		playTrack('/assets/DangerZone.mp3');
+	playTrack('/assets/DangerZone.mp3');
 
-	const artContainer = document.getElementById('character-art-container') as HTMLDivElement;
 	const selectionContainer = document.getElementById('character-selection');
 	const acceptButton = document.getElementById('accept-button');
 	const difficultySelectionContainer = document.getElementById('difficulty-selection')!;
-	const portraits = appElement.querySelectorAll('.character-portrait');
 
 	let selectedPortrait: HTMLElement | null = null;
 	let gameMode: GameMode = 'ONE_PLAYER';
@@ -62,34 +54,6 @@ export function renderCharQP(appElement: HTMLElement): void
 
 	localStorage.setItem('gameMode', gameMode);
 	localStorage.setItem('difficulty', difficulty);
-
-	function showCharacterArt(charId: string | null) {
-		if (charId) {
-			const heightClass = 'h-[50vh] lg:h-[75vh]'; 
-			artContainer.innerHTML = `<img src="/assets/char${charId}_full.png" alt="Character ${charId} Full Art" class="${heightClass} max-w-full object-contain">`;
-		}
-	}
-	
-	function hideCharacterArt() {
-		artContainer.innerHTML = '';
-	}
-
-	portraits.forEach(portrait => {
-		portrait.addEventListener('mouseover', () => {
-			const charId = (portrait as HTMLElement).dataset.char;
-			if (!selectedPortrait || selectedPortrait !== portrait) {
-				showCharacterArt(charId || null);
-			}
-		});
-
-		portrait.addEventListener('mouseout', () => {
-			if (!selectedPortrait) {
-				hideCharacterArt();
-			} else {
-				showCharacterArt(selectedPortrait.dataset.char || null);
-			}
-		});
-	});
 
 	selectionContainer?.addEventListener('click', (event) => {
 		const target = event.target as HTMLElement;
@@ -103,8 +67,6 @@ export function renderCharQP(appElement: HTMLElement): void
 			selectedPortrait = target;
 			selectedPortrait.classList.remove('border-white', 'border-4');
 			selectedPortrait.classList.add('border-cyan-400', 'border-8');
-			
-			showCharacterArt(selectedPortrait.dataset.char || null);
 		}
 	});
 

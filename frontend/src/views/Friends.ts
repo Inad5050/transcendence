@@ -17,7 +17,7 @@ export function renderFriends(appElement: HTMLElement): void {
     if (!appElement) return;
 
     appElement.innerHTML = `
-    <div class="min-h-screen flex flex-col p-4 md:p-8 relative">
+    <div class="h-screen flex flex-col p-4 md:p-8 relative overflow-y-auto">
 
         <div id="user-details-modal" class="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center hidden z-50 p-4">
             <div id="modal-content" class="bg-gray-800 bg-opacity-75 border-4 border-cyan-400 rounded-lg p-6 text-white text-center w-full max-w-sm relative">
@@ -28,23 +28,24 @@ export function renderFriends(appElement: HTMLElement): void {
             <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl">
         </div>
 
-        <div class="flex-grow flex flex-col lg:flex-row justify-around items-center lg:items-start gap-8">
+        <div class="flex-grow flex flex-col items-center w-full max-w-4xl mx-auto space-y-8">
             
-            <div class="w-full lg:w-1/4 flex flex-col items-center">
-                <img src="/assets/friends.png" alt="Friends" class="w-[150px] md:w-[200px] mb-4">
-                <div id="friends-container" class="w-full h-[40vh] lg:h-[50vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
+            <div class="w-full flex flex-col items-center">
+                <img src="/assets/friends.png" alt="Friends" data-collapsible="friends-container" class="collapsible-trigger w-[150px] md:w-[200px] mb-4 cursor-pointer">
+                <div id="friends-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
             </div>
 
-            <div id="friend-requests-section" class="w-full lg:w-1/3 flex flex-col items-center">
+            <div class="w-full flex flex-col items-center">
+                <img src="/assets/requests.png" alt="Friend Requests" data-collapsible="requests-container" class="collapsible-trigger w-[200px] md:w-[300px] mb-4 cursor-pointer">
+                <div id="requests-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
             </div>
 
-            <div class="w-full lg:w-1/4 flex flex-col items-center">
-                <img src="/assets/users.png" alt="Users" id="users-button" class="w-[120px] md:w-[150px] mb-4">
-                <div id="users-container" class="w-full h-[40vh] lg:h-[50vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
+            <div class="w-full flex flex-col items-center">
+                <img src="/assets/users.png" alt="Users" data-collapsible="users-container" class="collapsible-trigger w-[120px] md:w-[150px] mb-4 cursor-pointer">
+                <div id="users-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50 hidden"></div>
             </div>
 
         </div>
-        
     </div>
     `;
 
@@ -52,9 +53,19 @@ export function renderFriends(appElement: HTMLElement): void {
 
     const friendsContainer = document.getElementById('friends-container')!;
     const usersContainer = document.getElementById('users-container')!;
-    const friendRequestsSection = document.getElementById('friend-requests-section')!;
+    const requestsContainer = document.getElementById('requests-container')!;
     const modal = document.getElementById('user-details-modal')!;
     
+    document.querySelectorAll('.collapsible-trigger').forEach(trigger => {
+        trigger.addEventListener('click', () => {
+            const contentId = trigger.getAttribute('data-collapsible');
+            if (contentId) {
+                const contentElement = document.getElementById(contentId);
+                contentElement?.classList.toggle('hidden');
+            }
+        });
+    });
+
     function showUserDetailsInModal(user: User) {
         const modalContent = document.getElementById('modal-content')!;
         modalContent.innerHTML = `
@@ -73,13 +84,10 @@ export function renderFriends(appElement: HTMLElement): void {
         }
     });
 
-    async function loadFriends() 
-	{
-        try 
-		{
+    async function loadFriends() {
+        try {
             const response = await authenticatedFetch('/api/friends');
-            if (!response.ok) 
-				throw new Error('Error al cargar amigos');
+            if (!response.ok) throw new Error('Error al cargar amigos');
             const friends: User[] = await response.json();
 
             friendsContainer.innerHTML = friends.map(friend => `<div class="text-white text-xl md:text-3xl p-2 cursor-pointer hover:bg-gray-700" data-user-id="${friend.id}">${friend.username}</div>`).join('');
@@ -102,17 +110,8 @@ export function renderFriends(appElement: HTMLElement): void {
         }
     }
 
-    async function loadFriendRequests() 
-    {
-        friendRequestsSection.innerHTML = `
-            <img src="/assets/requests.png" alt="Friend Requests" class="w-[200px] md:w-[300px] mb-4">
-            <div id="requests-container" class="w-full h-[25vh] bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50">
-            </div>
-        `;
-        const requestsContainer = document.getElementById('requests-container')!;
-
-        try 
-        {
+    async function loadFriendRequests() {
+        try {
             const response = await authenticatedFetch('/api/friends/requests');
             if (!response.ok) throw new Error('Error al cargar solicitudes');
             const requests: FriendRequest[] = await response.json();
@@ -129,7 +128,7 @@ export function renderFriends(appElement: HTMLElement): void {
                     </div>
                 `).join('');
             
-                friendRequestsSection.querySelectorAll('.request-action-btn').forEach(btn => {
+                requestsContainer.querySelectorAll('.request-action-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
                         const target = e.target as HTMLElement;
                         const action = target.dataset.action;
