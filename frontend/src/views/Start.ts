@@ -1,5 +1,5 @@
 import { navigate } from '../main';
-import { initializeAudio, playTrack } from '../musicPlayer';
+import { initializeAudio, playTrack } from '../utils/musicPlayer';
 import { authenticatedFetch } from '../utils/auth';
 
 interface FriendRequest {
@@ -10,6 +10,7 @@ export function renderStart(appElement: HTMLElement): void
 {
     if (!appElement)
         return;
+	
     appElement.innerHTML = `
     <div class="h-screen flex flex-col items-center p-4 md:p-8 relative overflow-y-auto">
     

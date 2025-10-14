@@ -1,5 +1,5 @@
 import { navigate } from '../main';
-import { playTrack } from '../musicPlayer';
+import { playTrack } from '../utils/musicPlayer';
 
 async function handleRegister(event: Event): Promise<void>
 {
@@ -42,6 +42,7 @@ export function renderRegister(appElement: HTMLElement): void
 {
     if (!appElement)
         return;
+	
     appElement.innerHTML = `
     <div class="min-h-screen flex flex-col items-center p-4 md:p-16">
 

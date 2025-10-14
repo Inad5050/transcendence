@@ -1,5 +1,5 @@
 import { navigate } from '../main';
-import { playTrack } from '../musicPlayer';
+import { playTrack } from '../utils/musicPlayer';
 import { GameMode, DifficultyLevel } from '../utils/types';
 
 export function renderCharQP(appElement: HTMLElement): void
@@ -10,6 +10,7 @@ export function renderCharQP(appElement: HTMLElement): void
 	appElement.innerHTML = `
 	<div id="main-container" class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative">
 		<div class="flex flex-col items-center">
+
 			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-4 md:p-8 flex flex-col items-center space-y-6 mb-8">
 				<div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4 md:gap-6">
 					<img src="/assets/vs_IA.png" alt="vs IA" data-mode="ONE_PLAYER" class="mode-btn h-10 md:h-12 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400">
@@ -37,6 +38,7 @@ export function renderCharQP(appElement: HTMLElement): void
 			<div id="accept-container">
 				<img src="/assets/accept.png" alt="Accept" id="accept-button" class="w-64 md:w-80 cursor-pointer transform hover:scale-110 transition-transform duration-200">
 			</div>
+
 		</div>
 	</div>
 	`;
@@ -97,10 +99,12 @@ export function renderCharQP(appElement: HTMLElement): void
 	});
   
 	appElement.querySelectorAll('.difficulty-btn').forEach(button => {
-		button.addEventListener('click', () => {
+		button.addEventListener('click', () => 
+		{
 			difficulty = button.getAttribute('data-difficulty') as DifficultyLevel;
 			localStorage.setItem('difficulty', difficulty);
-			appElement.querySelectorAll('.difficulty-btn').forEach(btn => {
+			appElement.querySelectorAll('.difficulty-btn').forEach(btn => 
+			{
 				btn.classList.remove('opacity-100', 'border-b-4', 'border-cyan-400');
 				btn.classList.add('opacity-50');
 			});

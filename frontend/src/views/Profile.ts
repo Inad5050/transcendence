@@ -1,5 +1,5 @@
 import { navigate } from '../main';
-import { playTrack } from '../musicPlayer';
+import { playTrack } from '../utils/musicPlayer';
 import { authenticatedFetch } from '../utils/auth';
 
 interface User {

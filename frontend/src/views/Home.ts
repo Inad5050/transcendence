@@ -1,10 +1,11 @@
 import { navigate } from '../main';
-import { initializeAudio, playTrack } from '../musicPlayer';
+import { initializeAudio, playTrack } from '../utils/musicPlayer';
 
 export function renderHome(appElement: HTMLElement): void
 {
 	if (!appElement)
 		return;
+	
 	appElement.innerHTML = `
 	<div class="min-h-screen flex flex-col p-4 md:p-8">
 		

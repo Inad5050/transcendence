@@ -1,4 +1,4 @@
-import { playTrack } from '../musicPlayer';
+import { playTrack } from '../utils/musicPlayer';
 
 import {
 	GameObjects,
