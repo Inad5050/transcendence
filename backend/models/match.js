@@ -18,7 +18,7 @@ const MatchModel = db.define( 'match', {
         allowNull: false,
     },
     match_type: {
-        type: sequelize.ENUM('local', 'friends', 'ia'),
+        type: sequelize.ENUM('local', 'friends', 'ia', 'gues'),
         allowNull: true,
         defaultValue: null
     },
@@ -27,6 +27,16 @@ const MatchModel = db.define( 'match', {
         allowNull: true,
         defaultValue: null
     },
+    player_one_points: {
+        type: sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    },
+    player_two_points: {
+        type: sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+    }
 });
 
 MatchModel.belongsTo(UserModel, { as: 'player_one', foreignKey: 'player_one_id' });

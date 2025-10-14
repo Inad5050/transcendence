@@ -3,6 +3,7 @@ import AuthController from "./controllers/Auth.js";
 import { authMiddleware } from "./middleware/authMiddleware.js";
 import FriendControler from "./controllers/Friends.js";
 import ChatController from "./controllers/Chat.js";
+import MatchControler from "./controllers/match.js"
 
 const rutas = [
 	// Rutas de autenticación (públicas)
@@ -136,7 +137,27 @@ const rutas = [
 		url: "/chat/public",
 		preHandler: authMiddleware,
 		handler: ChatController.getPublicMessages
-	}
+	},
+
+	//Rutas de partidas (match)
+	{
+		method: "POST",
+		url: "/match/create",
+		preHandler: authMiddleware,
+		handler: MatchControler.createMatch
+	},
+	{
+		method: "GET", // si haces /match/getall?match_type=local&player_one_id=4 te devolvera solo los partidos con esas propiedades, puedes poner tantos capos como quieras si no pones nada te devuelve todo
+		url: "/match/getall",
+		preHandler: authMiddleware,
+		handler: MatchControler.getAllMatch
+	},
+	{
+		method: "PUT",
+		url: "/match/update",
+		preHandler: authMiddleware,
+		handler: MatchControler.update
+	},
 ]
 
 export default rutas;

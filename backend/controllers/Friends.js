@@ -1,7 +1,6 @@
 import { where } from "sequelize";
 import UserModel from "../models/Users.js";
 import FriendModel from "../models/Friends.js";
-import { create } from "qrcode";
 
 class FriendControler {
     constructor() { };
