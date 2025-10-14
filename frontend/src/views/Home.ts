@@ -6,20 +6,18 @@ export function renderHome(appElement: HTMLElement): void
 	if (!appElement)
 		return;
 	appElement.innerHTML = `
-	<div class="min-h-screen flex flex-col p-8">
+	<div class="min-h-screen flex flex-col p-4 md:p-8">
 		
 		<div class="w-full flex justify-center">
-			<img src="/assets/logo.gif" alt="Game Logo" class="max-w-5xl w-full mt-40">
+			<img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl mt-20 md:mt-40">
 		</div>
 
-		<div class="absolute bottom-[400px] left-1/2 -translate-x-1/2">           
-			<img src="/assets/register.png" alt="Register" id="registerButton" 
-		class="w-[400px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
-		</div>
-
-		<div class="absolute bottom-[550px] left-1/2 -translate-x-1/2">           
+		<div class="flex-grow flex flex-col justify-center items-center w-full mt-10 space-y-8">
 			<img src="/assets/login.png" alt="Login" id="loginButton" 
-		class="w-[400px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+				class="w-[280px] md:w-[400px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
+		
+			<img src="/assets/register.png" alt="Register" id="registerButton" 
+				class="w-[280px] md:w-[400px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl">
 		</div>
 	</div>
 	`;
