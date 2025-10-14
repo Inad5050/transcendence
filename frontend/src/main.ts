@@ -48,6 +48,7 @@
 // Ejecuta el router por primera vez para cargar la vista inicial.
 
 import { protectedRoute } from './utils/auth.ts';
+import i18next from './utils/i18n';
 import { renderHome } from './views/Home.ts';
 import { renderRegister } from './views/Register.ts';
 import { renderLogin } from './views/Login.ts';
@@ -96,7 +97,29 @@ export function navigate(path: string)
 
 window.addEventListener('popstate', router);
 
+document.getElementById('language-switcher')?.addEventListener('click', (event) => 
+{
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'BUTTON') 
+	{
+        const lang = target.getAttribute('data-lang');
+        if (lang && lang !== i18next.language) 
+		{
+            i18next.changeLanguage(lang, () => 
+			{
+                localStorage.setItem('language', lang);
+                router();
+            });
+        }
+    }
+});
+
 if (!appElement)
 	throw new Error('Fatal Error: #app element not found in DOM.');
 
-router();
+const savedLanguage = localStorage.getItem('language') || 'en';
+
+i18next.changeLanguage(savedLanguage, () => 
+{
+    router();
+});

@@ -17,7 +17,7 @@ async function authMiddleware(req, res, next) {
         }
 
         const token = authHeader.substring(7);
-        const decoded = jwtUtils.verifyAccessToken(token);
+        const decoded = jwtUtils.verifyToken(token);
 
         if (!decoded) {
             return res.status(401).send({

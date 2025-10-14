@@ -107,12 +107,6 @@ const rutas = [
 		handler: FriendControler.getFriends
 	},
 	{
-		method: "GET",
-		url: "/friends/requests",
-		preHandler: authMiddleware,
-		handler: FriendControler.getFriendRequests
-	},
-	{
 		method: "DELETE", //Tambien se podria usar para cambiar el estado a "removed" o borrar la solicitud si esta en "pending"
 		url: "/friends/:friendshipId",
 		preHandler: authMiddleware,
