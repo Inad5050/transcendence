@@ -11,7 +11,7 @@ export function renderStart(appElement: HTMLElement): void
     if (!appElement)
         return;
     appElement.innerHTML = `
-    <div class="min-h-screen flex flex-col items-center p-4 md:p-8 relative overflow-y-auto">
+    <div class="h-screen flex flex-col items-center p-4 md:p-8 relative overflow-y-auto">
     
         <div class="w-full flex justify-center mt-10 md:mt-20">
             <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl">
@@ -57,11 +57,21 @@ export function renderStart(appElement: HTMLElement): void
     const aboutButton = document.getElementById('aboutButton');
     const friendsButton = document.getElementById('friendsButton');
 
-    if (quickPlayButton)
-        quickPlayButton.addEventListener('click', () => {navigate('/charQP'); initializeAudio(); });
+    if (quickPlayButton) {
+        quickPlayButton.addEventListener('click', () => {
+            localStorage.setItem('nextRoute', '/pong'); // CAMBIO: Guardar la ruta para Quick Play
+            navigate('/charQP');
+            initializeAudio(); 
+        });
+    }
     
-    if (tournamentButton)
-        tournamentButton.addEventListener('click', () => {navigate('/charTournament'); initializeAudio(); });
+    if (tournamentButton) {
+        tournamentButton.addEventListener('click', () => {
+            localStorage.setItem('nextRoute', '/tournament'); // CAMBIO: Guardar la ruta para Torneo
+            navigate('/charQP'); // CAMBIO: Navegar a la misma vista charQP
+            initializeAudio(); 
+        });
+    }
     
     if (ticTacToeButton)
         ticTacToeButton.addEventListener('click', () => {navigate('/ticTacToe'); initializeAudio(); });

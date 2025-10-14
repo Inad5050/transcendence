@@ -9,7 +9,6 @@ export function renderCharQP(appElement: HTMLElement): void
 
 	appElement.innerHTML = `
 	<div id="main-container" class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative">
-
 		<div class="flex flex-col items-center">
 			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-4 md:p-8 flex flex-col items-center space-y-6 mb-8">
 				<div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4 md:gap-6">
@@ -57,13 +56,11 @@ export function renderCharQP(appElement: HTMLElement): void
 
 	selectionContainer?.addEventListener('click', (event) => {
 		const target = event.target as HTMLElement;
-
 		if (target.classList.contains('character-portrait')) {
 			if (selectedPortrait) {
 				selectedPortrait.classList.remove('border-cyan-400', 'border-8');
 				selectedPortrait.classList.add('border-white', 'border-4');
 			}
-			
 			selectedPortrait = target;
 			selectedPortrait.classList.remove('border-white', 'border-4');
 			selectedPortrait.classList.add('border-cyan-400', 'border-8');
@@ -74,7 +71,11 @@ export function renderCharQP(appElement: HTMLElement): void
 		event.stopPropagation();
 		if (selectedPortrait) {
 			localStorage.setItem('selectedCharacter', selectedPortrait.dataset.char || '1');
-			navigate('/pong');
+			
+			// CAMBIO: Leer la ruta de destino desde localStorage
+			const nextRoute = localStorage.getItem('nextRoute') || '/pong'; // Ir a /pong como fallback
+			
+			navigate(nextRoute);
 		} else {
 			alert("Por favor, elige un personaje.");
 		}

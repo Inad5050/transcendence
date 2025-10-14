@@ -52,7 +52,6 @@ import { renderRegister } from './views/Register.ts';
 import { renderLogin } from './views/Login.ts';
 import { renderStart } from './views/Start.ts';
 import { renderCharQP } from './views/CharQP.ts';
-import { renderCharTournament } from './views/CharTournament.ts';
 import { renderProfile } from './views/Profile.ts';
 import { renderAbout } from './views/About.ts';
 import { initializePongGame } from './views/Pong.ts';
@@ -68,7 +67,6 @@ const routes: { [key: string]: (element: HTMLElement) => void } =
 	'/login': renderLogin,
 	'/start': renderStart,
 	'/charQP': renderCharQP,
-	'/charTournament': renderCharTournament,
 	'/ticTacToe': renderTicTacToe,
 	'/profile': renderProfile,
 	'/about': renderAbout,
