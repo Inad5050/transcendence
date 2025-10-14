@@ -40,6 +40,16 @@ const UserModel = db.define('users', {
 		allowNull: true,
 		defaultValue: null
 	},
+	status: {
+		type: sequelize.ENUM('online', 'offline'),
+		allowNull: false,
+		defaultValue: 'offline'
+	},
+	last_activity: {
+		type: sequelize.DATE,
+		allowNull: false,
+		defaultValue: sequelize.NOW
+	},
 	twofa_secret: {
 		type: sequelize.STRING,
 		allowNull: true,
@@ -56,7 +66,8 @@ const UserModel = db.define('users', {
 }, {
 	indexes: [
 		{ unique: true, fields: ["username"] },
-		{ unique: true, fields: ["email"] }
+		{ unique: true, fields: ["email"] },
+		{ fields: ["last_activity"] }  // ✅ Añadir este índice
 	]
 });
 
@@ -79,5 +90,6 @@ UserModel.beforeUpdate(async (user) => {
 UserModel.prototype.verifyPassword = function (plain) {
 	return bcrypt.compare(plain, this.password);
 };
+
 
 export default UserModel;

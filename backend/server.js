@@ -9,6 +9,7 @@ import db from "./db.js";
 import rutas from "./rutas.js";
 import cors from '@fastify/cors';
 import seedDatabase from "./utils/seedDatabase.js";
+import { startActivityCheck, stopActivityCheck } from "./jobs/inactivityCheck.js"
 
 // Crea una instancia de la aplicación Fastify. El objeto 'logger: true'
 // // activará logs detallados en la consola, muy útil para depuración.
@@ -40,6 +41,9 @@ fastify.get('/health', { logLevel: 'silent' }, async (request, reply) => {
   return reply.code(200).send({ status: 'ok' });
 });
 
+// En server.js
+let activityCheckId;
+
 // Arranque unificado asegurando host 0.0.0.0
 async function start() {
   try {
@@ -51,11 +55,35 @@ async function start() {
     
     // Poblar base de datos con usuarios de prueba
     await seedDatabase();
+    
+    // Guardar el intervalId
+    activityCheckId = startActivityCheck();
+    
   } catch (error) {
     fastify.log.error(error);
     process.exit(1);
   }
-
 }
+
+// Graceful shutdown
+async function shutdown() {
+    console.log('🛑 Cerrando servidor...');
+    
+    // Detener job de inactividad
+    stopActivityCheck(activityCheckId);
+    
+    // Cerrar servidor Fastify
+    await fastify.close();
+    
+    // Cerrar conexión DB
+    await db.close();
+    
+    console.log('✅ Servidor cerrado correctamente');
+    process.exit(0);
+}
+
+// Escuchar señales de terminación
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
 
 start(); // ARancamos el servidor y la conexion con la base de datos
