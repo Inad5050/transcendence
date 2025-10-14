@@ -3,9 +3,10 @@ services:
     build: ./nginx
     container_name: nginx
     ports:
-      - "8000:80"
+      - "8443:443"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
     networks:
       - default
     depends_on:
@@ -18,7 +19,7 @@ services:
     build: ./backend
     container_name: backend
     volumes:
-      - ./backend:/app # crea un vínculo en tiempo real entre el directorio ./backend de su máquina local y el directorio /app dentro del contenedor -> para usar la directiva --watch
+      - ./backend:/app
       - /app/node_modules # excluye la carpeta /node_modules de reemplazar la carpeta del mismo nombre dentro del contenedor. Para que use el directorio que ya se ha generado dentro del contenedor -> Las dependencias del contenedor y de la maquina host no son los mismos
     expose:
       - "9000"

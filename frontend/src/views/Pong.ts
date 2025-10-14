@@ -119,15 +119,19 @@ export function initializePongGame(container: HTMLElement) {
   }
   // --- FIN DE LA CORRECCIÓN ---
 
-  function resetGame() {
+  function resetGame()
+  {
     gameState = 'MENU';
 
     const PADDLE_LENGTH = gameMode === 'FOUR_PLAYERS' ? PADDLE_LENGTH_4P : PADDLE_LENGTH_CLASSIC;
-    if (gameMode === 'FOUR_PLAYERS') {
+    if (gameMode === 'FOUR_PLAYERS')
+    {
       canvas.width = 800; canvas.height = 800;
       canvas.classList.add('aspect-square');
       score = { p1: 3, p2: 3, p3: 3, p4: 3 };
-    } else {
+    }
+    else
+    {
       canvas.width = 800; canvas.height = 600;
       canvas.classList.remove('aspect-square');
       score = { p1: 0, p2: 0 };
@@ -145,27 +149,35 @@ export function initializePongGame(container: HTMLElement) {
     gameOverlay.classList.remove('hidden');
     startButton.textContent = 'Empezar Partida';
   }
-  
-  function update() {
+
+  function update()
+  {
     if (gameState !== 'PLAYING') 
       return;
 
     const PADDLE_SPEED = gameMode === 'FOUR_PLAYERS' ? PADDLE_SPEED_4P : PADDLE_SPEED_CLASSIC;
     const { ball, player1, player2, player3, player4 } = gameObjects;
 
-    if (player1.isAlive) {
+    if (player1.isAlive)
+    {
       playerVelocities.p1 = (keysPressed['s'] ? PADDLE_SPEED : 0) - (keysPressed['w'] ? PADDLE_SPEED : 0);
       player1.y += playerVelocities.p1;
     }
-    if (player2.isAlive) {
-      if (gameMode === 'ONE_PLAYER') {
+
+    if (player2.isAlive)
+    {
+      if (gameMode === 'ONE_PLAYER')
+      {
         const currentDifficulty = DIFFICULTY_LEVELS[difficulty];
         const targetY = ball.y - player2.height / 2;
         const deltaY = targetY - player2.y;
-        if (Math.abs(deltaY) > currentDifficulty.errorMargin) {
+        if (Math.abs(deltaY) > currentDifficulty.errorMargin)
+        {
           player2.y += Math.sign(deltaY) * Math.min(PADDLE_SPEED, Math.abs(deltaY));
         }
-      } else {
+      }
+      else
+      {
         playerVelocities.p2 = (keysPressed['l'] ? PADDLE_SPEED : 0) - (keysPressed['o'] ? PADDLE_SPEED : 0);
         player2.y += playerVelocities.p2;
       }
@@ -174,12 +186,15 @@ export function initializePongGame(container: HTMLElement) {
     player1.y = Math.max(0, Math.min(player1.y, canvas.height - player1.height));
     player2.y = Math.max(0, Math.min(player2.y, canvas.height - player2.height));
 
-    if (gameMode === 'FOUR_PLAYERS') {
-      if (player3.isAlive) {
+    if (gameMode === 'FOUR_PLAYERS')
+    {
+      if (player3.isAlive)
+      {
         playerVelocities.p3 = (keysPressed['h'] ? PADDLE_SPEED : 0) - (keysPressed['g'] ? PADDLE_SPEED : 0);
         player3.x += playerVelocities.p3;
       }
-      if (player4.isAlive) {
+      if (player4.isAlive)
+      {
         playerVelocities.p4 = (keysPressed['n'] ? PADDLE_SPEED : 0) - (keysPressed['b'] ? PADDLE_SPEED : 0);
         player4.x += playerVelocities.p4;
       }
@@ -192,7 +207,8 @@ export function initializePongGame(container: HTMLElement) {
 
     if (checkCollision(ball, player1)) handlePaddleBounce(player1, playerVelocities.p1, 'vertical');
     if (checkCollision(ball, player2)) handlePaddleBounce(player2, playerVelocities.p2, 'vertical');
-    if (gameMode === 'FOUR_PLAYERS') {
+    if (gameMode === 'FOUR_PLAYERS')
+    {
       if (checkCollision(ball, player3)) handlePaddleBounce(player3, playerVelocities.p3, 'horizontal');
       if (checkCollision(ball, player4)) handlePaddleBounce(player4, playerVelocities.p4, 'horizontal');
     }
@@ -200,16 +216,20 @@ export function initializePongGame(container: HTMLElement) {
     handleScoring();
   }
 
-  function handlePaddleBounce(paddle: PaddleObject, paddleVelocity: number, orientation: 'vertical' | 'horizontal') {
+  function handlePaddleBounce(paddle: PaddleObject, paddleVelocity: number, orientation: 'vertical' | 'horizontal')
+  {
       const { ball } = gameObjects;
       const speed = Math.min(Math.sqrt(ball.dx**2 + ball.dy**2) * ACCELERATION_FACTOR, MAX_BALL_SPEED);
-      if (orientation === 'vertical') {
+      if (orientation === 'vertical')
+      {
           const relativeImpact = (ball.y - (paddle.y + paddle.height / 2)) / (paddle.height / 2);
           const bounceAngle = relativeImpact * MAX_BOUNCE_ANGLE;
           ball.dx = speed * Math.cos(bounceAngle) * (ball.dx > 0 ? -1 : 1);
           ball.dy = speed * Math.sin(bounceAngle) + paddleVelocity * PADDLE_INFLUENCE_FACTOR;
           ball.x = paddle.x + (ball.dx > 0 ? paddle.width + BALL_RADIUS : -BALL_RADIUS);
-      } else {
+      }
+      else
+      {
           const relativeImpact = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
           const bounceAngle = relativeImpact * MAX_BOUNCE_ANGLE;
           ball.dy = speed * Math.cos(bounceAngle) * (ball.dy > 0 ? -1 : 1);
@@ -218,9 +238,11 @@ export function initializePongGame(container: HTMLElement) {
       }
   }
 
-  function handleScoring() {
+  function handleScoring()
+  {
       const { ball, player1, player2, player3, player4 } = gameObjects;
-      if (gameMode === 'FOUR_PLAYERS') {
+      if (gameMode === 'FOUR_PLAYERS')
+      {
           if ((ball.x - BALL_RADIUS < 0 && !player1.isAlive)) { ball.dx *= -1; ball.x = BALL_RADIUS; }
           if ((ball.x + BALL_RADIUS > canvas.width && !player2.isAlive)) { ball.dx *= -1; ball.x = canvas.width - BALL_RADIUS; }
           if ((ball.y - BALL_RADIUS < 0 && !player3.isAlive)) { ball.dy *= -1; ball.y = BALL_RADIUS; }
@@ -231,7 +253,9 @@ export function initializePongGame(container: HTMLElement) {
           else if (ball.y < 0 && player3.isAlive) loseLife(3);
           else if (ball.y > canvas.height && player4.isAlive) loseLife(4);
 
-      } else {
+      }
+      else
+      {
           if (ball.y - BALL_RADIUS < 0 || ball.y + BALL_RADIUS > canvas.height) ball.dy *= -1;
           let scorer: number | null = null;
           if (ball.x < 0) { score.p2++; scorer = 2; }
@@ -250,27 +274,33 @@ export function initializePongGame(container: HTMLElement) {
       }
   }
 
-  function loseLife(playerNumber: number) {
+  function loseLife(playerNumber: number)
+  {
       gameState = 'SCORED';
       const playerKey = `p${playerNumber}` as keyof Score;
       score[playerKey]--;
       const gameObjectKey = `player${playerNumber}` as keyof GameObjects;
-      if(score[playerKey] <= 0) {
+      if(score[playerKey] <= 0)
+      {
         gameObjects[gameObjectKey].isAlive = false;
       }
       updateScoreboard();
 
       const playersAlive = Object.values(gameObjects).filter(p => p.isAlive === true).length;
-      if (playersAlive <= 1) {
+      if (playersAlive <= 1)
+      {
           const winnerKey = Object.keys(score).find(k => score[k] > 0);
           endGame(winnerKey ? parseInt(winnerKey.replace('p', '')) : 0);
-      } else {
+      }
+      else
+      {
           resetBall();
           setTimeout(() => { gameState = 'PLAYING'; }, 1000);
       }
   }
 
-  function draw() {
+  function draw()
+  {
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = 'black';
     context.fillRect(0, 0, canvas.width, canvas.height);
@@ -282,14 +312,16 @@ export function initializePongGame(container: HTMLElement) {
     context.fillStyle = player2.isAlive ? 'white' : '#555';
     context.fillRect(player2.x, player2.y, player2.width, player2.height);
 
-    if (gameMode === 'FOUR_PLAYERS') {
+    if (gameMode === 'FOUR_PLAYERS')
+    {
         context.fillStyle = player3.isAlive ? 'white' : '#555';
         context.fillRect(player3.x, player3.y, player3.width, player3.height);
         context.fillStyle = player4.isAlive ? 'white' : '#555';
         context.fillRect(player4.x, player4.y, player4.width, player4.height);
     }
 
-    if (gameState === 'PLAYING' || gameState === 'SCORED') {
+    if (gameState === 'PLAYING' || gameState === 'SCORED')
+    {
       context.fillStyle = 'white';
       context.beginPath();
       context.arc(ball.x, ball.y, BALL_RADIUS, 0, Math.PI * 2);
@@ -297,40 +329,48 @@ export function initializePongGame(container: HTMLElement) {
     }
   }
   
-  function updateScoreboard() {
-      if (gameMode === 'FOUR_PLAYERS') {
+  function updateScoreboard()
+  {
+      if (gameMode === 'FOUR_PLAYERS')
+      {
           scoreboardElement.innerHTML = `
             <span class="${score.p1 > 0 ? 'text-white' : 'text-gray-600'}">P1 Vidas: ${score.p1}</span> | 
             <span class="${score.p2 > 0 ? 'text-white' : 'text-gray-600'}">P2 Vidas: ${score.p2}</span> | 
             <span class="${score.p3 > 0 ? 'text-white' : 'text-gray-600'}">P3 Vidas: ${score.p3}</span> | 
             <span class="${score.p4 > 0 ? 'text-white' : 'text-gray-600'}">P4 Vidas: ${score.p4}</span>
           `;
-      } else {
+      }
+      else
+      {
           const p1Name = 'Jugador 1';
           const p2Name = gameMode === 'ONE_PLAYER' ? 'IA' : 'Jugador 2';
           scoreboardElement.textContent = `${p1Name}: ${score.p1 || 0} - ${p2Name}: ${score.p2 || 0}`;
       }
   }
 
-  function gameLoop() {
+  function gameLoop()
+  {
     update();
     draw();
     animationFrameId = requestAnimationFrame(gameLoop);
   }
 
-  function startGame() {
+  function startGame()
+  {
       if (gameState === 'PLAYING')
         return;
       gameState = 'PLAYING';
       gameOverlay.classList.add('hidden');
       resetBall();
       
-      if (!animationFrameId) {
+      if (!animationFrameId)
+      {
         animationFrameId = requestAnimationFrame(gameLoop);
       }
   }
 
-  function endGame(winner: number) {
+  function endGame(winner: number)
+  {
       gameState = 'GAME_OVER';
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       animationFrameId = null;
@@ -377,7 +417,8 @@ export function initializePongGame(container: HTMLElement) {
   });
 
   startButton.addEventListener('click', () => {
-    if (gameState === 'MENU' || gameState === 'GAME_OVER') {
+    if (gameState === 'MENU' || gameState === 'GAME_OVER')
+    {
         resetGame();
         startGame();
     }
