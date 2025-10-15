@@ -1,5 +1,6 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
+import i18next from '../utils/i18n';
 
 export function renderTicTacToe(container: HTMLElement): void {
 	container.innerHTML = `
@@ -13,22 +14,11 @@ export function renderTicTacToe(container: HTMLElement): void {
 		<header class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
 		  <div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4">
 			<button data-mode="HvsH" class="mode-btn bg-[url('/assets/PvP.png')] bg-contain bg-no-repeat bg-center h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-			<button data-mode="HvsAI" class="mode-btn bg-[url('/assets/vs_IA.png')] bg-contain bg-no-repeat bg-center h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+			<button data-mode="HvsAI" class="mode-btn bg-[url('${i18next.t('img.vsIA')}')] bg-contain bg-no-repeat bg-center h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
 		  </div>
 		  <h1 id="status-display" class="font-extrabold text-3xl text-cyan-400 pt-2">Turno del Jugador X</h1>
 		</header>
-		<main class="relative">
-		  <div id="game-board" class="grid grid-cols-3 gap-4">
-			${Array(9).fill(0).map((_, i) => `
-			  <div data-cell-index="${i}" class="cell w-full aspect-square bg-black border-4 border-cyan-400 rounded-lg flex items-center justify-center text-6xl font-black cursor-pointer hover:bg-gray-900 transition-colors duration-200" tabindex="0"></div>
-			`).join('')}
-		  </div>
-		  <div id="game-overlay" class="absolute top-0 left-0 w-full h-full flex-col justify-center items-center bg-gray-900/90 gap-4 hidden">
-			<h1 id="winner-message" class="text-5xl font-black text-cyan-400 p-4 rounded-lg"></h1>
-			<button id="restart-button" class="px-8 py-4 font-bold text-lg rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 bg-cyan-400 text-gray-900 hover:bg-white">Jugar de Nuevo</button>
-		  </div>
-		</main>
-	  </div>
+        </div>
 	</div>
 	`;
 

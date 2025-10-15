@@ -49,11 +49,11 @@
 
 // document.getElementById('language-switcher')?. => ? evita un mensaje de error si no encontramos el elemento
 // event.target => el elemento sobre el que se ha hecho click
-// if (target.tagName === 'BUTTON') => verifica que el click fue en un boton y no en el espacio entre ellos (cualquier click en el contenedor activa el evento)
+// if (target.tagName === 'BUTTON') => verifica que el click fue en un boton y no en el espacio entre ellos (cualquier click en el contenedor activa)
 
 
 import { protectedRoute } from './utils/auth.ts';
-import i18next from './utils/i18n';
+import i18next from './utils/i18n.ts';
 import { renderHome } from './views/Home.ts';
 import { renderRegister } from './views/Register.ts';
 import { renderLogin } from './views/Login.ts';

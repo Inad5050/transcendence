@@ -1,5 +1,6 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
+import i18next from '../utils/i18n';
 
 async function handleRegister(event: Event): Promise<void> {
 	event.preventDefault();
@@ -59,7 +60,7 @@ export function renderRegister(appElement: HTMLElement): void
 					<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 mb-4 md:mb-6 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="password" type="password" placeholder="******************">
 				</div>
 				<div class="flex items-center justify-center">
-					<button type="submit" id="registerButton" class="bg-[url('/assets/en/register.png')] bg-contain bg-no-repeat bg-center w-[250px] h-[75px] md:w-[400px] md:h-[120px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+					<button type="submit" id="registerButton" class="bg-[url('${i18next.t('img.register')}')] bg-contain bg-no-repeat bg-center w-[250px] h-[75px] md:w-[400px] md:h-[120px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
 				</div>
 			</form>
 		</div>

@@ -1,6 +1,7 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
 import { authenticatedFetch } from '../utils/auth';
+import i18next from '../utils/i18n';
 
 interface User {
     id: number;
@@ -34,15 +35,15 @@ export function renderFriends(appElement: HTMLElement): void
 	
 		<div class="flex-grow flex flex-col items-center w-full max-w-4xl mx-auto space-y-8">
 			<div class="w-full flex flex-col items-center">
-				<button data-collapsible="friends-container" class="collapsible-trigger bg-[url('/assets/en/friends.png')] bg-contain bg-no-repeat bg-center w-[150px] h-[45px] md:w-[200px] md:h-[60px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+				<button data-collapsible="friends-container" class="collapsible-trigger bg-[url('${i18next.t('img.friends')}')] bg-contain bg-no-repeat bg-center w-[150px] h-[45px] md:w-[200px] md:h-[60px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
 				<div id="friends-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
 			</div>
 			<div class="w-full flex flex-col items-center">
-				<button data-collapsible="requests-container" class="collapsible-trigger bg-[url('/assets/en/requests.png')] bg-contain bg-no-repeat bg-center w-[200px] h-[50px] md:w-[300px] md:h-[75px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+				<button data-collapsible="requests-container" class="collapsible-trigger bg-[url('${i18next.t('img.requests')}')] bg-contain bg-no-repeat bg-center w-[200px] h-[50px] md:w-[300px] md:h-[75px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
 				<div id="requests-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
 			</div>
 			<div class="w-full flex flex-col items-center">
-				<button data-collapsible="users-container" class="collapsible-trigger bg-[url('/assets/en/users.png')] bg-contain bg-no-repeat bg-center w-[120px] h-[40px] md:w-[150px] md:h-[50px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+				<button data-collapsible="users-container" class="collapsible-trigger bg-[url('${i18next.t('img.users')}')] bg-contain bg-no-repeat bg-center w-[120px] h-[40px] md:w-[150px] md:h-[50px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
 				<div id="users-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50 hidden"></div>
 			</div>
 		</div>
@@ -114,17 +115,17 @@ export function renderFriends(appElement: HTMLElement): void
             const response = await authenticatedFetch('/api/friends/requests');
             if (!response.ok) throw new Error('Error al cargar solicitudes');
             const requests: FriendRequest[] = await response.json();
-            if (requests.length > 0) {
-                requestsContainer.innerHTML = requests.map(req => `
-                    <div class="flex flex-col items-center text-white text-xl md:text-3xl p-3 mb-3 border-b border-gray-600">
-                        <span>${req.username}</span>
-                        <div class="flex gap-2 md:gap-4 mt-2">
-                            <button class="request-action-btn bg-[url('/assets/accept.png')] bg-contain bg-no-repeat bg-center w-[60px] h-[40px] md:w-[70px] md:h-[50px] cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg" data-action="accept" data-id="${req.friendshipId}"></button>
-                            <button class="request-action-btn bg-[url('/assets/cancel.png')] bg-contain bg-no-repeat bg-center w-[60px] h-[40px] md:w-[70px] md:h-[50px] cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg" data-action="reject" data-id="${req.friendshipId}"></button>
-                            <button class="request-action-btn bg-[url('/assets/details.png')] bg-contain bg-no-repeat bg-center w-[60px] h-[40px] md:w-[70px] md:h-[50px] cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg" data-action="details" data-user-id="${req.id}"></button>
-                        </div>
-                    </div>
-                `).join('');
+			if (requests.length > 0) {
+				requestsContainer.innerHTML = requests.map(req => `
+					<div class="flex flex-col items-center text-white text-xl md:text-3xl p-3 mb-3 border-b border-gray-600">
+						<span>${req.username}</span>
+						<div class="flex gap-2 md:gap-4 mt-2">
+							<button class="request-action-btn bg-[url('${i18next.t('img.accept')}')] bg-contain bg-no-repeat bg-center w-[60px] h-[40px] md:w-[70px] md:h-[50px] cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg" data-action="accept" data-id="${req.friendshipId}"></button>
+							<button class="request-action-btn bg-[url('${i18next.t('img.cancel')}')] bg-contain bg-no-repeat bg-center w-[60px] h-[40px] md:w-[70px] md:h-[50px] cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg" data-action="reject" data-id="${req.friendshipId}"></button>
+							<button class="request-action-btn bg-[url('${i18next.t('img.details')}')] bg-contain bg-no-repeat bg-center w-[60px] h-[40px] md:w-[70px] md:h-[50px] cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg" data-action="details" data-user-id="${req.id}"></button>
+						</div>
+					</div>
+				`).join('');
             
                 requestsContainer.querySelectorAll('.request-action-btn').forEach(btn => {
                     btn.addEventListener('click', async (e) => {
@@ -181,12 +182,12 @@ export function renderFriends(appElement: HTMLElement): void
             const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
             const otherUsers = allUsers.filter(user => user.id !== currentUser.id && !friendIds.has(user.id));
             
-            usersContainer.innerHTML = otherUsers.map(user => `
-                <div class="flex justify-between items-center text-white text-xl md:text-3xl p-2 hover:bg-gray-700">
-                    <span>${user.username}</span>
-                    <button class="add-friend-btn bg-[url('/assets/add.png')] bg-contain bg-no-repeat bg-center w-[50px] h-[35px] md:w-[60px] md:h-[40px] cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg" data-user-id="${user.id}"></button>
-                </div>
-            `).join('');
+			usersContainer.innerHTML = otherUsers.map(user => `
+				<div class="flex justify-between items-center text-white text-xl md:text-3xl p-2 hover:bg-gray-700">
+					<span>${user.username}</span>
+					<button class="add-friend-btn bg-[url('${i18next.t('img.add')}')] bg-contain bg-no-repeat bg-center w-[50px] h-[35px] md:w-[60px] md:h-[40px] cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg" data-user-id="${user.id}"></button>
+				</div>
+			`).join('');
             
             usersContainer.querySelectorAll('.add-friend-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {

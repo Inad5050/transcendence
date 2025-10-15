@@ -1,6 +1,7 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
 import { GameMode, DifficultyLevel } from '../utils/types';
+import i18next from '../utils/i18n';
 
 export function renderCharQP(appElement: HTMLElement): void
 {
@@ -17,20 +18,20 @@ export function renderCharQP(appElement: HTMLElement): void
 		<div class="flex flex-col items-center">
 			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-4 md:p-8 flex flex-col items-center space-y-6 mb-8">
 				<div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4 md:gap-6">
-					<button data-mode="ONE_PLAYER" class="mode-btn bg-[url('/assets/vs_IA.png')] bg-contain bg-no-repeat bg-center h-10 w-28 md:h-12 md:w-36 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-					<button data-mode="TWO_PLAYERS" class="mode-btn bg-[url('/assets/en/2_players.png')] bg-contain bg-no-repeat bg-center h-10 w-28 md:h-12 md:w-36 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-					<button data-mode="FOUR_PLAYERS" class="mode-btn bg-[url('/assets/en/4_players.png')] bg-contain bg-no-repeat bg-center h-10 w-28 md:h-12 md:w-36 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+					<button data-mode="ONE_PLAYER" class="mode-btn bg-[url('${i18next.t('img.vsIA')}')] bg-contain bg-no-repeat bg-center h-10 w-28 md:h-12 md:w-36 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+					<button data-mode="TWO_PLAYERS" class="mode-btn bg-[url('${i18next.t('img.2players')}')] bg-contain bg-no-repeat bg-center h-10 w-28 md:h-12 md:w-36 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+					<button data-mode="FOUR_PLAYERS" class="mode-btn bg-[url('${i18next.t('img.4players')}')] bg-contain bg-no-repeat bg-center h-10 w-28 md:h-12 md:w-36 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
 				</div>
 				<div id="difficulty-selection" class="flex flex-wrap justify-center items-center gap-4 md:gap-6">
-					<button data-difficulty="EASY" class="difficulty-btn bg-[url('/assets/en/easy.png')] bg-contain bg-no-repeat bg-center h-8 w-24 md:h-10 md:w-32 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-					<button data-difficulty="MEDIUM" class="difficulty-btn bg-[url('/assets/en/medium.png')] bg-contain bg-no-repeat bg-center h-8 w-24 md:h-10 md:w-32 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-					<button data-difficulty="HARD" class="difficulty-btn bg-[url('/assets/en/hard.png')] bg-contain bg-no-repeat bg-center h-8 w-24 md:h-10 md:w-32 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-					<button data-difficulty="IMPOSSIBLE" class="difficulty-btn bg-[url('/assets/en/impossible.png')] bg-contain bg-no-repeat bg-center h-8 w-24 md:h-10 md:w-32 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+					<button data-difficulty="EASY" class="difficulty-btn bg-[url('${i18next.t('img.easy')}')] bg-contain bg-no-repeat bg-center h-8 w-24 md:h-10 md:w-32 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+					<button data-difficulty="MEDIUM" class="difficulty-btn bg-[url('${i18next.t('img.medium')}')] bg-contain bg-no-repeat bg-center h-8 w-24 md:h-10 md:w-32 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+					<button data-difficulty="HARD" class="difficulty-btn bg-[url('${i18next.t('img.hard')}')] bg-contain bg-no-repeat bg-center h-8 w-24 md:h-10 md:w-32 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+					<button data-difficulty="IMPOSSIBLE" class="difficulty-btn bg-[url('${i18next.t('img.impossible')}')] bg-contain bg-no-repeat bg-center h-8 w-24 md:h-10 md:w-32 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
 				</div>
 			</div>
 	
 			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-6 md:p-16 flex flex-col items-center mb-8">
-				<img src="/assets/en/chooseYourFighter.png" alt="Elige tu luchador" class="w-full max-w-sm md:max-w-2xl mb-8 md:mb-12">
+				<img src="${i18next.t('img.chooseYourFighter')}" alt="Elige tu luchador" class="w-full max-w-sm md:max-w-2xl mb-8 md:mb-12">
 				<div id="character-selection" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-12">
 					<img src="/assets/char1_profile.png" alt="Character 1" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="1" tabindex="0">
 					<img src="/assets/char2_profile.png" alt="Character 2" class="character-portrait w-32 h-32 md:w-64 md:h-64 cursor-pointer border-4 border-white transform hover:scale-110 transition-all duration-200" data-char="2" tabindex="0">
@@ -40,7 +41,7 @@ export function renderCharQP(appElement: HTMLElement): void
 			</div>
 	
 			<div id="accept-container">
-				<button id="accept-button" class="bg-[url('/assets/en/accept.png')] bg-contain bg-no-repeat bg-center w-64 h-[60px] md:w-80 md:h-[75px] cursor-pointer transform hover:scale-110 transition-transform duration-200 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+				<button id="accept-button" class="bg-[url('${i18next.t('img.accept')}')] bg-contain bg-no-repeat bg-center w-64 h-[60px] md:w-80 md:h-[75px] cursor-pointer transform hover:scale-110 transition-transform duration-200 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
 			</div>
 		</div>
 	</div>

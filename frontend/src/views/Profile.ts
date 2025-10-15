@@ -1,6 +1,7 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
 import { authenticatedFetch } from '../utils/auth';
+import i18next from '../utils/i18n';
 
 interface User
 {
@@ -79,12 +80,10 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
         }
         const allMatches: Match[] = await response.json();
 
-        // Filter matches for the current user and where the status is 'finish'
         history = allMatches.filter(match =>
             (match.player_one_id === user.id || match.player_two_id === user.id) && match.match_status === 'finish'
         );
 
-        // Calculate stats
         stats.played = history.length;
         stats.victories = history.filter(match =>
         {
@@ -127,7 +126,7 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
 		
 								<p class="text-base md:text-lg"><span class="font-bold">ELO:</span> <span class="text-cyan-300 font-bold">${user.elo}</span></p>
 		
-								<button id="save-profile-btn" class="bg-[url('/assets/en/accept.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg mt-4"></button>
+								<button id="save-profile-btn" class="bg-[url('${i18next.t('img.accept')}')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg mt-4"></button>
 							</div>
 						</div>
 					</div>
@@ -138,7 +137,7 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
 					</div>
 		
 					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-						<button id="logout-btn" class="bg-[url('/assets/en/logOut.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl"></button>
+						<button id="logout-btn" class="bg-[url('${i18next.t('img.logOut')}')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl"></button>
 					</div>
 				</div>
 		
@@ -174,7 +173,6 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
 								const result = (isPlayerOne ? match.player_one_points > match.player_two_points : match.player_two_points > match.player_one_points) ? 'Victory' : 'Defeat';
 								const score = isPlayerOne ? `${match.player_one_points}-${match.player_two_points}` : `${match.player_two_points}-${match.player_one_points}`;
 								const opponentId = isPlayerOne ? match.player_two_id : match.player_one_id;
-								// You might want to fetch opponent's username here if not already available
 								const opponentUsername = `user${opponentId}`;
 		
 								return `
@@ -291,7 +289,7 @@ function setup2FA(user: User)
         {
             twoFASection.innerHTML = `
                 <p class="text-yellow-400 mb-2">⚠️ 2FA is INACTIVE.</p>
-                <button id="enable-2fa-btn" class="bg-[url('/assets/activate2FA.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+                <button id="enable-2fa-btn" class="bg-[url('${i18next.t('img.activate2FA')}')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
             `;
             document.getElementById('enable-2fa-btn')?.addEventListener('click', handleSetup2FA);
         }
