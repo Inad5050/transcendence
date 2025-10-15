@@ -9,3 +9,21 @@
 /* final que contiene solo las que realmente está utilizando, optimizando el tamaño del archivo. */
 @tailwind utilities;
 @tailwind components;
+/* ... tus estilos de tailwind ... */
+
+body {
+    position: relative;
+    background-color: #000;
+}
+
+body::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0.3), rgba(0,0,0,0.3) 1px, transparent 1px, transparent 2px);
+    pointer-events: none;
+    z-index: 1000;
+}
