@@ -22,7 +22,7 @@ export function initializePongGame(container: HTMLElement) {
 			<canvas id="pong-canvas" class="w-full block shadow-2xl shadow-cyan-400/50 border-4 border-cyan-400 bg-black"></canvas>
 			<div id="game-overlay" class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-gray-900/80 gap-4">
 			  <h1 id="winner-message" class="text-5xl font-black text-center text-cyan-400 p-4 rounded-lg border-4 border-cyan-400 animate-pulse hidden"></h1>
-			  <button id="start-button" class="px-8 py-4 font-bold text-lg rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 bg-cyan-400 text-gray-900 hover:bg-white">Empezar Partida</button>
+			  <button id="start-button" class="px-8 py-4 font-bold text-lg rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 bg-cyan-400 text-gray-900 hover:bg-white">${i18next.t('startGame')}</button>
 			</div>
 		  </main>
 		</div>
@@ -149,7 +149,7 @@ export function initializePongGame(container: HTMLElement) {
         updateScoreboard();
         winnerMessage.classList.add('hidden');
         gameOverlay.classList.remove('hidden');
-        startButton.textContent = 'Empezar Partida';
+        startButton.textContent = i18next.t('startGame');
     }
     function update() {
         if (gameState !== 'PLAYING') return;
@@ -312,8 +312,8 @@ export function initializePongGame(container: HTMLElement) {
               </div>
             `;
         } else {
-            const p1Name = 'J1';
-            const p2Name = gameMode === 'ONE_PLAYER' ? 'IA' : 'J2';
+            const p1Name = i18next.t('player1');
+            const p2Name = gameMode === 'ONE_PLAYER' ? i18next.t('ai') : i18next.t('player2');
             scoreboardContainer.innerHTML = `
               <div class="flex justify-between items-center text-5xl font-extrabold text-white px-8">
                 <span>${p1Name}</span>
@@ -343,11 +343,11 @@ export function initializePongGame(container: HTMLElement) {
 		if (animationFrameId) cancelAnimationFrame(animationFrameId);
 		animationFrameId = null;
   
-		let winnerName = `Jugador ${winner}`;
-		if (gameMode === 'ONE_PLAYER' && winner === 2) winnerName = 'IA';
+		let winnerName = `${i18next.t('player')} ${winner}`;
+		if (gameMode === 'ONE_PLAYER' && winner === 2) winnerName = i18next.t('ai');
   
-		winnerMessage.textContent = `¡${winnerName} ha ganado!`;
-		startButton.textContent = 'Volver a Jugar';
+		winnerMessage.textContent = i18next.t('winnerMessage', { winnerName });
+		startButton.textContent = i18next.t('playAgain');
 		winnerMessage.classList.remove('hidden');
 		gameOverlay.classList.remove('hidden');
 	}

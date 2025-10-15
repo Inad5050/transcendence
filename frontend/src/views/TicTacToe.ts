@@ -20,7 +20,7 @@ export function renderTicTacToe(container: HTMLElement): void {
                 <img src="${i18next.t('img.vsIA')}" alt="${i18next.t('vsIA')}" class="absolute inset-0 w-full h-full object-contain">
             </button>
 		  </div>
-		  <h1 id="status-display" class="font-extrabold text-3xl text-cyan-400 pt-2">Turno del Jugador X</h1>
+		  <h1 id="status-display" class="font-extrabold text-3xl text-cyan-400 pt-2">${i18next.t('playerXTurn')}</h1>
 		</header>
         </div>
 	</div>
@@ -60,17 +60,17 @@ export function renderTicTacToe(container: HTMLElement): void {
     }
 
     if (roundWon) {
-      const winner = currentPlayer === 'X' ? 'Jugador X' : (gameMode === 'HvsAI' ? 'IA' : 'Jugador O');
-      statusDisplay.innerHTML = `¡${winner} ha ganado!`;
-      winnerMessage.innerHTML = `¡Gana ${winner}!`;
+      const winner = currentPlayer === 'X' ? i18next.t('playerX') : (gameMode === 'HvsAI' ? i18next.t('ai') : i18next.t('playerO'));
+      statusDisplay.innerHTML = i18next.t('winnerMessage', { winner });
+      winnerMessage.innerHTML = i18next.t('winnerMessage', { winner });
       isGameActive = false;
       gameOverlay.style.display = 'flex';
       return;
     }
 
     if (!gameState.includes("")) {
-      statusDisplay.innerHTML = `¡Es un empate!`;
-      winnerMessage.innerHTML = '¡Empate!';
+      statusDisplay.innerHTML = i18next.t('draw');
+      winnerMessage.innerHTML = i18next.t('draw');
       isGameActive = false;
       gameOverlay.style.display = 'flex';
       return;
@@ -81,8 +81,8 @@ export function renderTicTacToe(container: HTMLElement): void {
 
   function handlePlayerChange() {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
-    const nextPlayerText = currentPlayer === 'X' ? 'Jugador X' : (gameMode === 'HvsAI' ? 'IA' : 'Jugador O');
-    statusDisplay.innerHTML = `Turno de ${nextPlayerText}`;
+    const nextPlayerText = currentPlayer === 'X' ? i18next.t('playerX') : (gameMode === 'HvsAI' ? i18next.t('ai') : i18next.t('playerO'));
+    statusDisplay.innerHTML = i18next.t('playerTurn', { player: nextPlayerText });
 
     if (gameMode === 'HvsAI' && currentPlayer === 'O' && isGameActive) {
       container.querySelector('#game-board')!.classList.add('pointer-events-none');
@@ -170,7 +170,7 @@ export function renderTicTacToe(container: HTMLElement): void {
     isGameActive = true;
     currentPlayer = "X";
     gameState = ["", "", "", "", "", "", "", "", ""];
-    statusDisplay.innerHTML = `Turno del Jugador X`;
+    statusDisplay.innerHTML = i18next.t('playerXTurn');
     cells.forEach(cell => {
       cell.innerHTML = "";
       cell.classList.remove('text-cyan-400', 'text-white');

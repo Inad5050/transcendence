@@ -24,10 +24,10 @@ async function handleRegister(event: Event): Promise<void> {
 		const result = await response.json();
 
 		if (response.ok) {
-			alert('¡Registro exitoso!');
+			alert(i18next.t('registerSuccess'));
             navigate('/login');
 		} else {
-			throw new Error(result.error?.message || 'Error en el registro.');
+			throw new Error(result.error?.message || i18next.t('errorRegister'));
 		}
 	} catch (error) {
 		alert(`Error: ${(error as Error).message}`);
@@ -48,15 +48,15 @@ export function renderRegister(appElement: HTMLElement): void
 		<div class="w-full md:max-w-4xl mt-10 md:mt-40">
 			<form id="registerForm" class="bg-gray-800 bg-opacity-50 shadow-md rounded-xl px-6 py-8 md:px-16 md:pt-12 md:pb-16 mb-8">
 				<div class="mb-6 md:mb-9">
-					<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="username">Username</label>
-					<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="username" type="text" placeholder="Username">
+					<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="username">${i18next.t('username')}</label>
+					<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="username" type="text" placeholder="${i18next.t('username')}">
 				</div>
 				<div class="mb-6 md:mb-9">
-					<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="mail">Mail</label>
-					<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="mail" type="email" placeholder="Mail">
+					<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="mail">${i18next.t('email')}</label>
+					<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="mail" type="email" placeholder="${i18next.t('email')}">
 				</div>
 				<div class="mb-8 md:mb-12">
-					<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="password">Password</label>
+					<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="password">${i18next.t('password')}</label>
 					<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 mb-4 md:mb-6 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="password" type="password" placeholder="******************">
 				</div>
 				<div class="flex items-center justify-center">
