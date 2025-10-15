@@ -21,7 +21,6 @@ export function initializePongGame(container: HTMLElement) {
 	playTrack('/assets/DangerZone.mp3');
     document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
 
-
 	const canvas = container.querySelector('#pong-canvas') as HTMLCanvasElement;
 	const context = canvas.getContext('2d')!;
 	const gameOverlay = container.querySelector('#game-overlay') as HTMLElement;

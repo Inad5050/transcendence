@@ -11,6 +11,12 @@
 @tailwind components;
 /* ... tus estilos de tailwind ... */
 
+/* @layer base {
+	body {
+	  font-family: 'Press Start 2P', cursive;
+	}
+} */
+
 body {
     position: relative;
     background-color: #000;
