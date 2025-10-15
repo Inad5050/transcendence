@@ -81,6 +81,12 @@ const rutas = [
 		preHandler: authMiddleware,
 		handler: UserControler.delete,
 	},
+	{
+		method: "POST",
+		url: "/users/avatar",
+		preHandler: authMiddleware,
+		handler: UserControler.uploadAvatar
+	},
 
 	//Rutas de amigos
 	{

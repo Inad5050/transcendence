@@ -61,6 +61,10 @@ const UserModel = db.define('users', {
 		allowNull: false,
 		defaultValue: false,
 		comment: 'Indica si el usuario tiene 2FA activado'
+	}, avatar: {
+		type: sequelize.INTEGER,
+		allowNull: false,
+		defaultValue: "placeholder.png"
 	}
 
 }, {

@@ -6,7 +6,7 @@ export function startActivityCheck() {
     checkInactiveUsers();
     
     // Luego cada N minutos
-    const intervalId = setInterval(checkInactiveUsers, 4 * 60 * 1000); // 3 minutos
+    const intervalId = setInterval(checkInactiveUsers, 4 * 60 * 1000); // 4 minutos
     
     return intervalId;
 }
