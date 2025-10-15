@@ -47,17 +47,23 @@
 // router(); =>
 // Ejecuta el router por primera vez para cargar la vista inicial.
 
+// document.getElementById('language-switcher')?. => ? evita un mensaje de error si no encontramos el elemento
+// event.target => el elemento sobre el que se ha hecho click
+// if (target.tagName === 'BUTTON') => verifica que el click fue en un boton y no en el espacio entre ellos (cualquier click en el contenedor activa)
+
+
+import { protectedRoute } from './utils/auth.ts';
+import i18next from './utils/i18n.ts';
 import { renderHome } from './views/Home.ts';
 import { renderRegister } from './views/Register.ts';
 import { renderLogin } from './views/Login.ts';
 import { renderStart } from './views/Start.ts';
 import { renderCharQP } from './views/CharQP.ts';
-import { renderCharTournament } from './views/CharTournament.ts';
-import { renderTicTacToe } from './views/TicTacToe.ts';
 import { renderProfile } from './views/Profile.ts';
 import { renderAbout } from './views/About.ts';
 import { initializePongGame } from './views/Pong.ts';
-import { renderTicTacToe } from './views/TicTacToe.ts'
+import { renderTicTacToe } from './views/TicTacToe.ts';
+import { renderFriends } from './views/Friends.ts';
 
 const appElement = document.querySelector('#app') as HTMLDivElement;
 
@@ -66,14 +72,14 @@ const routes: { [key: string]: (element: HTMLElement) => void } =
 	'/': renderHome,
 	'/register': renderRegister,
 	'/login': renderLogin,
-	'/start': renderStart,
-	'/charQP': renderCharQP,
-	'/charTournament': renderCharTournament,
-	'/ticTacToe': renderTicTacToe,
-	'/profile': renderProfile,
-	'/about': renderAbout,
-	'/pong': initializePongGame,
-	'/tictactoe': renderTicTacToe,
+	'/start': protectedRoute(renderStart),
+	'/charQP': protectedRoute(renderCharQP),
+	'/ticTacToe': protectedRoute(renderTicTacToe),
+	'/profile': protectedRoute(renderProfile),
+	'/about': protectedRoute(renderAbout),
+	'/pong': protectedRoute(initializePongGame),
+	'/tictactoe': protectedRoute(renderTicTacToe),
+	'/friends': protectedRoute(renderFriends),
 };
 
 function router()
@@ -96,7 +102,29 @@ export function navigate(path: string)
 
 window.addEventListener('popstate', router);
 
+document.addEventListener('click', (event) =>
+{
+	const target = event.target as HTMLElement;
+	const langSwitcher = target.closest('#language-switcher'); // Comprobar si el elemento clickeado o uno de sus padres está dentro de #language-switcher
+	if (!langSwitcher) // Si el clic fue fuera del contenedor de idiomas no hace nada.
+		return;
+	const button = target.closest('button[data-lang]'); // Encontrar el botón específico que fue clickeado
+	if (button)
+	{
+		const lang = button.getAttribute('data-lang');
+		if (lang && lang !== i18next.language)
+		{
+			i18next.changeLanguage(lang, () =>
+			{
+				localStorage.setItem('language', lang);
+				router();
+			});
+		}
+	}
+});
+
 if (!appElement)
 	throw new Error('Fatal Error: #app element not found in DOM.');
 
-router();
+const savedLanguage = localStorage.getItem('language') || 'en';
+i18next.changeLanguage(savedLanguage, () => { router(); });

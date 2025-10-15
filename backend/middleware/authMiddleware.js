@@ -4,70 +4,98 @@ import UserModel from '../models/Users.js';
 /**
  * Middleware para verificar que el usuario esté autenticado
  */
-async function authMiddleware(request, reply) {
-	try {
-		// Obtener token del header Authorization
-		const authHeader = request.headers.authorization;
-		
-		if (!authHeader || !authHeader.startsWith('Bearer ')) {
-			return reply.code(401).send({
-				error: 'Unauthorized',
-				message: 'Token no proporcionado'
-			});
-		}
 
-		const token = authHeader.substring(7); // Remover "Bearer "
+async function authMiddleware(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
 
-		// Verificar validez del token
-		const validation = await jwtUtils.isSessionValid(token);
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).send({
+                message: 'Token no proporcionado',
+                error: 'Unauthorized'
+            });
+        }
 
-		if (!validation.valid) {
-			return reply.code(401).send({
-				error: 'Unauthorized',
-				message: validation.reason
-			});
-		}
+        const token = authHeader.substring(7);
+        const decoded = jwtUtils.verifyToken(token);
 
-		// Agregar información del usuario a la request
-		request.user = {
-			id: validation.decoded.id,
-			username: validation.decoded.username,
-			email: validation.decoded.email
-		};
+        if (!decoded) {
+            return res.status(401).send({
+                message: 'Token inválido o expirado',
+                error: 'Unauthorized'
+            });
+        }
 
-		// Continuar con la siguiente función
-	} catch (error) {
-		return reply.code(500).send({
-			error: 'Internal Server Error',
-			message: 'Error al verificar autenticación'
-		});
-	}
+        // Verificar que la sesión existe y es válida
+        const isValidSession = await jwtUtils.isSessionValid(token);
+        if (!isValidSession) {
+            return res.status(401).send({
+                message: 'Sesión inválida o expirada',
+                error: 'Unauthorized'
+            });
+        }
+
+        // Añadir usuario al request
+        req.user = {
+            id: decoded.id,
+            username: decoded.username,
+            email: decoded.email
+        };
+
+        // ✅ ACTUALIZAR ACTIVIDAD AQUÍ
+        // Hacerlo de forma asíncrona sin bloquear la request
+        UserModel.update(
+            { 
+                last_activity: new Date(),
+                status: 'online'
+            },
+            { 
+                where: { id: decoded.id },
+                silent: true
+            }
+        ).catch(error => {
+            // Log pero no falla la request
+            console.error('Error actualizando actividad:', error);
+        });
+
+        // ✅ CRÍTICO: Llamar a next() para continuar
+        next();
+
+    } catch (error) {
+        console.error('Error en authMiddleware:', error);
+        return res.status(401).send({
+            message: 'Error de autenticación',
+            error: error.message
+        });
+    }
 }
 
 /**
  * Middleware opcional - no falla si no hay token
  */
-async function optionalAuthMiddleware(request, reply) {
-	try {
-		const authHeader = request.headers.authorization;
-		
-		if (authHeader && authHeader.startsWith('Bearer ')) {
-			const token = authHeader.substring(7);
-			const validation = await jwtUtils.isSessionValid(token);
+async function optionalAuthMiddleware(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
+        
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+            const token = authHeader.substring(7);
+            const validation = await jwtUtils.isSessionValid(token);
 
-			if (validation.valid) {
-				request.user = {
-					id: validation.decoded.id,
-					username: validation.decoded.username,
-					email: validation.decoded.email
-				};
-			}
-		}
-		
-		// Continuar siempre
-	} catch (error) {
-		// Ignorar errores en modo opcional
-	}
+            if (validation.valid) {
+                req.user = {
+                    id: validation.decoded.id,
+                    username: validation.decoded.username,
+                    email: validation.decoded.email
+                };
+            }
+        }
+        
+        // ✅ Siempre llamar a next()
+        next();
+    } catch (error) {
+        // En modo opcional, continuar aunque haya error
+        next();
+    }
 }
 
 export { authMiddleware, optionalAuthMiddleware };

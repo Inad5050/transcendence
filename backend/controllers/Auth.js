@@ -71,6 +71,8 @@ class AuthController {
 
 			// Actualizar last_login
 			userModel.last_login = new Date();
+			userModel.status = 'online';
+			userModel.last_activity = new Date();
 			await userModel.save();
 
 			// Generar tokens JWT
@@ -83,6 +85,7 @@ class AuthController {
 
 			// Guardar sesión en la base de datos
 			await jwtUtils.saveSession(userModel.id, accessToken, refreshToken, req);
+
 
 			// Obtener datos del usuario sin la contraseña ni el secreto 2FA
 			const userData = userModel.get({ plain: true });
@@ -109,20 +112,43 @@ class AuthController {
 
 	async logout(req, res) {
 		try {
-			 // Obtener el token del header
-			const authHeader = req.headers.authorization;
+			const userId = req.user.id;
+			// 1️⃣ PRIMERO: Actualizar estado del usuario a offline
+			const userModel = await UserModel.findByPk(userId);
 			
+			if (!userModel) {
+				return res.status(404).send({
+					status: false,
+					message: 'Usuario no encontrado'
+				});
+			}
+
+			userModel.status = 'offline';
+			userModel.last_activity = new Date();
+			await userModel.save();
+
+			console.log(`✅ Usuario ${userModel.username} marcado como offline`);
+
+			// 2️⃣ DESPUÉS: Invalidar la sesión
+			const authHeader = req.headers.authorization;
 			if (authHeader && authHeader.startsWith('Bearer ')) {
 				const token = authHeader.substring(7);
-				await jwtUtils.invalidateSession(token);
+				try {
+					await jwtUtils.invalidateSession(token);
+					console.log(`✅ Sesión invalidada para usuario ${userId}`);
+				} catch (error) {
+					console.error('Error al invalidar sesión:', error);
+					// No fallar el logout si falla la invalidación
+				}
 			}
 
 			return res.status(200).send({
 				status: true,
 				message: 'Logout exitoso'
 			});
+
 		} catch (error) {
-			console.error('Error en logout:', error);
+			console.error('❌ Error en logout:', error);
 			return res.status(500).send({ 
 				message: 'Error en el servidor',
 				error: error.message 
