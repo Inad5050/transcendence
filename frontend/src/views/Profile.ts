@@ -1,6 +1,7 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
 import { authenticatedFetch } from '../utils/auth';
+import i18next from '../utils/i18n';
 
 interface User
 {
@@ -79,12 +80,10 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
         }
         const allMatches: Match[] = await response.json();
 
-        // Filter matches for the current user and where the status is 'finish'
         history = allMatches.filter(match =>
             (match.player_one_id === user.id || match.player_two_id === user.id) && match.match_status === 'finish'
         );
 
-        // Calculate stats
         stats.played = history.length;
         stats.victories = history.filter(match =>
         {
@@ -98,105 +97,106 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
     {
         console.error("Failed to load match history and stats:", (error as Error).message);
     }
+		appElement.innerHTML = `
+		<div class="h-screen flex flex-col items-center justify-start p-4 text-white overflow-y-auto">
+			<div class="w-full flex justify-center mt-10 md:mt-20 mb-8">
+				<button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+					<img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl">
+				</button>
+			</div>
 
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
+				<div class="col-span-1 space-y-8">
+					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+						<div class="flex flex-col items-center">
+							<div class="relative mb-4">
+								<img id="avatar-img" src="${user.avatar_url || `/assets/placeholder.png`}" alt="Avatar" class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-cyan-400 object-cover">
+								<label for="avatar-upload" class="absolute bottom-0 right-0 bg-gray-900 p-2 rounded-full cursor-pointer hover:bg-cyan-500">
+									✏️
+								</label>
+								<input type="file" id="avatar-upload" class="hidden" accept="image/*">
+							</div>
 
-    appElement.innerHTML = `
-        <div class="h-screen flex flex-col items-center justify-start p-4 text-white overflow-y-auto">
-            <div class="w-full flex justify-center mt-10 md:mt-20 mb-8">
-                <button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
-                    <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl">
-                </button>
-            </div>
+							<div class="w-full">
+								<label class="font-bold">Username</label>
+								<input id="username-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3 text-sm md:text-base" value="${user.username}">
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 w-full max-w-7xl">
-                <div class="col-span-1 space-y-8">
-                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-                        <div class="flex flex-col items-center">
-                            <div class="relative mb-4">
-                                <img id="avatar-img" src="${user.avatar_url || `/assets/placeholder.png`}" alt="Avatar" class="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-cyan-400 object-cover">
-                                <label for="avatar-upload" class="absolute bottom-0 right-0 bg-gray-900 p-2 rounded-full cursor-pointer hover:bg-cyan-500">
-                                    ✏️
-                                </label>
-                                <input type="file" id="avatar-upload" class="hidden" accept="image/*">
-                            </div>
+								<label class="font-bold">Email</label>
+								<input id="email-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3 text-sm md:text-base" value="${user.email}">
 
-                            <div class="w-full">
-                                <label class="font-bold">Username</label>
-                                <input id="username-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3 text-sm md:text-base" value="${user.username}">
+								<p class="text-base md:text-lg"><span class="font-bold">ELO:</span> <span class="text-cyan-300 font-bold">${user.elo}</span></p>
 
-                                <label class="font-bold">Email</label>
-                                <input id="email-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3 text-sm md:text-base" value="${user.email}">
+                                <button id="save-profile-btn" class="relative w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg mt-4">
+                                    <img src="${i18next.t('img.accept')}" alt="${i18next.t('accept')}" class="absolute inset-0 w-full h-full object-contain drop-shadow-lg hover:drop-shadow-xl">
+                                </button>
+							</div>
+						</div>
+					</div>
 
-                                <p class="text-base md:text-lg"><span class="font-bold">ELO:</span> <span class="text-cyan-300 font-bold">${user.elo}</span></p>
+					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+						<h3 class="text-xl md:text-2xl font-bold mb-4">Security</h3>
+						<div id="2fa-section"></div>
+					</div>
 
-                                <button id="save-profile-btn" class="bg-[url('/assets/accept.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg mt-4"></button>
-                            </div>
-                        </div>
-                    </div>
+					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+                        <button id="logout-btn" class="relative w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200">
+                            <img src="${i18next.t('img.logOut')}" alt="${i18next.t('logOut')}" class="absolute inset-0 w-full h-full object-contain drop-shadow-lg hover:drop-shadow-xl">
+                        </button>
+					</div>
+				</div>
 
-                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-                        <h3 class="text-xl md:text-2xl font-bold mb-4">Security</h3>
-                        <div id="2fa-section"></div>
-                    </div>
+				<div class="col-span-1 lg:col-span-2 space-y-8 lg:flex lg:flex-col">
+					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
+						<h3 class="text-xl md:text-2xl font-bold mb-4">Statistics</h3>
+						<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+							<div>
+								<p class="text-3xl md:text-4xl font-bold text-cyan-300">${stats.played}</p>
+								<p class="text-gray-400 text-sm">Matches</p>
+							</div>
+							<div>
+								<p class="text-3xl md:text-4xl font-bold text-green-400">${stats.victories}</p>
+								<p class="text-gray-400 text-sm">Victories</p>
+							</div>
+							<div>
+								<p class="text-3xl md:text-4xl font-bold text-red-400">${stats.defeats}</p>
+								<p class="text-gray-400 text-sm">Defeats</p>
+							</div>
+							<div>
+								<p class="text-3xl md:text-4xl font-bold text-yellow-400">${(stats.played > 0 ? (stats.victories / stats.played) * 100 : 0).toFixed(1)}%</p>
+								<p class="text-gray-400 text-sm">Win Rate</p>
+							</div>
+						</div>
+					</div>
 
-                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-                        <button id="logout-btn" class="bg-[url('/assets/logOut.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl"></button>
-                    </div>
-                </div>
+					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg lg:flex lg:flex-col lg:flex-grow">
+						<h3 class="text-xl md:text-2xl font-bold mb-4">Match History</h3>
+						<div id="history-container" class="space-y-3 max-h-80 lg:max-h-none overflow-y-auto pr-2 lg:flex-grow">
+							${history.length > 0 ? history.map(match =>
+							{
+								const isPlayerOne = match.player_one_id === user.id;
+								const result = (isPlayerOne ? match.player_one_points > match.player_two_points : match.player_two_points > match.player_one_points) ? 'Victory' : 'Defeat';
+								const score = isPlayerOne ? `${match.player_one_points}-${match.player_two_points}` : `${match.player_two_points}-${match.player_one_points}`;
+								const opponentId = isPlayerOne ? match.player_two_id : match.player_one_id;
+								const opponentUsername = `user${opponentId}`;
 
-                <div class="col-span-1 lg:col-span-2 space-y-8 lg:flex lg:flex-col">
-                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-                        <h3 class="text-xl md:text-2xl font-bold mb-4">Statistics</h3>
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                            <div>
-                                <p class="text-3xl md:text-4xl font-bold text-cyan-300">${stats.played}</p>
-                                <p class="text-gray-400 text-sm">Matches</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl md:text-4xl font-bold text-green-400">${stats.victories}</p>
-                                <p class="text-gray-400 text-sm">Victories</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl md:text-4xl font-bold text-red-400">${stats.defeats}</p>
-                                <p class="text-gray-400 text-sm">Defeats</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl md:text-4xl font-bold text-yellow-400">${(stats.played > 0 ? (stats.victories / stats.played) * 100 : 0).toFixed(1)}%</p>
-                                <p class="text-gray-400 text-sm">Win Rate</p>
-                            </div>
-                        </div>
-                    </div>
+								return `
+								<div class="flex flex-wrap justify-between items-center bg-gray-700 p-3 rounded text-sm md:text-base">
+									<p>vs <span class="font-bold">${opponentUsername}</span></p>
+									<p class="${result === 'Victory' ? 'text-green-400' : 'text-red-400'} font-bold">${result}</p>
+									<p class="font-mono bg-gray-900 px-2 py-1 rounded">${score}</p>
+								</div>
+							`}).join('') : '<p class="text-center text-gray-400">No match history found.</p>'}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-                    <div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg lg:flex lg:flex-col lg:flex-grow">
-                        <h3 class="text-xl md:text-2xl font-bold mb-4">Match History</h3>
-                        <div id="history-container" class="space-y-3 max-h-80 lg:max-h-none overflow-y-auto pr-2 lg:flex-grow">
-                            ${history.length > 0 ? history.map(match =>
-                            {
-                                const isPlayerOne = match.player_one_id === user.id;
-                                const result = (isPlayerOne ? match.player_one_points > match.player_two_points : match.player_two_points > match.player_one_points) ? 'Victory' : 'Defeat';
-                                const score = isPlayerOne ? `${match.player_one_points}-${match.player_two_points}` : `${match.player_two_points}-${match.player_one_points}`;
-                                const opponentId = isPlayerOne ? match.player_two_id : match.player_one_id;
-                                // You might want to fetch opponent's username here if not already available
-                                const opponentUsername = `user${opponentId}`;
-
-                                return `
-                                <div class="flex flex-wrap justify-between items-center bg-gray-700 p-3 rounded text-sm md:text-base">
-                                    <p>vs <span class="font-bold">${opponentUsername}</span></p>
-                                    <p class="${result === 'Victory' ? 'text-green-400' : 'text-red-400'} font-bold">${result}</p>
-                                    <p class="font-mono bg-gray-900 px-2 py-1 rounded">${score}</p>
-                                </div>
-                            `}).join('') : '<p class="text-center text-gray-400">No match history found.</p>'}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="2fa-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50 p-4">
-            <div id="2fa-modal-content" class="bg-gray-900 p-6 md:p-8 rounded-lg border-4 border-cyan-500 shadow-2xl text-center relative max-w-md w-full">
-            </div>
-        </div>
-    `;
+		<div id="2fa-modal" class="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center hidden z-50 p-4">
+			<div id="2fa-modal-content" class="bg-gray-900 p-6 md:p-8 rounded-lg border-4 border-cyan-500 shadow-2xl text-center relative max-w-md w-full">
+			</div>
+		</div>
+		`;
 
     playTrack('/assets/Techno_Syndrome.mp3');
 
@@ -208,6 +208,7 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
     setup2FA(user);
 }
 
+// ... (El resto de las funciones de Profile.ts no necesitan cambios)
 async function setupProfileEditing(user: User)
 {
     document.getElementById('save-profile-btn')?.addEventListener('click', async () =>
@@ -293,7 +294,9 @@ function setup2FA(user: User)
         {
             twoFASection.innerHTML = `
                 <p class="text-yellow-400 mb-2">⚠️ 2FA is INACTIVE.</p>
-                <button id="enable-2fa-btn" class="bg-[url('/assets/activate2FA.png')] bg-contain bg-no-repeat bg-center w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+                <button id="enable-2fa-btn" class="relative w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                    <img src="${i18next.t('img.activate2FA')}" alt="${i18next.t('activate2FA')}" class="absolute inset-0 w-full h-full object-contain">
+                </button>
             `;
             document.getElementById('enable-2fa-btn')?.addEventListener('click', handleSetup2FA);
         }

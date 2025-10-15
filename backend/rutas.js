@@ -54,7 +54,7 @@ const rutas = [
 	{
 		method: "POST",
 		url: "/users",
-		preHandler: authMiddleware,
+		// preHandler: authMiddleware,
 		handler: UserControler.create,
 	},
 	{

@@ -5,7 +5,7 @@ export function renderAbout(appElement: HTMLElement): void
 {
 	if (!appElement)
 		return;
-    appElement.innerHTML = `
+	appElement.innerHTML = `
     <div class="h-screen flex flex-col p-4 md:p-8 overflow-y-auto">
         <div class="w-full flex justify-center">
             <button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">

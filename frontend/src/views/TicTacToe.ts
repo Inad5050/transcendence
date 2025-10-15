@@ -1,36 +1,30 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
+import i18next from '../utils/i18n';
 
 export function renderTicTacToe(container: HTMLElement): void {
-  container.innerHTML = `
-    <div class="h-screen w-full flex flex-col items-center justify-center p-4 text-white overflow-y-auto">
-      <div class="w-full flex justify-center my-8">
-        <button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
-            <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-2xl">
-        </button>
-      </div>
-      <div class="w-full max-w-md">
-        <header class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
-          <div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4">
-            <button data-mode="HvsH" class="mode-btn bg-[url('/assets/PvP.png')] bg-contain bg-no-repeat bg-center h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-            <button data-mode="HvsAI" class="mode-btn bg-[url('/assets/vs_IA.png')] bg-contain bg-no-repeat bg-center h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-          </div>
-          <h1 id="status-display" class="font-extrabold text-3xl text-cyan-400 pt-2">Turno del Jugador X</h1>
-        </header>
-        <main class="relative">
-          <div id="game-board" class="grid grid-cols-3 gap-4">
-            ${Array(9).fill(0).map((_, i) => `
-              <div data-cell-index="${i}" class="cell w-full aspect-square bg-black border-4 border-cyan-400 rounded-lg flex items-center justify-center text-6xl font-black cursor-pointer hover:bg-gray-900 transition-colors duration-200" tabindex="0"></div>
-            `).join('')}
-          </div>
-          <div id="game-overlay" class="absolute top-0 left-0 w-full h-full flex-col justify-center items-center bg-gray-900/90 gap-4 hidden">
-            <h1 id="winner-message" class="text-5xl font-black text-cyan-400 p-4 rounded-lg"></h1>
-            <button id="restart-button" class="px-8 py-4 font-bold text-lg rounded-lg shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 bg-cyan-400 text-gray-900 hover:bg-white">Jugar de Nuevo</button>
-          </div>
-        </main>
-      </div>
-    </div>
-  `;
+	container.innerHTML = `
+	<div class="h-screen w-full flex flex-col items-center justify-center p-4 text-white overflow-y-auto">
+	  <div class="w-full flex justify-center my-8">
+		<button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+			<img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-2xl">
+		</button>
+	  </div>
+	  <div class="w-full max-w-md">
+		<header class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
+		  <div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4">
+            <button data-mode="HvsH" class="mode-btn relative h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                <img src="/assets/PvP.png" alt="PvP" class="absolute inset-0 w-full h-full object-contain">
+            </button>
+            <button data-mode="HvsAI" class="mode-btn relative h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                <img src="${i18next.t('img.vsIA')}" alt="${i18next.t('vsIA')}" class="absolute inset-0 w-full h-full object-contain">
+            </button>
+		  </div>
+		  <h1 id="status-display" class="font-extrabold text-3xl text-cyan-400 pt-2">Turno del Jugador X</h1>
+		</header>
+        </div>
+	</div>
+	`;
 
   playTrack('/assets/Techno_Syndrome.mp3');
   document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
@@ -95,7 +89,7 @@ export function renderTicTacToe(container: HTMLElement): void {
       setTimeout(makeAIMove, 700);
     }
   }
-  
+
   function handleCellPlayed(cell: HTMLElement, cellIndex: number) {
     gameState[cellIndex] = currentPlayer;
     cell.innerHTML = currentPlayer;
@@ -113,7 +107,7 @@ export function renderTicTacToe(container: HTMLElement): void {
     if (gameMode === 'HvsAI' && currentPlayer === 'O') {
       return;
     }
-    
+
     handleCellPlayed(clickedCell, clickedCellIndex);
   }
 
@@ -148,7 +142,7 @@ export function renderTicTacToe(container: HTMLElement): void {
         gameState[i] = "";
       }
     }
-    
+
     if (gameState[4] === "") return 4;
 
     const corners = [0, 2, 6, 8];
@@ -162,7 +156,7 @@ export function renderTicTacToe(container: HTMLElement): void {
     if (emptySides.length > 0) {
       return emptySides[Math.floor(Math.random() * emptySides.length)];
     }
-    
+
     return -1;
   }
 

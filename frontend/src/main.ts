@@ -47,8 +47,13 @@
 // router(); =>
 // Ejecuta el router por primera vez para cargar la vista inicial.
 
+// document.getElementById('language-switcher')?. => ? evita un mensaje de error si no encontramos el elemento
+// event.target => el elemento sobre el que se ha hecho click
+// if (target.tagName === 'BUTTON') => verifica que el click fue en un boton y no en el espacio entre ellos (cualquier click en el contenedor activa)
+
+
 import { protectedRoute } from './utils/auth.ts';
-import i18next from './utils/i18n';
+import i18next from './utils/i18n.ts';
 import { renderHome } from './views/Home.ts';
 import { renderRegister } from './views/Register.ts';
 import { renderLogin } from './views/Login.ts';
@@ -97,29 +102,29 @@ export function navigate(path: string)
 
 window.addEventListener('popstate', router);
 
-document.getElementById('language-switcher')?.addEventListener('click', (event) => 
+document.addEventListener('click', (event) =>
 {
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'BUTTON') 
+	const target = event.target as HTMLElement;
+	const langSwitcher = target.closest('#language-switcher'); // Comprobar si el elemento clickeado o uno de sus padres está dentro de #language-switcher
+	if (!langSwitcher) // Si el clic fue fuera del contenedor de idiomas no hace nada.
+		return;
+	const button = target.closest('button[data-lang]'); // Encontrar el botón específico que fue clickeado
+	if (button)
 	{
-        const lang = target.getAttribute('data-lang');
-        if (lang && lang !== i18next.language) 
+		const lang = button.getAttribute('data-lang');
+		if (lang && lang !== i18next.language)
 		{
-            i18next.changeLanguage(lang, () => 
+			i18next.changeLanguage(lang, () =>
 			{
-                localStorage.setItem('language', lang);
-                router();
-            });
-        }
-    }
+				localStorage.setItem('language', lang);
+				router();
+			});
+		}
+	}
 });
 
 if (!appElement)
 	throw new Error('Fatal Error: #app element not found in DOM.');
 
 const savedLanguage = localStorage.getItem('language') || 'en';
-
-i18next.changeLanguage(savedLanguage, () => 
-{
-    router();
-});
+i18next.changeLanguage(savedLanguage, () => { router(); });
