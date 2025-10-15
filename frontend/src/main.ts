@@ -102,21 +102,25 @@ export function navigate(path: string)
 
 window.addEventListener('popstate', router);
 
-document.getElementById('language-switcher')?.addEventListener('click', (event) => 
+document.addEventListener('click', (event) =>
 {
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'BUTTON') 
+	const target = event.target as HTMLElement;
+	const langSwitcher = target.closest('#language-switcher'); // Comprobar si el elemento clickeado o uno de sus padres está dentro de #language-switcher
+	if (!langSwitcher) // Si el clic fue fuera del contenedor de idiomas no hace nada.
+		return;
+	const button = target.closest('button[data-lang]'); // Encontrar el botón específico que fue clickeado
+	if (button)
 	{
-        const lang = target.getAttribute('data-lang');
-        if (lang && lang !== i18next.language) 
+		const lang = button.getAttribute('data-lang');
+		if (lang && lang !== i18next.language)
 		{
-            i18next.changeLanguage(lang, () => 
+			i18next.changeLanguage(lang, () =>
 			{
-                localStorage.setItem('language', lang);
-                router();
-            });
-        }
-    }
+				localStorage.setItem('language', lang);
+				router();
+			});
+		}
+	}
 });
 
 if (!appElement)

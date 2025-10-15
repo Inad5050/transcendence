@@ -6,25 +6,25 @@ let isAwaiting2FA = false;
 let tempUsername = '';
 let tempPassword = '';
 
-async function handleLogin(event: Event): Promise<void> 
+async function handleLogin(event: Event): Promise<void>
 {
-	event.preventDefault(); // evita el comportamiento predeterminado de un evento del navegador. El comportamiento predeterminado de un navegador al enviar un formulario HTML es recargar la página.
+	event.preventDefault();
 
 	const usernameInput = document.getElementById('username') as HTMLInputElement;
 	const passwordInput = document.getElementById('password') as HTMLInputElement;
 	tempUsername = usernameInput.value;
 	tempPassword = passwordInput.value;
 
-	try 
+	try
 	{
 		const response = await fetch('/api/auth/login', {
-			method: 'POST', 
+			method: 'POST',
 			headers: {'Content-Type': 'application/json'},
 			body: JSON.stringify({ username: tempUsername,password: tempPassword })
 		});
 
 		const result = await response.json();
-		if (response.ok) 
+		if (response.ok)
 		{
 			localStorage.setItem('access_token', result.access_token);
 			localStorage.setItem('refresh_token', result.refresh_token);
@@ -33,7 +33,7 @@ async function handleLogin(event: Event): Promise<void>
 		}
 		else
 		{
-			if (response.status === 403 && result.requires_2fa === true) 
+			if (response.status === 403 && result.requires_2fa === true)
 			{
 				console.log('2FA requerido. Mostrando formulario para el código.');
 				isAwaiting2FA = true;
@@ -51,19 +51,19 @@ async function handleLogin(event: Event): Promise<void>
 	}
 }
 
-async function handle2FAVerification(event: Event): Promise<void> 
+async function handle2FAVerification(event: Event): Promise<void>
 {
     event.preventDefault();
 
     const twoFACodeInput = document.getElementById('2fa-code') as HTMLInputElement;
     const code = twoFACodeInput.value;
-    if (!code) 
+    if (!code)
 	{
         alert('Por favor, introduce el código de 6 dígitos.');
         return;
     }
 
-    try 
+    try
 	{
         const response = await fetch('/api/auth/login', {
             method: 'POST',
@@ -72,7 +72,7 @@ async function handle2FAVerification(event: Event): Promise<void>
         });
 
         const result = await response.json();
-        if (response.ok) 
+        if (response.ok)
 		{
             localStorage.setItem('access_token', result.access_token);
             localStorage.setItem('refresh_token', result.refresh_token);
@@ -85,7 +85,7 @@ async function handle2FAVerification(event: Event): Promise<void>
 		else
             throw new Error(result.message || 'Código 2FA inválido o error en el login.');
     }
-	catch (error) 
+	catch (error)
 	{
         alert(`Error: ${(error as Error).message}`);
         isAwaiting2FA = false;
@@ -96,12 +96,12 @@ async function handle2FAVerification(event: Event): Promise<void>
 }
 
 
-export function renderLogin(appElement: HTMLElement): void 
+export function renderLogin(appElement: HTMLElement): void
 {
     if (!appElement)
         return;
 
-    if (isAwaiting2FA) 
+    if (isAwaiting2FA)
 	{
 		appElement.innerHTML = `
 		<div class="h-screen flex flex-col items-center justify-start md:justify-center p-4 md:p-16 overflow-y-auto">
@@ -117,7 +117,9 @@ export function renderLogin(appElement: HTMLElement): void
 						<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="2fa-code" type="text" placeholder="123456" maxlength="6" autofocus>
 					</div>
 					<div class="flex items-center justify-center">
-						<button type="submit" class="bg-[url('${i18next.t('img.accept')}')] bg-contain bg-no-repeat bg-center w-[250px] h-[75px] md:w-[400px] md:h-[120px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+                        <button type="submit" class="relative w-[250px] h-[75px] md:w-[400px] md:h-[120px] cursor-pointer transform hover:scale-125 transition-transform duration-200 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                            <img src="${i18next.t('img.accept')}" alt="${i18next.t('accept')}" class="absolute inset-0 w-full h-full object-contain drop-shadow-lg hover:drop-shadow-xl">
+                        </button>
 					</div>
 				</form>
 			</div>
@@ -147,13 +149,15 @@ export function renderLogin(appElement: HTMLElement): void
 						<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 mb-4 md:mb-6 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="password" type="password" placeholder="******************">
 					</div>
 					<div class="flex items-center justify-center">
-						<button type="submit" id="loginButton" class="bg-[url('${i18next.t('img.login')}')] bg-contain bg-no-repeat bg-center w-[250px] h-[75px] md:w-[400px] md:h-[120px] cursor-pointer transform hover:scale-125 transition-transform duration-200 drop-shadow-lg hover:drop-shadow-xl focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+                        <button type="submit" id="loginButton" class="relative w-[250px] h-[75px] md:w-[400px] md:h-[120px] cursor-pointer transform hover:scale-125 transition-transform duration-200 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                            <img src="${i18next.t('img.login')}" alt="${i18next.t('login')}" class="absolute inset-0 w-full h-full object-contain drop-shadow-lg hover:drop-shadow-xl">
+                        </button>
 					</div>
 				</form>
 			</div>
 		</div>
-		`;		
-		
+		`;
+
         document.getElementById('homeButton')?.addEventListener('click', () => navigate('/'));
         document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
     }

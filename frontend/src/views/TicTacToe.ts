@@ -13,8 +13,12 @@ export function renderTicTacToe(container: HTMLElement): void {
 	  <div class="w-full max-w-md">
 		<header class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
 		  <div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4">
-			<button data-mode="HvsH" class="mode-btn bg-[url('/assets/PvP.png')] bg-contain bg-no-repeat bg-center h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-			<button data-mode="HvsAI" class="mode-btn bg-[url('${i18next.t('img.vsIA')}')] bg-contain bg-no-repeat bg-center h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+            <button data-mode="HvsH" class="mode-btn relative h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                <img src="/assets/PvP.png" alt="PvP" class="absolute inset-0 w-full h-full object-contain">
+            </button>
+            <button data-mode="HvsAI" class="mode-btn relative h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                <img src="${i18next.t('img.vsIA')}" alt="${i18next.t('vsIA')}" class="absolute inset-0 w-full h-full object-contain">
+            </button>
 		  </div>
 		  <h1 id="status-display" class="font-extrabold text-3xl text-cyan-400 pt-2">Turno del Jugador X</h1>
 		</header>
@@ -85,7 +89,7 @@ export function renderTicTacToe(container: HTMLElement): void {
       setTimeout(makeAIMove, 700);
     }
   }
-  
+
   function handleCellPlayed(cell: HTMLElement, cellIndex: number) {
     gameState[cellIndex] = currentPlayer;
     cell.innerHTML = currentPlayer;
@@ -103,7 +107,7 @@ export function renderTicTacToe(container: HTMLElement): void {
     if (gameMode === 'HvsAI' && currentPlayer === 'O') {
       return;
     }
-    
+
     handleCellPlayed(clickedCell, clickedCellIndex);
   }
 
@@ -138,7 +142,7 @@ export function renderTicTacToe(container: HTMLElement): void {
         gameState[i] = "";
       }
     }
-    
+
     if (gameState[4] === "") return 4;
 
     const corners = [0, 2, 6, 8];
@@ -152,7 +156,7 @@ export function renderTicTacToe(container: HTMLElement): void {
     if (emptySides.length > 0) {
       return emptySides[Math.floor(Math.random() * emptySides.length)];
     }
-    
+
     return -1;
   }
 
