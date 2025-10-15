@@ -47,6 +47,11 @@
 // router(); =>
 // Ejecuta el router por primera vez para cargar la vista inicial.
 
+// document.getElementById('language-switcher')?. => ? evita un mensaje de error si no encontramos el elemento
+// event.target => el elemento sobre el que se ha hecho click
+// if (target.tagName === 'BUTTON') => verifica que el click fue en un boton y no en el espacio entre ellos (cualquier click en el contenedor activa el evento)
+
+
 import { protectedRoute } from './utils/auth.ts';
 import i18next from './utils/i18n';
 import { renderHome } from './views/Home.ts';
@@ -118,8 +123,4 @@ if (!appElement)
 	throw new Error('Fatal Error: #app element not found in DOM.');
 
 const savedLanguage = localStorage.getItem('language') || 'en';
-
-i18next.changeLanguage(savedLanguage, () => 
-{
-    router();
-});
+i18next.changeLanguage(savedLanguage, () => { router(); });

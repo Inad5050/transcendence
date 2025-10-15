@@ -13,39 +13,41 @@ interface FriendRequest extends User {
     friendshipId: number; 
 }
 
-export function renderFriends(appElement: HTMLElement): void {
-    if (!appElement) return;
+export function renderFriends(appElement: HTMLElement): void 
+{
+    if (!appElement)
+		return;
 
-    appElement.innerHTML = `
-    <div class="h-screen flex flex-col p-4 md:p-8 relative overflow-y-auto">
-
-        <div id="user-details-modal" class="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center hidden z-50 p-4">
-            <div id="modal-content" class="bg-gray-800 bg-opacity-75 border-4 border-cyan-400 rounded-lg p-6 text-white text-center w-full max-w-sm relative">
-            </div>
-        </div>
-
-        <div class="w-full flex justify-center mb-8">
-            <button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
-                <img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl">
-            </button>
-        </div>
-
-        <div class="flex-grow flex flex-col items-center w-full max-w-4xl mx-auto space-y-8">
-            <div class="w-full flex flex-col items-center">
-                <button data-collapsible="friends-container" class="collapsible-trigger bg-[url('/assets/friends.png')] bg-contain bg-no-repeat bg-center w-[150px] h-[45px] md:w-[200px] md:h-[60px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-                <div id="friends-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
-            </div>
-            <div class="w-full flex flex-col items-center">
-                <button data-collapsible="requests-container" class="collapsible-trigger bg-[url('/assets/requests.png')] bg-contain bg-no-repeat bg-center w-[200px] h-[50px] md:w-[300px] md:h-[75px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-                <div id="requests-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
-            </div>
-            <div class="w-full flex flex-col items-center">
-                <button data-collapsible="users-container" class="collapsible-trigger bg-[url('/assets/users.png')] bg-contain bg-no-repeat bg-center w-[120px] h-[40px] md:w-[150px] md:h-[50px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
-                <div id="users-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50 hidden"></div>
-            </div>
-        </div>
-    </div>
-    `;
+	appElement.innerHTML = `
+	<div class="h-screen flex flex-col p-4 md:p-8 relative overflow-y-auto">
+	
+		<div id="user-details-modal" class="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center hidden z-50 p-4">
+			<div id="modal-content" class="bg-gray-800 bg-opacity-75 border-4 border-cyan-400 rounded-lg p-6 text-white text-center w-full max-w-sm relative">
+			</div>
+		</div>
+	
+		<div class="w-full flex justify-center mb-8">
+			<button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+				<img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-5xl">
+			</button>
+		</div>
+	
+		<div class="flex-grow flex flex-col items-center w-full max-w-4xl mx-auto space-y-8">
+			<div class="w-full flex flex-col items-center">
+				<button data-collapsible="friends-container" class="collapsible-trigger bg-[url('/assets/en/friends.png')] bg-contain bg-no-repeat bg-center w-[150px] h-[45px] md:w-[200px] md:h-[60px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+				<div id="friends-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
+			</div>
+			<div class="w-full flex flex-col items-center">
+				<button data-collapsible="requests-container" class="collapsible-trigger bg-[url('/assets/en/requests.png')] bg-contain bg-no-repeat bg-center w-[200px] h-[50px] md:w-[300px] md:h-[75px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+				<div id="requests-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50"></div>
+			</div>
+			<div class="w-full flex flex-col items-center">
+				<button data-collapsible="users-container" class="collapsible-trigger bg-[url('/assets/en/users.png')] bg-contain bg-no-repeat bg-center w-[120px] h-[40px] md:w-[150px] md:h-[50px] mb-4 cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg"></button>
+				<div id="users-container" class="w-full bg-black border-4 border-cyan-400 rounded-lg p-4 overflow-y-auto shadow-lg shadow-cyan-400/50 hidden"></div>
+			</div>
+		</div>
+	</div>
+	`;
 
     playTrack('/assets/Techno_Syndrome.mp3');
 
