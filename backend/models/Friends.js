@@ -30,7 +30,14 @@ const FriendModel = db.define('friend', {
         allowNull: false,
         defaultValue: 'pending',
     }
-});
+},{
+    indexes: [
+        {
+            unique: true,
+            fields: ['one_user_id', 'two_user_id'],
+            name: 'unique_friendship'
+        }
+]});
 
 
 // Definir las relaciones
