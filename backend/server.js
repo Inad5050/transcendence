@@ -3,9 +3,10 @@
 // Incluye la ruta raíz (/) para una respuesta básica, y la ruta /health que el
 // healthcheck de Docker usará para verificar que el servicio está activo.
 
-// Importa la biblioteca Fastify. Se usa 'fastify' en lugar de 'express'.
 import Fastify from "fastify";
 import db from "./db.js";
+import multipart from '@fastify/multipart';
+import fastifyStatic from '@fastify/static';
 import rutas from "./rutas.js";
 import cors from '@fastify/cors';
 import seedDatabase from "./utils/seedDatabase.js";
