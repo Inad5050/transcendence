@@ -11,12 +11,25 @@ import rutas from "./rutas.js";
 import cors from '@fastify/cors';
 import seedDatabase from "./utils/seedDatabase.js";
 import { startActivityCheck, stopActivityCheck } from "./jobs/inactivityCheck.js"
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // Crea una instancia de la aplicación Fastify. El objeto 'logger: true'
 // // activará logs detallados en la consola, muy útil para depuración.
 const fastify = Fastify({logger: true});
 
+//Gestion de las fotos de los usaurios 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 await fastify.register(cors, {});
+
+
+//Anado la el registro al plugin para las fotos de usuarios 
+fastify.register(fastifyStatic, {
+	root: path.join(__dirname, 'uploads'),
+	prefix: '/uploads/',
+});
 
 fastify.get("/", async function name(req, res) {
   return ({hello : " world"})
@@ -36,6 +49,7 @@ async function database() {
     throw error; // Propagar el error
 	}
 }
+
 
 fastify.get('/health', { logLevel: 'silent' }, async (request, reply) => {
   // .code(200) establece explícitamente el código de estado HTTP.

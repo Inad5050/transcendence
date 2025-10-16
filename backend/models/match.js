@@ -17,6 +17,10 @@ const MatchModel = db.define( 'match', {
         type: sequelize.INTEGER,
         allowNull: false,
     },
+	game: {
+		type: sequelize.ENUM('pong', 'tictactoe'),
+		allowNull: false
+	},
     match_type: {
         type: sequelize.ENUM('local', 'friends', 'ia', 'gues'),
         allowNull: true,

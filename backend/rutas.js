@@ -85,7 +85,7 @@ const rutas = [
 		method: "POST",
 		url: "/users/avatar",
 		preHandler: authMiddleware,
-		handler: UserControler.uploadAvatar
+		handler: UserControler.uploadAvatar // Se vincula el nuevo método
 	},
 
 	//Rutas de amigos
