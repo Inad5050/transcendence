@@ -41,7 +41,7 @@ rutas.forEach((ruta) => {
 
 async function database() {
   try {
-    await db.sync({force: false}); // force: true borra y recrea las tablas en cada inicio
+    await db.sync({force: true}); // force: true borra y recrea las tablas en cada inicio
 		console.log("Conectado a la base de datos");
 	} catch (error)
 	{

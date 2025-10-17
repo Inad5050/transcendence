@@ -4,6 +4,7 @@ import { authMiddleware } from "./middleware/authMiddleware.js";
 import FriendControler from "./controllers/Friends.js";
 import ChatController from "./controllers/Chat.js";
 import MatchControler from "./controllers/match.js"
+import TournamentController from "./controllers/Tournament.js"
 
 const rutas = [
 	// Rutas de autenticación (públicas)
@@ -164,6 +165,14 @@ const rutas = [
 		preHandler: authMiddleware,
 		handler: MatchControler.update
 	},
+
+	// Rutas de torneos
+	{
+		method: "POST",
+		url: "/tournaments",
+		preHandler: authMiddleware,
+		handler: TournamentController.createTournament
+	}
 ]
 
 export default rutas;
