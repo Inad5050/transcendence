@@ -23,7 +23,9 @@ async function seedDatabase() {
       { username: 'user7', email: 'user7@test.com', fullname: 'Usuario Siete', password: '1234' },
       { username: 'user8', email: 'user8@test.com', fullname: 'Usuario Ocho', password: '1234' },
       { username: 'user9', email: 'user9@test.com', fullname: 'Usuario Nueve', password: '1234' },
-      { username: 'user10', email: 'user10@test.com', fullname: 'Usuario Diez', password: '1234' }
+      { username: 'user10', email: 'user10@test.com', fullname: 'Usuario Diez', password: '1234' },
+      { username: 'ia', email: 'ia@test.com', fullname: 'IA', password: '1234' },
+      { username: 'guess', email: 'guess@test.com', fullname: 'GUESS', password: '1234' }
     ];
 
     // Insertar usuarios en la base de datos

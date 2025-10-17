@@ -160,7 +160,7 @@ const rutas = [
 	},
 	{
 		method: "PUT",
-		url: "/match/update",
+		url: "/match/update/:matchId",
 		preHandler: authMiddleware,
 		handler: MatchControler.update
 	},

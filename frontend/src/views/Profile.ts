@@ -23,8 +23,8 @@ interface Match
     player_two_points: number;
     match_status: 'pending' | 'playing' | 'finish';
     createdAt: string;
-    player_one?: User;
-    player_two?: User;
+    player_one: { id: number, username: string };
+    player_two: { id: number, username: string };
 }
 
 interface Stats
@@ -73,16 +73,14 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
 
     try
     {
-        const response = await authenticatedFetch(`/api/match/getall`);
+        const response = await authenticatedFetch(`/api/match/getall?user_id=${user.id}`);
         if (!response.ok)
         {
             throw new Error('Failed to fetch match history');
         }
         const allMatches: Match[] = await response.json();
 
-        history = allMatches.filter(match =>
-            (match.player_one_id === user.id || match.player_two_id === user.id) && match.match_status === 'finish'
-        );
+        history = allMatches.filter(match => match.match_status === 'finish');
 
         stats.played = history.length;
         stats.victories = history.filter(match =>
@@ -176,8 +174,9 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
 								const isPlayerOne = match.player_one_id === user.id;
 								const result = (isPlayerOne ? match.player_one_points > match.player_two_points : match.player_two_points > match.player_one_points) ? i18next.t('victory') : i18next.t('defeat');
 								const score = isPlayerOne ? `${match.player_one_points}-${match.player_two_points}` : `${match.player_two_points}-${match.player_one_points}`;
-								const opponentId = isPlayerOne ? match.player_two_id : match.player_one_id;
-								const opponentUsername = `user${opponentId}`;
+								
+								const opponent = isPlayerOne ? match.player_two : match.player_one;
+								const opponentUsername = opponent ? opponent.username : 'Desconocido';
 
 								return `
 								<div class="flex flex-wrap justify-between items-center bg-gray-700 p-3 rounded text-sm md:text-base">

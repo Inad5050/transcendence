@@ -44,7 +44,7 @@ const MatchModel = db.define( 'match', {
 });
 
 MatchModel.belongsTo(UserModel, { as: 'player_one', foreignKey: 'player_one_id' });
-MatchModel.belongsTo(UserModel, { as: '', foreignKey: 'player_two_id' });
+MatchModel.belongsTo(UserModel, { as: 'player_two', foreignKey: 'player_two_id' });
 
 UserModel.hasMany(ChatModel, {
     foreignKey: 'player_one_id',

@@ -17,7 +17,7 @@ export default defineConfig({
     host: '0.0.0.0', // 'host': Establece la dirección IP en la que el servidor debe escuchar. '0.0.0.0' lo hace accesible desde la red, crucial para Docker.
     port: 3000, // 'port': El puerto en el que se ejecutará el servidor de desarrollo.
     hmr: { // 'hmr' (Hot Module Replacement): Configuración para la recarga en caliente de módulos.
-      clientPort: 8000, // 'clientPort': Especifica el puerto que el cliente (navegador) debe usar para conectarse al servidor de HMR.
+      clientPort: 8433, // 'clientPort': Especifica el puerto que el cliente (navegador) debe usar para conectarse al servidor de HMR.
     }, // Es necesario cuando se usa un proxy inverso como Nginx, para que el navegador se conecte al puerto expuesto en el host (8000).
     allowedHosts: ['frontend'], // 'allowedHosts': Una lista de hosts permitidos para evitar ataques de DNS rebinding.
   },

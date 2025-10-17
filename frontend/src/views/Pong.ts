@@ -3,6 +3,7 @@ import { playTrack } from '../utils/musicPlayer';
 import { GameObjects, Score, GameMode, DifficultyLevel, PaddleObject, BallObject } from '../utils/types';
 import { PADDLE_THICKNESS, BALL_RADIUS, WINNING_SCORE, INITIAL_BALL_SPEED, ACCELERATION_FACTOR, DIFFICULTY_LEVELS, MAX_BOUNCE_ANGLE, PADDLE_INFLUENCE_FACTOR, MAX_BALL_SPEED, PADDLE_LENGTH_CLASSIC, PADDLE_SPEED_CLASSIC, PADDLE_LENGTH_4P, PADDLE_SPEED_4P, shuffleArray } from '../utils/constants';
 import i18next from '../utils/i18n';
+import { authenticatedFetch } from '../utils/auth';
 
 export function initializePongGame(container: HTMLElement) {
 	container.innerHTML = `
@@ -33,6 +34,7 @@ export function initializePongGame(container: HTMLElement) {
 	let score: Score;
 	let gameObjects: GameObjects;
 	let animationFrameId: number | null = null;
+  	let matchId: number | null = null;
   
 	const gameMode: GameMode = localStorage.getItem('gameMode') as GameMode || 'ONE_PLAYER';
 	const difficulty: DifficultyLevel = localStorage.getItem('difficulty') as DifficultyLevel || 'EASY';
@@ -218,7 +220,7 @@ export function initializePongGame(container: HTMLElement) {
 		const alivePlayers = Object.values(gameObjects).filter(obj => obj && obj.isAlive).length;
 	
 		if (gameMode === 'FOUR_PLAYERS' && alivePlayers <= 1) {
-			const winnerKey = Object.keys(score).find(k => score[k] > 0);
+			const winnerKey = Object.keys(score).find(k => (score as any)[k] > 0);
 			endGame(winnerKey ? parseInt(winnerKey.replace('p', '')) : 0);
 		} else {
 			resetBall();
@@ -286,18 +288,53 @@ export function initializePongGame(container: HTMLElement) {
 		animationFrameId = requestAnimationFrame(gameLoop);
 	}
 
-	function startGame() {
+	async function startGame() {
 		if (gameState === 'PLAYING') return;
-		gameState = 'PLAYING';
-		gameOverlay.classList.add('hidden');
-		resetBall();
-		
-		if (!animationFrameId) {
-		  animationFrameId = requestAnimationFrame(gameLoop);
+	  
+		const user = JSON.parse(localStorage.getItem('user') || '{}');
+		const player_one_id = user.id;
+		const player_two_id = (gameMode === 'ONE_PLAYER') ? 0 : -1; 
+	  
+		const matchData = {
+		  player_one_id: player_one_id,
+		  player_two_id: player_two_id,
+		  game: 'pong',
+		  match_type: gameMode === 'ONE_PLAYER' ? 'ia' : 'local',
+		  match_status: 'playing',
+		};
+	  
+		try {
+		  const response = await authenticatedFetch('/api/match/create', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(matchData),
+		  });
+	  
+		  if (!response.ok) {
+            const errorData = await response.json();
+			throw new Error(errorData.error?.message || 'Failed to create match on the server.');
+		  }
+	  
+		  const result = await response.json();
+		  if (!result.id) {
+			throw new Error('Server did not return a match ID.');
+		  }
+		  matchId = result.id;
+	  
+		  gameState = 'PLAYING';
+		  gameOverlay.classList.add('hidden');
+		  resetBall();
+	  
+		  if (!animationFrameId) {
+			animationFrameId = requestAnimationFrame(gameLoop);
+		  }
+		} catch (error) {
+		  console.error("Error starting game:", error);
+		  alert("Error al iniciar la partida: " + (error as Error).message);
 		}
 	}
 
-	function endGame(winner: number) {
+	async function endGame(winner: number) {
 		gameState = 'GAME_OVER';
 		if (animationFrameId) cancelAnimationFrame(animationFrameId);
 		animationFrameId = null;
@@ -309,6 +346,36 @@ export function initializePongGame(container: HTMLElement) {
 		startButton.textContent = i18next.t('playAgain');
 		winnerMessage.classList.remove('hidden');
 		gameOverlay.classList.remove('hidden');
+
+		if (matchId) {
+			const finalData = {
+			  match_status: 'finish',
+			  player_one_points: score.p1,
+			  player_two_points: score.p2
+			};
+		
+			try {
+				const response = await authenticatedFetch(`/api/match/update/${matchId}`, {
+					method: 'PUT',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(finalData),
+				});
+				if (!response.ok) {
+					throw new Error('Failed to update match on server.');
+				}
+				const { playerOne: updatedPlayerOne, playerTwo: updatedPlayerTwo } = await response.json();
+				const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+				if (updatedPlayerOne && currentUser.id === updatedPlayerOne.id) {
+					localStorage.setItem('user', JSON.stringify(updatedPlayerOne));
+					console.log('ELO actualizado en localStorage para Jugador 1:', updatedPlayerOne.elo);
+				} else if (updatedPlayerTwo && currentUser.id === updatedPlayerTwo.id) {
+					localStorage.setItem('user', JSON.stringify(updatedPlayerTwo));
+					console.log('ELO actualizado en localStorage para Jugador 2:', updatedPlayerTwo.elo);
+				}
+			} catch (error) {
+			  console.error("Error updating match and user ELO:", error);
+			}
+		}
 	}
 
 	function handleKeyDown(event: KeyboardEvent) { keysPressed[event.key.toLowerCase()] = true; }
