@@ -68,28 +68,25 @@ class TournamentController {
 	}
 
 
+	// async finishTournament(req, res) {
+	// 	const { id } = req.params;
 
+	// 	const matches = await MatchModel.findAll({ where: { tournament_id: id, match_status: 'finish' } });
 
+	// 	const playerWins = {};
+	// 	matches.forEach(match => {
+	// 		const winnerId = match.player_one_points > match.player_two_points ? match.player_one_id : match.player_two_id;
+	// 		playerWins[winnerId] = (playerWins[winnerId] || 0) + 1;
+	// 	});
 
-	async finishTournament(req, res) {
-		const { id } = req.params;
+	// 	const tournamentWinnerId = Object.keys(playerWins).reduce((a, b) => playerWins[a] > playerWins[b] ? a : b);
+	// 	await TournamentModel.update(
+	// 		{ winner_id: tournamentWinnerId, status: 'finished' },
+	// 		{ where: { id: id } }
+	// 	);
 
-		const matches = await MatchModel.findAll({ where: { tournament_id: id, match_status: 'finish' } });
-
-		const playerWins = {};
-		matches.forEach(match => {
-			const winnerId = match.player_one_points > match.player_two_points ? match.player_one_id : match.player_two_id;
-			playerWins[winnerId] = (playerWins[winnerId] || 0) + 1;
-		});
-
-		const tournamentWinnerId = Object.keys(playerWins).reduce((a, b) => playerWins[a] > playerWins[b] ? a : b);
-		await TournamentModel.update(
-			{ winner_id: tournamentWinnerId, status: 'finished' },
-			{ where: { id: id } }
-		);
-
-		res.status(200).send({ message: 'Torneo finalizado', winnerId: tournamentWinnerId });
-	}
+	// 	res.status(200).send({ message: 'Torneo finalizado', winnerId: tournamentWinnerId });
+	// }
 }
 
 export default new TournamentController();
