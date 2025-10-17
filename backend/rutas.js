@@ -173,6 +173,8 @@ const rutas = [
 		preHandler: authMiddleware,
 		handler: TournamentController.createTournament
 	}
+
+	//TODO: Metodos y rutas para los torneos
 ]
 
 export default rutas;
