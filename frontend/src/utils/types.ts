@@ -11,7 +11,7 @@ export interface Score {
 
 export interface DifficultyConfig {
   name: string;
-  errorMargin: number; 
+  speedMultiplier: number; 
 }
 
 export interface BallObject {

@@ -18,11 +18,12 @@ export const MAX_BOUNCE_ANGLE = Math.PI / 4;
 export const PADDLE_INFLUENCE_FACTOR = 0.3;
 export const MAX_BALL_SPEED = 18;
 
+// --- DIFICULTAD MODIFICADA ---
 export const DIFFICULTY_LEVELS: Record<DifficultyLevel, DifficultyConfig> = {
-  EASY: { name: 'Fácil', errorMargin: 70 },
-  MEDIUM: { name: 'Medio', errorMargin: 50 },
-  HARD: { name: 'Difícil', errorMargin: 15 },
-  IMPOSSIBLE: { name: 'Imposible', errorMargin: 0 },
+  EASY: { name: 'Fácil', speedMultiplier: 0.5 },
+  MEDIUM: { name: 'Medio', speedMultiplier: 0.75 },
+  HARD: { name: 'Difícil', speedMultiplier: 1.0 },
+  IMPOSSIBLE: { name: 'Imposible', speedMultiplier: 1.2 }
 };
 
 export const shuffleArray = <T,>(array: T[]): T[] => {

@@ -1,6 +1,7 @@
 import { navigate } from '../main';
 import { playTrack } from '../utils/musicPlayer';
 import i18next from '../utils/i18n';
+import { authenticatedFetch } from '../utils/auth';
 
 export function renderTicTacToe(container: HTMLElement): void {
 	container.innerHTML = `
@@ -35,7 +36,6 @@ export function renderTicTacToe(container: HTMLElement): void {
   playTrack('/assets/Techno_Syndrome.mp3');
   document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
 
-  const statusDisplay = container.querySelector('#status-display')!;
   const cells = container.querySelectorAll('.cell');
   const gameOverlay = container.querySelector('#game-overlay') as HTMLElement;
   const winnerMessage = container.querySelector('#winner-message')!;
@@ -45,12 +45,100 @@ export function renderTicTacToe(container: HTMLElement): void {
   let isGameActive = true;
   let currentPlayer = "X";
   let gameState = ["", "", "", "", "", "", "", "", ""];
+  let matchId: number | null = null;
 
   const winningConditions = [
     [0, 1, 2], [3, 4, 5], [6, 7, 8],
     [0, 3, 6], [1, 4, 7], [2, 5, 8],
     [0, 4, 8], [2, 4, 6]
   ];
+
+  async function startGame() {
+    isGameActive = true;
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) {
+        alert("Error: Usuario no encontrado. Por favor, inicie sesión de nuevo.");
+        navigate('/login');
+        return;
+    }
+
+    const matchData = {
+        player_one_id: user.id,
+        player_two_id: -1,
+        game: 'tictactoe',
+        match_type: gameMode === 'HvsAI' ? 'ia' : 'local',
+        match_status: 'playing',
+    };
+
+    try {
+        const response = await authenticatedFetch('/api/match/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(matchData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            const errorMessage = typeof errorData.error === 'string' ? errorData.error : JSON.stringify(errorData.error);
+            throw new Error(errorMessage || 'Failed to create match');
+        }
+
+        const result = await response.json();
+        matchId = result.id;
+        console.log(`Partida de TicTacToe creada con ID: ${matchId}`);
+    } catch (error) {
+        console.error("Error al iniciar la partida de TicTacToe:", error);
+        alert(`Error al crear la partida: ${(error as Error).message}`);
+        isGameActive = false;
+    }
+  }
+
+  async function endGame(winner: 'X' | 'O' | 'draw') {
+    isGameActive = false;
+    gameOverlay.style.display = 'flex';
+
+    if (!matchId) {
+        console.error("No se puede finalizar la partida porque no tiene ID.");
+        return;
+    }
+
+    let p1_points = 0;
+    let p2_points = 0;
+
+    if (winner === 'X') {
+        p1_points = 1;
+    } else if (winner === 'O') {
+        p2_points = 1;
+    }
+
+    const finalData = {
+        match_status: 'finish',
+        player_one_points: p1_points,
+        player_two_points: p2_points,
+    };
+
+    try {
+        const response = await authenticatedFetch(`/api/match/update/${matchId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(finalData),
+        });
+
+        if (!response.ok) throw new Error('Failed to update match');
+
+        const { playerOne: updatedPlayerOne, playerTwo: updatedPlayerTwo } = await response.json();
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (updatedPlayerOne && currentUser.id === updatedPlayerOne.id) {
+            localStorage.setItem('user', JSON.stringify(updatedPlayerOne));
+            console.log('ELO actualizado para Jugador 1 (X):', updatedPlayerOne.elo);
+        } else if (updatedPlayerTwo && currentUser.id === updatedPlayerTwo.id) {
+            localStorage.setItem('user', JSON.stringify(updatedPlayerTwo));
+        }
+    } catch (error) {
+        console.error("Error al finalizar la partida y actualizar ELO:", error);
+    }
+  }
 
   function handleResultValidation() {
     let roundWon = false;
@@ -66,17 +154,15 @@ export function renderTicTacToe(container: HTMLElement): void {
     }
 
     if (roundWon) {
-      const winnerText = currentPlayer === 'X' ? i18next.t('playerXWins') : i18next.t('playerOWins');
-      winnerMessage.innerHTML = winnerText;
-      isGameActive = false;
-      gameOverlay.style.display = 'flex';
+      const winner = currentPlayer;
+      winnerMessage.innerHTML = winner === 'X' ? i18next.t('playerXWins') : i18next.t('playerOWins');
+      endGame(winner);
       return;
     }
 
     if (!gameState.includes("")) {
       winnerMessage.innerHTML = i18next.t('draw');
-      isGameActive = false;
-      gameOverlay.style.display = 'flex';
+      endGame('draw');
       return;
     }
 
@@ -102,12 +188,8 @@ export function renderTicTacToe(container: HTMLElement): void {
     const clickedCell = event.target as HTMLElement;
     const clickedCellIndex = parseInt(clickedCell.getAttribute('data-cell-index')!);
 
-    if (gameState[clickedCellIndex] !== "" || !isGameActive) {
-      return;
-    }
-    if (gameMode === 'HvsAI' && currentPlayer === 'O') {
-      return;
-    }
+    if (gameState[clickedCellIndex] !== "" || !isGameActive) return;
+    if (gameMode === 'HvsAI' && currentPlayer === 'O') return;
 
     handleCellPlayed(clickedCell, clickedCellIndex);
   }
@@ -122,43 +204,39 @@ export function renderTicTacToe(container: HTMLElement): void {
   }
 
   function findBestMove(): number {
-    for (let i = 0; i < 9; i++) {
-      if (gameState[i] === "") {
-        gameState[i] = "O";
-        if (checkWinner("O")) {
-          gameState[i] = "";
-          return i;
-        }
-        gameState[i] = "";
-      }
-    }
-
-    for (let i = 0; i < 9; i++) {
-      if (gameState[i] === "") {
-        gameState[i] = "X";
-        if (checkWinner("X")) {
-          gameState[i] = "";
-          return i;
-        }
-        gameState[i] = "";
-      }
-    }
-
-    if (gameState[4] === "") return 4;
-
-    const corners = [0, 2, 6, 8];
-    const emptyCorners = corners.filter(i => gameState[i] === "");
-    if (emptyCorners.length > 0) {
-      return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
-    }
-
-    const sides = [1, 3, 5, 7];
-    const emptySides = sides.filter(i => gameState[i] === "");
-    if (emptySides.length > 0) {
-      return emptySides[Math.floor(Math.random() * emptySides.length)];
-    }
-
-    return -1;
+	for (let i = 0; i < 9; i++) {
+		if (gameState[i] === "") {
+		  gameState[i] = "O";
+		  if (checkWinner("O")) {
+			gameState[i] = "";
+			return i;
+		  }
+		  gameState[i] = "";
+		}
+	}
+	for (let i = 0; i < 9; i++) {
+		if (gameState[i] === "") {
+		  gameState[i] = "X";
+		  if (checkWinner("X")) {
+			gameState[i] = "";
+			return i;
+		  }
+		  gameState[i] = "";
+		}
+	}
+	if (gameState[4] === "") return 4;
+	const corners = [0, 2, 6, 8];
+	const emptyCorners = corners.filter(i => gameState[i] === "");
+	if (emptyCorners.length > 0) {
+		return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
+	}
+	const sides = [1, 3, 5, 7];
+	const emptySides = sides.filter(i => gameState[i] === "");
+	if (emptySides.length > 0) {
+		return emptySides[Math.floor(Math.random() * emptySides.length)];
+	}
+	const availableCells = gameState.map((cell, index) => cell === "" ? index : -1).filter(index => index !== -1);
+    return availableCells.length > 0 ? availableCells[0] : -1;
   }
 
   function checkWinner(player: string): boolean {
@@ -171,12 +249,14 @@ export function renderTicTacToe(container: HTMLElement): void {
     isGameActive = true;
     currentPlayer = "X";
     gameState = ["", "", "", "", "", "", "", "", ""];
+	matchId = null;
     cells.forEach(cell => {
       cell.innerHTML = "";
       cell.classList.remove('text-cyan-400', 'text-white');
     });
     gameOverlay.style.display = 'none';
     container.querySelector('#game-board')!.classList.remove('pointer-events-none');
+	startGame();
   }
 
   cells.forEach(cell => {
@@ -189,6 +269,7 @@ export function renderTicTacToe(container: HTMLElement): void {
   });
 
   restartButton.addEventListener('click', handleRestartGame);
+  
   container.querySelectorAll('.mode-btn').forEach(button => {
     button.addEventListener('click', () => {
       gameMode = button.getAttribute('data-mode') as string;
@@ -202,4 +283,6 @@ export function renderTicTacToe(container: HTMLElement): void {
       button.classList.remove('opacity-50');
     });
   });
+  
+  startGame();
 }

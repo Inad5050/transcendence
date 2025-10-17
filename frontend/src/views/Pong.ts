@@ -119,15 +119,14 @@ export function initializePongGame(container: HTMLElement) {
 		if (player2.isAlive) {
 		  if (gameMode === 'ONE_PLAYER') {
 			const currentDifficulty = DIFFICULTY_LEVELS[difficulty];
-			const targetY = ball.y - player2.height / 2;
-			const deltaY = targetY - player2.y;
-			if (Math.abs(deltaY) > currentDifficulty.errorMargin) {
-			  player2.y += Math.sign(deltaY) * Math.min(PADDLE_SPEED, Math.abs(deltaY));
+				const aiMaxSpeed = PADDLE_SPEED * currentDifficulty.speedMultiplier;
+				const targetY = ball.y - player2.height / 2;
+				const deltaY = targetY - player2.y;
+				player2.y += Math.max(-aiMaxSpeed, Math.min(aiMaxSpeed, deltaY));
+			} else {
+				playerVelocities.p2 = (keysPressed['l'] ? PADDLE_SPEED : 0) - (keysPressed['o'] ? PADDLE_SPEED : 0);
+				player2.y += playerVelocities.p2;
 			}
-		  } else {
-			playerVelocities.p2 = (keysPressed['l'] ? PADDLE_SPEED : 0) - (keysPressed['o'] ? PADDLE_SPEED : 0);
-			player2.y += playerVelocities.p2;
-		  }
 		}
 		
 		player1.y = Math.max(0, Math.min(player1.y, canvas.height - player1.height));
