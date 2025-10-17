@@ -170,7 +170,7 @@ const rutas = [
 	{
 		method: "POST",
 		url: "/tournaments",
-		preHandler: authMiddleware,
+		// preHandler: authMiddleware,
 		handler: TournamentController.createTournament
 	}
 
