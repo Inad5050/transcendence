@@ -79,7 +79,7 @@ export function renderFriends(appElement: HTMLElement): void
         modalContent.innerHTML = `
             <button id="close-modal-btn" class="absolute top-2 right-4 text-white text-3xl font-bold">&times;</button>
             <h2 class="text-2xl md:text-3xl font-bold mb-4">${user.username}</h2>
-            <p class="text-lg md:text-xl"><strong>Email:</strong> ${user.email}</p>
+            <p class="text-lg md:text-xl"><strong>${i18next.t('email')}:</strong> ${user.email}</p>
             <p class="text-lg md:text-xl"><strong>ELO:</strong> ${user.elo}</p>
         `;
         modal.classList.remove('hidden');
@@ -95,9 +95,9 @@ export function renderFriends(appElement: HTMLElement): void
     async function loadFriends() {
         try {
             const response = await authenticatedFetch('/api/friends');
-            if (!response.ok) throw new Error('Error al cargar amigos');
+            if (!response.ok) throw new Error(i18next.t('errorLoadingFriends'));
             const friends: User[] = await response.json();
-            friendsContainer.innerHTML = friends.length > 0 ? friends.map(friend => `<div class="text-white text-xl md:text-3xl p-2 cursor-pointer hover:bg-gray-700" data-user-id="${friend.id}">${friend.username}</div>`).join('') : `<div class="text-gray-400 text-center text-xl md:text-2xl">No tienes amigos</div>`;
+            friendsContainer.innerHTML = friends.length > 0 ? friends.map(friend => `<div class="text-white text-xl md:text-3xl p-2 cursor-pointer hover:bg-gray-700" data-user-id="${friend.id}">${friend.username}</div>`).join('') : `<div class="text-gray-400 text-center text-xl md:text-2xl">${i18next.t('noFriends')}</div>`;
             friendsContainer.querySelectorAll('[data-user-id]').forEach(el => {
                 el.addEventListener('click', async () => {
                     const userId = el.getAttribute('data-user-id');
@@ -106,7 +106,7 @@ export function renderFriends(appElement: HTMLElement): void
                         const userData: User = await userResponse.json();
                         showUserDetailsInModal(userData);
                     } catch (error) {
-                        alert(`Error al cargar detalles del usuario: ${(error as Error).message}`);
+                        alert(i18next.t('errorLoadingUserDetails', { error: (error as Error).message }));
                     }
                 });
             });
@@ -119,7 +119,7 @@ export function renderFriends(appElement: HTMLElement): void
     async function loadFriendRequests() {
         try {
             const response = await authenticatedFetch('/api/friends/requests');
-            if (!response.ok) throw new Error('Error al cargar solicitudes');
+            if (!response.ok) throw new Error(i18next.t('errorLoadingRequests'));
             const requests: FriendRequest[] = await response.json();
 			if (requests.length > 0) {
 				requestsContainer.innerHTML = requests.map(req => `
@@ -160,11 +160,11 @@ export function renderFriends(appElement: HTMLElement): void
                     });
                 });
             } else {
-                requestsContainer.innerHTML = `<div class="text-gray-400 text-center text-xl md:text-2xl">No hay solicitudes pendientes</div>`;
+                requestsContainer.innerHTML = `<div class="text-gray-400 text-center text-xl md:text-2xl">${i18next.t('noPendingRequests')}</div>`;
             }
         } catch (error) {
             console.error(error);
-            requestsContainer.innerHTML = `<div class="text-red-500 p-2">Error al cargar</div>`;
+            requestsContainer.innerHTML = `<div class="text-red-500 p-2">${i18next.t('errorLoading')}</div>`;
         }
     }
 
@@ -173,8 +173,8 @@ export function renderFriends(appElement: HTMLElement): void
         const method = action === 'accept' ? 'POST' : 'DELETE';
         try {
             const response = await authenticatedFetch(url, { method });
-            if (!response.ok) throw new Error(`Error al ${action === 'accept' ? 'aceptar' : 'rechazar'}`);
-            alert(`Solicitud ${action === 'accept' ? 'aceptada' : 'rechazada'}.`);
+            if (!response.ok) throw new Error(i18next.t(action === 'accept' ? 'errorAccepting' : 'errorRejecting'));
+            alert(i18next.t(action === 'accept' ? 'requestAccepted' : 'requestRejected'));
             await Promise.all([loadFriends(), loadFriendRequests(), loadAllUsers()]);
         } catch (error) {
             alert(`Error: ${(error as Error).message}`);
@@ -187,7 +187,7 @@ export function renderFriends(appElement: HTMLElement): void
                 authenticatedFetch('/api/users'),
                 authenticatedFetch('/api/friends')
             ]);
-            if (!usersResponse.ok || !friendsResponse.ok) throw new Error('Error al cargar datos');
+            if (!usersResponse.ok || !friendsResponse.ok) throw new Error(i18next.t('errorLoadingData'));
             const allUsers: User[] = await usersResponse.json();
             const friends: User[] = await friendsResponse.json();
             const friendIds = new Set(friends.map(f => f.id));
@@ -225,8 +225,8 @@ export function renderFriends(appElement: HTMLElement): void
                 body: JSON.stringify({ one_user_id: fromId, two_user_id: toId })
             });
             const result = await response.json();
-            if (!response.ok) throw new Error(result.message || 'Error al enviar la solicitud');
-            alert('Solicitud de amistad enviada!');
+            if (!response.ok) throw new Error(result.message || i18next.t('errorSendingRequest'));
+            alert(i18next.t('friendRequestSent'));
         } catch (error) {
             alert(`Error: ${(error as Error).message}`);
         }

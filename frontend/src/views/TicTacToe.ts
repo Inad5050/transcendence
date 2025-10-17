@@ -3,23 +3,34 @@ import { playTrack } from '../utils/musicPlayer';
 import i18next from '../utils/i18n';
 
 export function renderTicTacToe(container: HTMLElement): void {
-    container.innerHTML = `
-    <div class="h-screen w-full flex flex-col items-center justify-center p-4 text-white font-press-start">
-		<div class="flex gap-4 mb-8">
-			<button class="mode-btn px-6 py-2 text-xl rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-110 bg-cyan-400 text-gray-900 hover:bg-white opacity-100" data-mode="HvsH">Humano vs Humano</button>
-			<button class="mode-btn px-6 py-2 text-xl rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-110 bg-cyan-400 text-gray-900 hover:bg-white opacity-50" data-mode="HvsAI">Humano vs IA</button>
-		</div>
-      <h1 id="status-display" class="text-3xl mb-8">Turno del Jugador X</h1>
-      <div id="game-board" class="grid grid-cols-3 gap-2 bg-black">
-        ${Array.from({ length: 9 }).map((_, i) => `<div class="cell w-28 h-28 md:w-40 md:h-40 bg-gray-800 flex items-center justify-center text-6xl cursor-pointer border-2 border-cyan-400 hover:bg-gray-700" data-cell-index="${i}"></div>`).join('')}
-      </div>
-      <div id="game-overlay" class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-black bg-opacity-75 gap-4" style="display: none;">
-        <h1 id="winner-message" class="text-5xl font-black text-center text-cyan-400 p-4 rounded-lg"></h1>
-        <button id="restart-button" class="px-8 py-4 text-2xl rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-110 bg-cyan-400 text-gray-900 hover:bg-white">Volver a Jugar</button>
-      </div>
-	  <button id="homeButton" class="mt-8 px-8 py-4 text-lg rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-110 bg-gray-700 text-white hover:bg-gray-600">Volver al Inicio</button>
-    </div>
-    `;
+	container.innerHTML = `
+	<div class="h-screen w-full flex flex-col items-center justify-center p-4 text-white overflow-y-auto">
+	  <div class="w-full flex justify-center my-8">
+		<button id="homeButton" class="focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+			<img src="/assets/logo.gif" alt="Game Logo" class="w-full max-w-sm md:max-w-2xl">
+		</button>
+	  </div>
+	  <div class="w-full max-w-md">
+		<header class="p-4 bg-gray-800 rounded-xl mb-4 text-center space-y-3">
+		  <div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4">
+            <button data-mode="HvsH" class="mode-btn relative h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-100 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                <img src="/assets/PvP.png" alt="PvP" class="absolute inset-0 w-full h-full object-contain">
+            </button>
+            <button data-mode="HvsAI" class="mode-btn relative h-12 w-28 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
+                <img src="/assets/vs_IA.png" alt="${i18next.t('vsIA')}" class="absolute inset-0 w-full h-full object-contain">
+            </button>
+		  </div>
+		</header>
+        <div id="game-board" class="grid grid-cols-3 gap-2 bg-black">
+            ${Array.from({ length: 9 }).map((_, i) => `<div class="cell w-28 h-28 md:w-40 md:h-40 bg-gray-800 flex items-center justify-center text-6xl cursor-pointer border-2 border-cyan-400 hover:bg-gray-700" data-cell-index="${i}" role="button" tabindex="0"></div>`).join('')}
+        </div>
+        <div id="game-overlay" class="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-black bg-opacity-75 gap-4" style="display: none;">
+            <h1 id="winner-message" class="text-5xl font-black text-center text-cyan-400 p-4 rounded-lg"></h1>
+            <button id="restart-button" class="px-8 py-4 text-2xl rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-110 bg-cyan-400 text-gray-900 hover:bg-white">${i18next.t('playAgain')}</button>
+        </div>
+	  </div>
+	</div>
+	`;
 
   playTrack('/assets/Techno_Syndrome.mp3');
   document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
@@ -55,17 +66,15 @@ export function renderTicTacToe(container: HTMLElement): void {
     }
 
     if (roundWon) {
-      const winner = currentPlayer === 'X' ? 'Jugador X' : (gameMode === 'HvsAI' ? 'IA' : 'Jugador O');
-      statusDisplay.innerHTML = `¡${winner} ha ganado!`;
-      winnerMessage.innerHTML = `¡Gana ${winner}!`;
+      const winnerText = currentPlayer === 'X' ? i18next.t('playerXWins') : i18next.t('playerOWins');
+      winnerMessage.innerHTML = winnerText;
       isGameActive = false;
       gameOverlay.style.display = 'flex';
       return;
     }
 
     if (!gameState.includes("")) {
-      statusDisplay.innerHTML = `¡Es un empate!`;
-      winnerMessage.innerHTML = '¡Empate!';
+      winnerMessage.innerHTML = i18next.t('draw');
       isGameActive = false;
       gameOverlay.style.display = 'flex';
       return;
@@ -76,9 +85,6 @@ export function renderTicTacToe(container: HTMLElement): void {
 
   function handlePlayerChange() {
     currentPlayer = currentPlayer === "X" ? "O" : "X";
-    const nextPlayerText = currentPlayer === 'X' ? 'Jugador X' : (gameMode === 'HvsAI' ? 'IA' : 'Jugador O');
-    statusDisplay.innerHTML = `Turno de ${nextPlayerText}`;
-
     if (gameMode === 'HvsAI' && currentPlayer === 'O' && isGameActive) {
       container.querySelector('#game-board')!.classList.add('pointer-events-none');
       setTimeout(makeAIMove, 700);
@@ -116,44 +122,43 @@ export function renderTicTacToe(container: HTMLElement): void {
   }
 
   function findBestMove(): number {
-	let move = -1;
-	// 1. Ganar
-	for (let i = 0; i < 9; i++) {
-	  if (gameState[i] === '') {
-		gameState[i] = 'O';
-		if (checkWinner('O')) {
-		  gameState[i] = '';
-		  return i;
-		}
-		gameState[i] = '';
-	  }
-	}
-	// 2. Bloquear
-	for (let i = 0; i < 9; i++) {
-	  if (gameState[i] === '') {
-		gameState[i] = 'X';
-		if (checkWinner('X')) {
-		  gameState[i] = '';
-		  return i;
-		}
-		gameState[i] = '';
-	  }
-	}
-	// 3. Centro
-	if (gameState[4] === '') return 4;
-	// 4. Esquinas
-	const corners = [0, 2, 6, 8];
-	const emptyCorners = corners.filter(i => gameState[i] === '');
-	if (emptyCorners.length > 0) {
-	  return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
-	}
-	// 5. Lados
-	const sides = [1, 3, 5, 7];
-	const emptySides = sides.filter(i => gameState[i] === '');
-	if (emptySides.length > 0) {
-		return emptySides[Math.floor(Math.random() * emptySides.length)];
-	}
-	return move;
+    for (let i = 0; i < 9; i++) {
+      if (gameState[i] === "") {
+        gameState[i] = "O";
+        if (checkWinner("O")) {
+          gameState[i] = "";
+          return i;
+        }
+        gameState[i] = "";
+      }
+    }
+
+    for (let i = 0; i < 9; i++) {
+      if (gameState[i] === "") {
+        gameState[i] = "X";
+        if (checkWinner("X")) {
+          gameState[i] = "";
+          return i;
+        }
+        gameState[i] = "";
+      }
+    }
+
+    if (gameState[4] === "") return 4;
+
+    const corners = [0, 2, 6, 8];
+    const emptyCorners = corners.filter(i => gameState[i] === "");
+    if (emptyCorners.length > 0) {
+      return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
+    }
+
+    const sides = [1, 3, 5, 7];
+    const emptySides = sides.filter(i => gameState[i] === "");
+    if (emptySides.length > 0) {
+      return emptySides[Math.floor(Math.random() * emptySides.length)];
+    }
+
+    return -1;
   }
 
   function checkWinner(player: string): boolean {
@@ -166,7 +171,6 @@ export function renderTicTacToe(container: HTMLElement): void {
     isGameActive = true;
     currentPlayer = "X";
     gameState = ["", "", "", "", "", "", "", "", ""];
-    statusDisplay.innerHTML = `Turno del Jugador X`;
     cells.forEach(cell => {
       cell.innerHTML = "";
       cell.classList.remove('text-cyan-400', 'text-white');
@@ -191,10 +195,10 @@ export function renderTicTacToe(container: HTMLElement): void {
       handleRestartGame();
 
       container.querySelectorAll('.mode-btn').forEach(btn => {
-        btn.classList.remove('opacity-100');
+        btn.classList.remove('opacity-100', 'border-b-4', 'border-cyan-400');
         btn.classList.add('opacity-50');
       });
-      button.classList.add('opacity-100');
+      button.classList.add('opacity-100', 'border-b-4', 'border-cyan-400');
       button.classList.remove('opacity-50');
     });
   });

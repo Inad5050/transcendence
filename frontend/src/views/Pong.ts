@@ -21,7 +21,6 @@ export function initializePongGame(container: HTMLElement) {
 	playTrack('/assets/DangerZone.mp3');
     document.getElementById('homeButton')?.addEventListener('click', () => navigate('/start'));
 
-
 	const canvas = container.querySelector('#pong-canvas') as HTMLCanvasElement;
 	const context = canvas.getContext('2d')!;
 	const gameOverlay = container.querySelector('#game-overlay') as HTMLElement;
@@ -303,11 +302,11 @@ export function initializePongGame(container: HTMLElement) {
 		if (animationFrameId) cancelAnimationFrame(animationFrameId);
 		animationFrameId = null;
   
-		let winnerName = `Jugador ${winner}`;
-		if (gameMode === 'ONE_PLAYER' && winner === 2) winnerName = 'IA';
+		let winnerName = `${i18next.t('player')} ${winner}`;
+		if (gameMode === 'ONE_PLAYER' && winner === 2) winnerName = i18next.t('ai');
   
-		winnerMessage.textContent = `¡${winnerName} ha ganado!`;
-		startButton.textContent = 'Volver a Jugar';
+		winnerMessage.textContent = i18next.t('winnerMessage', { winnerName });
+		startButton.textContent = i18next.t('playAgain');
 		winnerMessage.classList.remove('hidden');
 		gameOverlay.classList.remove('hidden');
 	}
