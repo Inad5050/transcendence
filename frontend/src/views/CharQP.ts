@@ -19,7 +19,7 @@ export function renderCharQP(appElement: HTMLElement): void
 			<div class="bg-gray-800 bg-opacity-75 shadow-lg rounded-xl p-4 md:p-8 flex flex-col items-center space-y-6 mb-8">
 				<div id="mode-selection" class="flex flex-wrap justify-center items-center gap-4 md:gap-6">
                     <button data-mode="ONE_PLAYER" class="mode-btn relative h-10 w-28 md:h-12 md:w-36 cursor-pointer transition-transform transform hover:scale-110 opacity-100 border-b-4 border-cyan-400 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
-                        <img src="${i18next.t('img.vsIA')}" alt="${i18next.t('vsIA')}" class="absolute inset-0 w-full h-full object-contain">
+                        <img src="../assets/vs_IA.png" alt="${i18next.t('vsIA')}" class="absolute inset-0 w-full h-full object-contain">
                     </button>
                     <button data-mode="TWO_PLAYERS" class="mode-btn relative h-10 w-28 md:h-12 md:w-36 cursor-pointer transition-transform transform hover:scale-110 opacity-50 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
                         <img src="${i18next.t('img.2players')}" alt="${i18next.t('2players')}" class="absolute inset-0 w-full h-full object-contain">
@@ -106,7 +106,7 @@ export function renderCharQP(appElement: HTMLElement): void
 			const nextRoute = localStorage.getItem('nextRoute') || '/pong';
 			navigate(nextRoute);
 		} else {
-			alert("Por favor, elige un personaje.");
+			alert(i18next.t('chooseCharacter'));
 		}
 	});
 

@@ -35,12 +35,12 @@ async function handleLogin(event: Event): Promise<void>
 		{
 			if (response.status === 403 && result.requires_2fa === true)
 			{
-				console.log('2FA requerido. Mostrando formulario para el código.');
+				console.log(i18next.t('2faRequired'));
 				isAwaiting2FA = true;
 				renderLogin(document.getElementById('app') as HTMLElement);
 			}
 			else
-				throw new Error(result.message || 'Error en el login.');
+				throw new Error(result.message || i18next.t('loginError'));
 		}
 	}
 	catch (error)
@@ -59,7 +59,7 @@ async function handle2FAVerification(event: Event): Promise<void>
     const code = twoFACodeInput.value;
     if (!code)
 	{
-        alert('Por favor, introduce el código de 6 dígitos.');
+        alert(i18next.t('enter6DigitCode'));
         return;
     }
 
@@ -83,7 +83,7 @@ async function handle2FAVerification(event: Event): Promise<void>
             navigate('/start');
         }
 		else
-            throw new Error(result.message || 'Código 2FA inválido o error en el login.');
+            throw new Error(result.message || i18next.t('invalid2faCode'));
     }
 	catch (error)
 	{
@@ -141,11 +141,11 @@ export function renderLogin(appElement: HTMLElement): void
 			<div class="w-full md:max-w-4xl mt-10 md:mt-40">
 				<form id="loginForm" class="bg-gray-800 bg-opacity-50 shadow-md rounded-xl px-6 py-8 md:px-16 md:pt-12 md:pb-16 mb-8">
 					<div class="mb-6 md:mb-9">
-						<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="username">Username</label>
-						<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="username" type="text" placeholder="Username">
+						<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="username">${i18next.t('username')}</label>
+						<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="username" type="text" placeholder="${i18next.t('username')}">
 					</div>
 					<div class="mb-8 md:mb-12">
-						<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="password">Password</label>
+						<label class="block text-white text-lg md:text-2xl font-bold mb-2 md:mb-4" for="password">${i18next.t('password')}</label>
 						<input class="shadow appearance-none border rounded w-full py-3 px-4 md:py-4 md:px-6 text-gray-700 mb-4 md:mb-6 leading-tight focus:outline-none focus:shadow-outline text-lg md:text-2xl" id="password" type="password" placeholder="******************">
 					</div>
 					<div class="flex items-center justify-center">

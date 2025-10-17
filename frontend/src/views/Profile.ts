@@ -118,10 +118,10 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
 							</div>
 
 							<div class="w-full">
-								<label class="font-bold">Username</label>
+								<label class="font-bold">${i18next.t('username')}</label>
 								<input id="username-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3 text-sm md:text-base" value="${user.username}">
 
-								<label class="font-bold">Email</label>
+								<label class="font-bold">${i18next.t('email')}</label>
 								<input id="email-input" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3 text-sm md:text-base" value="${user.email}">
 
 								<p class="text-base md:text-lg"><span class="font-bold">ELO:</span> <span class="text-cyan-300 font-bold">${user.elo}</span></p>
@@ -134,7 +134,7 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
 					</div>
 
 					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-						<h3 class="text-xl md:text-2xl font-bold mb-4">Security</h3>
+						<h3 class="text-xl md:text-2xl font-bold mb-4">${i18next.t('security')}</h3>
 						<div id="2fa-section"></div>
 					</div>
 
@@ -147,45 +147,45 @@ export async function renderProfile(appElement: HTMLElement): Promise<void>
 
 				<div class="col-span-1 lg:col-span-2 space-y-8 lg:flex lg:flex-col">
 					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg">
-						<h3 class="text-xl md:text-2xl font-bold mb-4">Statistics</h3>
+						<h3 class="text-xl md:text-2xl font-bold mb-4">${i18next.t('statistics')}</h3>
 						<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
 							<div>
 								<p class="text-3xl md:text-4xl font-bold text-cyan-300">${stats.played}</p>
-								<p class="text-gray-400 text-sm">Matches</p>
+								<p class="text-gray-400 text-sm">${i18next.t('matches')}</p>
 							</div>
 							<div>
 								<p class="text-3xl md:text-4xl font-bold text-green-400">${stats.victories}</p>
-								<p class="text-gray-400 text-sm">Victories</p>
+								<p class="text-gray-400 text-sm">${i18next.t('victories')}</p>
 							</div>
 							<div>
 								<p class="text-3xl md:text-4xl font-bold text-red-400">${stats.defeats}</p>
-								<p class="text-gray-400 text-sm">Defeats</p>
+								<p class="text-gray-400 text-sm">${i18next.t('defeats')}</p>
 							</div>
 							<div>
 								<p class="text-3xl md:text-4xl font-bold text-yellow-400">${(stats.played > 0 ? (stats.victories / stats.played) * 100 : 0).toFixed(1)}%</p>
-								<p class="text-gray-400 text-sm">Win Rate</p>
+								<p class="text-gray-400 text-sm">${i18next.t('winRate')}</p>
 							</div>
 						</div>
 					</div>
 
 					<div class="bg-gray-800 bg-opacity-75 p-6 rounded-lg border-2 border-cyan-400 shadow-lg lg:flex lg:flex-col lg:flex-grow">
-						<h3 class="text-xl md:text-2xl font-bold mb-4">Match History</h3>
+						<h3 class="text-xl md:text-2xl font-bold mb-4">${i18next.t('matchHistory')}</h3>
 						<div id="history-container" class="space-y-3 max-h-80 lg:max-h-none overflow-y-auto pr-2 lg:flex-grow">
 							${history.length > 0 ? history.map(match =>
 							{
 								const isPlayerOne = match.player_one_id === user.id;
-								const result = (isPlayerOne ? match.player_one_points > match.player_two_points : match.player_two_points > match.player_one_points) ? 'Victory' : 'Defeat';
+								const result = (isPlayerOne ? match.player_one_points > match.player_two_points : match.player_two_points > match.player_one_points) ? i18next.t('victory') : i18next.t('defeat');
 								const score = isPlayerOne ? `${match.player_one_points}-${match.player_two_points}` : `${match.player_two_points}-${match.player_one_points}`;
 								const opponentId = isPlayerOne ? match.player_two_id : match.player_one_id;
 								const opponentUsername = `user${opponentId}`;
 
 								return `
 								<div class="flex flex-wrap justify-between items-center bg-gray-700 p-3 rounded text-sm md:text-base">
-									<p>vs <span class="font-bold">${opponentUsername}</span></p>
-									<p class="${result === 'Victory' ? 'text-green-400' : 'text-red-400'} font-bold">${result}</p>
+									<p>${i18next.t('vs')} <span class="font-bold">${opponentUsername}</span></p>
+									<p class="${result === i18next.t('victory') ? 'text-green-400' : 'text-red-400'} font-bold">${result}</p>
 									<p class="font-mono bg-gray-900 px-2 py-1 rounded">${score}</p>
 								</div>
-							`}).join('') : '<p class="text-center text-gray-400">No match history found.</p>'}
+							`}).join('') : `<p class="text-center text-gray-400">${i18next.t('noMatchHistory')}</p>`}
 						</div>
 					</div>
 				</div>
@@ -222,7 +222,7 @@ async function setupProfileEditing(user: User)
 
         if (Object.keys(updatedData).length === 0)
         {
-            alert('No changes to save.');
+            alert(i18next.t('noChanges'));
             return;
         }
 
@@ -239,12 +239,12 @@ async function setupProfileEditing(user: User)
             if (!response.ok)
             {
                 const error = await response.json();
-                throw new Error(error.message || 'Error updating profile.');
+                throw new Error(error.message || i18next.t('errorUpdatingProfile'));
             }
 
             const updatedUser = await response.json();
             localStorage.setItem('user', JSON.stringify(updatedUser));
-            alert('Profile updated successfully.');
+            alert(i18next.t('profileUpdated'));
             location.reload();
         }
         catch (error)
@@ -271,7 +271,7 @@ function setupAvatarUpload(user: User)
         };
         reader.readAsDataURL(file);
 
-        alert("Avatar upload is not implemented on the backend. This is just a preview.");
+        alert(i18next.t('avatarNotImplemented'));
     });
 }
 
@@ -285,15 +285,15 @@ function setup2FA(user: User)
         if (currentUser.twofa_enabled)
         {
             twoFASection.innerHTML = `
-                <p class="text-green-400 mb-2">✔️ 2FA is ACTIVE.</p>
-                <button id="disable-2fa-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Disable 2FA</button>
+                <p class="text-green-400 mb-2">✔️ ${i18next.t('2faActive')}</p>
+                <button id="disable-2fa-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">${i18next.t('disable2FA')}</button>
             `;
             document.getElementById('disable-2fa-btn')?.addEventListener('click', showDisable2FAModal);
         }
         else
         {
             twoFASection.innerHTML = `
-                <p class="text-yellow-400 mb-2">⚠️ 2FA is INACTIVE.</p>
+                <p class="text-yellow-400 mb-2">⚠️ ${i18next.t('2faInactive')}</p>
                 <button id="enable-2fa-btn" class="relative w-full h-[75px] cursor-pointer transform hover:scale-125 transition-transform duration-200 focus:outline-none focus:ring-4 focus:ring-cyan-300 rounded-lg">
                     <img src="${i18next.t('img.activate2FA')}" alt="${i18next.t('activate2FA')}" class="absolute inset-0 w-full h-full object-contain">
                 </button>
@@ -310,7 +310,7 @@ async function handleSetup2FA()
     try
     {
         const response = await authenticatedFetch('/api/auth/2fa/setup', { method: 'POST' });
-        if (!response.ok) throw new Error('Error starting 2FA setup.');
+        if (!response.ok) throw new Error(i18next.t('errorStarting2fa'));
 
         const data = await response.json();
         showEnable2FAModal(data.qr_code);
@@ -328,14 +328,14 @@ function showEnable2FAModal(qrCode: string)
     const modalContent = document.getElementById('2fa-modal-content')!;
 
     modalContent.innerHTML = `
-        <h3 class="text-2xl font-bold mb-4">Enable 2FA</h3>
-        <p class="mb-4">Scan this QR code with your authenticator app.</p>
+        <h3 class="text-2xl font-bold mb-4">${i18next.t('activate2FA')}</h3>
+        <p class="mb-4">${i18next.t('scanQr')}</p>
         <img src="${qrCode}" alt="QR Code" class="mx-auto border-4 border-white rounded-lg mb-4">
-        <p class="mb-2">Then, enter the 6-digit code to verify.</p>
+        <p class="mb-2">${i18next.t('enter6DigitCodeToVerify')}</p>
         <input id="2fa-code-input" class="w-full bg-gray-700 p-2 rounded text-center text-2xl tracking-[0.5em]" placeholder="000000" maxlength="6">
         <div class="flex gap-4 mt-4">
-            <button id="verify-2fa-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded font-bold">Verify</button>
-            <button id="cancel-2fa-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancel</button>
+            <button id="verify-2fa-btn" class="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded font-bold">${i18next.t('verify')}</button>
+            <button id="cancel-2fa-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">${i18next.t('cancel')}</button>
         </div>
     `;
     modal.classList.remove('hidden');
@@ -344,7 +344,7 @@ function showEnable2FAModal(qrCode: string)
     document.getElementById('verify-2fa-btn')?.addEventListener('click', async () =>
     {
         const code = (document.getElementById('2fa-code-input') as HTMLInputElement).value;
-        if (code.length !== 6) return alert('Please enter a valid 6-digit code.');
+        if (code.length !== 6) return alert(i18next.t('enterValid6DigitCode'));
 
         try
         {
@@ -355,9 +355,9 @@ function showEnable2FAModal(qrCode: string)
                 },
                 body: JSON.stringify({ code }),
             });
-            if (!response.ok) throw new Error('Incorrect verification code.');
+            if (!response.ok) throw new Error(i18next.t('incorrectVerificationCode'));
 
-            alert('2FA enabled successfully!');
+            alert(i18next.t('2faEnabledSuccess'));
             const user: User | null = JSON.parse(localStorage.getItem('user') || 'null');
             if (user)
             {
@@ -380,18 +380,18 @@ function showDisable2FAModal()
     const modalContent = document.getElementById('2fa-modal-content')!;
 
     modalContent.innerHTML = `
-        <h3 class="text-2xl font-bold mb-4">Disable 2FA</h3>
-        <p class="mb-4">To confirm, enter your password and a current 2FA code.</p>
+        <h3 class="text-2xl font-bold mb-4">${i18next.t('disable2FA')}</h3>
+        <p class="mb-4">${i18next.t('confirm2faDisable')}</p>
 
-        <label>Password</label>
+        <label>${i18next.t('password')}</label>
         <input id="password-input" type="password" class="w-full bg-gray-700 p-2 rounded mt-1 mb-3">
 
         <label>2FA Code</label>
         <input id="2fa-code-input" class="w-full bg-gray-700 p-2 rounded text-center text-2xl tracking-[0.5em] mt-1" placeholder="000000" maxlength="6">
 
         <div class="flex gap-4 mt-4">
-            <button id="confirm-disable-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">Disable</button>
-            <button id="cancel-disable-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">Cancel</button>
+            <button id="confirm-disable-btn" class="w-full bg-red-600 hover:bg-red-700 py-2 rounded font-bold">${i18next.t('disable2FA')}</button>
+            <button id="cancel-disable-btn" class="w-full bg-gray-600 hover:bg-gray-700 py-2 rounded font-bold">${i18next.t('cancel')}</button>
         </div>
     `;
     modal.classList.remove('hidden');
@@ -402,7 +402,7 @@ function showDisable2FAModal()
         const password = (document.getElementById('password-input') as HTMLInputElement).value;
         const code = (document.getElementById('2fa-code-input') as HTMLInputElement).value;
 
-        if (!password || !code) return alert('You must fill in both fields.');
+        if (!password || !code) return alert(i18next.t('fillBothFields'));
 
         try
         {
@@ -414,9 +414,9 @@ function showDisable2FAModal()
                 body: JSON.stringify({ password, code }),
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.message || 'Error disabling 2FA.');
+            if (!response.ok) throw new Error(data.message || i18next.t('errorDisabling2fa'));
 
-            alert('2FA disabled successfully! All your sessions will be logged out.');
+            alert(i18next.t('2faDisabledSuccess'));
             modal.classList.add('hidden');
             localStorage.clear();
             navigate('/login');
