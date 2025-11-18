@@ -2,7 +2,7 @@
 
 `ft_transcendence` es una aplicación web full-stack que implementa un ecosistema de juegos en línea, completo con autenticación de usuarios, perfiles, sistema de amigos, chat en tiempo real y torneos.
 
-Este es el úmtimo proyecto del Common Core de **42**.
+Este es el último proyecto del Common Core de **42**.
 
 ---
 
