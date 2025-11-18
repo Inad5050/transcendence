@@ -2,13 +2,7 @@
 
 `ft_transcendence` es una aplicación web full-stack que implementa un ecosistema de juegos en línea, completo con autenticación de usuarios, perfiles, sistema de amigos, chat en tiempo real y torneos.
 
-Este proyecto, parte del currículo de **42**, está construido sobre una arquitectura moderna y contenedorizada, demostrando una implementación completa de frontend, backend y servicios.
-
-## 🚀 Demo en Vivo
-
-*(Esta sección está destinada a alojar un enlace a la aplicación desplegada)*
-
-Para un despliegue sencillo, se puede utilizar un proveedor de nube (como DigitalOcean, Vultr o AWS) que soporte `docker-compose`. El frontend también se puede desplegar por separado en un servicio de alojamiento estático (como Vercel o Netlify) apuntando la configuración de la API al dominio del backend.
+Este es el úmtimo proyecto del Common Core de **42**.
 
 ---
 
@@ -23,13 +17,13 @@ Para un despliegue sencillo, se puede utilizar un proveedor de nube (como Digita
 
 ### 2. Jugabilidad y Lógica de Juego (Frontend/Backend)
 
-* **Motor de Pong 2D:** Una implementación de Pong en 2D que utiliza un motor de renderizado 2D para el bucle de renderizado, la gestión de la física y la detección de colisiones.
+* **Motor de Pong 2D:** Una implementación del juego que utiliza un motor de renderizado 2D para el bucle de renderizado, la gestión de la física y la detección de colisiones.
 * **Múltiples Modos de Juego:**
     * **1v1 Local:** Dos jugadores en la misma máquina.
     * **1v1 vs. IA:** Un jugador contra una IA con múltiples niveles de dificultad (Fácil, Medio, Difícil, Imposible).
     * **4-Player FFA:** Un modo "todos contra todos" (free-for-all) donde los jugadores son eliminados al perder.
     * **Modos Personalizados:** Partidas con modificadores como obstáculos en el mapa o velocidades personalizadas de la bola y la pala.
-* **Sistema de ELO:** Los usuarios tienen una puntuación ELO que se actualiza automáticamente después de cada partida clasificatoria (no-IA, no-local).
+* **Sistema de ELO:** Los usuarios tienen una puntuación ELO que se actualiza automáticamente después de cada partida clasificatoria.
 * **Juego Adicional:** Implementación de **Tic-Tac-Toe** con modos 1v1 local y 1vAI.
 
 ### 3. Sistema Social y Perfiles
@@ -44,7 +38,7 @@ Para un despliegue sencillo, se puede utilizar un proveedor de nube (como Digita
 
 * **Creación y Gestión de Torneos:** Los usuarios pueden crear torneos de Pong de 4, 8 o 16 jugadores.
 * **Generación de Brackets:** El backend genera y gestiona automáticamente el árbol de emparejamientos del torneo.
-* **Soporte para Jugadores Locales:** El creador del torneo puede añadir a amigos o rellenar huecos con jugadores "invitados" locales (modo *hotseat*).
+* **Soporte para Jugadores Locales:** El creador del torneo puede añadir a amigos o rellenar huecos con jugadores "invitados" locales.
 * **Visualización Dinámica:** El frontend renderiza el estado actual del bracket, mostrando los ganadores y las próximas partidas.
 
 ### 5. Arquitectura y Stack
@@ -153,5 +147,3 @@ Asegúrate de tener instaladas las siguientes herramientas en tu sistema:
 * **Limpiar Docker (imágenes, volúmenes):** `make prune`
 
 ---
-
-## 📂 Estructura del Proyecto
